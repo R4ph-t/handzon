@@ -1,6 +1,6 @@
 {
   "name": "create-handzon",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Scaffold and grow Codelab-style hands-on tutorial sites built with Handzon.",
   "license": "MIT",
   "author": "r4ph_t",

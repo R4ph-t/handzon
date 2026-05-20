@@ -55,13 +55,15 @@ export default defineConfig({
       dedupe: ["react", "react-dom"],
     },
     optimizeDeps: {
-      // Pre-bundle react-markdown so esbuild wraps its CJS-only
-      // transitive deps (style-to-js → "does not provide an export
-      // named 'default'") with proper ESM interop. Without this the
-      // chat panel fails to hydrate on a fresh `pnpm install` —
-      // workspace dev hides it because the Vite cache from earlier
-      // runs already has the wrapped version.
-      include: ["react-markdown"],
+      // Pre-bundle deps that ChatPanel + the mermaid loader rely on,
+      // so esbuild wraps their CJS-only transitives (style-to-js,
+      // dayjs, …) with proper ESM interop. Without this, hydration
+      // dies with "does not provide an export named 'default'".
+      // Both must be top-level deps of the scaffold so Vite can
+      // resolve them — handzon-ui declares them too but pnpm hides
+      // transitives in .pnpm/ where Vite's project-root scan can't
+      // see them.
+      include: ["react-markdown", "mermaid"],
     },
   },
   markdown: {
