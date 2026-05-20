@@ -1,0 +1,50 @@
+---
+import { render } from "astro:content";
+import TutorialLayout from "~/layouts/TutorialLayout.astro";
+import {
+  getTutorials,
+  getStepsForTutorial,
+  parseStepId,
+  type TutorialEntry,
+  type StepEntry,
+} from "~/lib/content";
+import { mdxComponents } from "~/lib/mdx-components";
+
+export async function getStaticPaths() {
+  const tutorials = await getTutorials();
+  const paths: Array<{
+    params: { tutorial: string; step: string };
+    props: { tutorial: TutorialEntry; steps: StepEntry[]; currentStep: StepEntry };
+  }> = [];
+  for (const tut of tutorials) {
+    const steps = await getStepsForTutorial(tut.id);
+    for (const step of steps) {
+      const { stepSlug } = parseStepId(step.id);
+      paths.push({
+        params: { tutorial: tut.id, step: stepSlug },
+        props: { tutorial: tut, steps, currentStep: step },
+      });
+    }
+  }
+  return paths;
+}
+
+const { tutorial, steps, currentStep } = Astro.props;
+const { stepSlug } = parseStepId(currentStep.id);
+const { Content } = await render(currentStep);
+
+// Wrap Checkpoint to inject the current step/tutorial so it can mark steps complete.
+const components = mdxComponents({ tutorialSlug: tutorial.id, stepSlug });
+
+// rehype-mermaid + a quick scan tell us if a Checkpoint exists in the source.
+const hasCheckpoint = currentStep.body?.includes("<Checkpoint") ?? false;
+---
+<TutorialLayout
+  tutorial={tutorial}
+  steps={steps}
+  currentStep={currentStep}
+  currentStepSlug={stepSlug}
+  hasCheckpoint={hasCheckpoint}
+>
+  <Content components={components} />
+</TutorialLayout>

@@ -1,0 +1,165 @@
+---
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import {
+  getTutorials,
+  getStepsForTutorial,
+  parseStepId,
+  sumDurations,
+  type TutorialEntry,
+  type StepEntry,
+} from "~/lib/content";
+
+export async function getStaticPaths() {
+  const tutorials = await getTutorials();
+  return tutorials.map((tut) => ({ params: { tutorial: tut.id }, props: { tutorial: tut } }));
+}
+
+interface Props {
+  tutorial: TutorialEntry;
+}
+const { tutorial } = Astro.props;
+const steps = await getStepsForTutorial(tutorial.id);
+const duration = tutorial.data.estimatedDuration ?? sumDurations(steps) ?? "";
+const firstStepSlug = steps[0] ? parseStepId(steps[0].id).stepSlug : null;
+---
+<BaseLayout title={tutorial.data.title} description={tutorial.data.description}>
+  <div class="landing">
+    <a class="back" href="/">← All tutorials</a>
+    <header>
+      <div class="badges">
+        <span class={`badge badge-${tutorial.data.difficulty}`}>{tutorial.data.difficulty}</span>
+        {duration && <span class="badge badge-neutral">{duration}</span>}
+        {tutorial.data.tags.map((tag) => <span class="badge badge-neutral">#{tag}</span>)}
+      </div>
+      <h1>{tutorial.data.title}</h1>
+      <p class="desc">{tutorial.data.description}</p>
+
+      {tutorial.data.author && (
+        <div class="author">
+          By <strong>{tutorial.data.author.name}</strong>
+          {tutorial.data.publishedAt && (
+            <> · {new Date(tutorial.data.publishedAt).toLocaleDateString()}</>
+          )}
+        </div>
+      )}
+
+      {firstStepSlug && (
+        <a class="cta" href={`/${tutorial.id}/${firstStepSlug}`} data-tutorial-slug={tutorial.id}>
+          Start tutorial →
+        </a>
+      )}
+    </header>
+
+    {tutorial.data.prerequisites.length > 0 && (
+      <section class="block">
+        <h2>Prerequisites</h2>
+        <ul>{tutorial.data.prerequisites.map((p) => <li>{p}</li>)}</ul>
+      </section>
+    )}
+
+    <section class="block">
+      <h2>Steps</h2>
+      <ol class="step-list">
+        {steps.map((s, i) => {
+          const { stepSlug } = parseStepId(s.id);
+          return (
+            <li>
+              <a href={`/${tutorial.id}/${stepSlug}`}>
+                <span class="step-num">{String(i + 1).padStart(2, "0")}</span>
+                <span>
+                  <strong>{s.data.title}</strong>
+                  {s.data.summary && <span class="step-summary">{s.data.summary}</span>}
+                </span>
+                {s.data.duration && <span class="step-dur">{s.data.duration}</span>}
+              </a>
+            </li>
+          );
+        })}
+      </ol>
+    </section>
+  </div>
+
+  <script define:vars={{ slug: tutorial.id }}>
+    import("~/lib/progress/local").then(({ getStore }) => {
+      const last = getStore().get().lastVisited[slug];
+      if (!last) return;
+      const cta = document.querySelector("[data-tutorial-slug]");
+      if (cta) {
+        cta.textContent = `Continue from "${last}" →`;
+        cta.setAttribute("href", `/${slug}/${last}`);
+      }
+    });
+  </script>
+</BaseLayout>
+
+<style>
+  .landing {
+    max-width: 64ch;
+    margin: 0 auto;
+    padding: 2rem clamp(1rem, 4vw, 3rem);
+  }
+  .back {
+    font-family: var(--font-mono);
+    font-size: 0.75em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    text-decoration: none;
+  }
+  .back:hover { color: var(--color-accent); }
+  h1 { font-size: clamp(2rem, 4vw, 3rem); margin: 0.5rem 0 0.75rem; letter-spacing: -0.02em; }
+  .desc { font-size: 1.125rem; color: var(--color-muted); }
+  .badges { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 1rem; }
+  .badge {
+    display: inline-block;
+    padding: 0.2rem 0.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.7em;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    border: var(--border-default, 2px) solid var(--color-border);
+    color: var(--color-muted);
+  }
+  .badge-beginner { color: var(--color-success); border-color: var(--color-success); }
+  .badge-intermediate { color: var(--color-warn); border-color: var(--color-warn); }
+  .badge-advanced { color: var(--color-danger); border-color: var(--color-danger); }
+  .author { color: var(--color-muted); font-size: 0.9em; margin: 0.75rem 0 1.5rem; }
+  .cta {
+    display: inline-block;
+    padding: 0.8rem 1.4rem;
+    background: var(--color-accent);
+    color: var(--color-accent-fg);
+    border: var(--border-default, 2px) solid var(--color-accent);
+    font-weight: 700;
+    text-decoration: none;
+    transition: transform 0.08s ease, box-shadow 0.08s ease;
+  }
+  .cta:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: var(--shadow-raised);
+    color: var(--color-accent-fg);
+  }
+  .block { margin-top: 2.5rem; }
+  .block h2 {
+    font-size: 1.25rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-accent);
+    border-top: var(--border-default, 2px) solid var(--color-border);
+    padding-top: 1rem;
+  }
+  .step-list { list-style: none; padding: 0; margin: 0; }
+  .step-list li { border-bottom: 1px solid var(--color-border); }
+  .step-list a {
+    display: grid;
+    grid-template-columns: 3rem 1fr auto;
+    gap: 0.75rem;
+    align-items: center;
+    padding: 0.8rem 0.4rem;
+    text-decoration: none;
+    color: var(--color-fg);
+  }
+  .step-list a:hover { background: var(--color-surface); color: var(--color-accent); }
+  .step-num { font-family: var(--font-mono); color: var(--color-accent); font-weight: 700; }
+  .step-summary { display: block; color: var(--color-muted); font-size: 0.9em; }
+  .step-dur { font-family: var(--font-mono); font-size: 0.8em; color: var(--color-muted); }
+</style>

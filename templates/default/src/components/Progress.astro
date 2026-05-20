@@ -1,0 +1,30 @@
+---
+import ProgressIsland from "./Progress.tsx";
+interface Props {
+  tutorialSlug: string;
+  totalSteps: number;
+}
+const { tutorialSlug, totalSteps } = Astro.props;
+---
+<ProgressIsland client:load tutorialSlug={tutorialSlug} totalSteps={totalSteps} />
+
+<style is:global>
+  .progress {
+    display: grid;
+    gap: 0.25rem;
+    margin: 0.75rem 0;
+    font-family: var(--font-mono);
+    font-size: 0.75em;
+    color: var(--color-muted);
+  }
+  .progress-bar {
+    height: 6px;
+    background: var(--color-surface);
+    border: var(--border-default, 2px) solid var(--color-border);
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--color-accent);
+    transition: width 0.2s ease;
+  }
+</style>
