@@ -1,0 +1,41 @@
+---
+/**
+ * Themed re-export of auth-astro's `SignIn` component. Use this when
+ * the bare SignIn needs styling consistent with the rest of the brutalist
+ * tokens — `UserMenu` already wraps this for you.
+ *
+ *   <SignInButton provider="github">Sign in with GitHub</SignInButton>
+ */
+import { SignIn } from "auth-astro/components";
+
+interface Props {
+  provider?: string;
+  className?: string;
+}
+
+const { provider = "github", className } = Astro.props;
+---
+<SignIn provider={provider} class:list={["sib", className]}>
+  <slot>Sign in</slot>
+</SignIn>
+
+<style is:global>
+  .sib {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.45rem 0.85rem;
+    background: transparent;
+    color: var(--color-fg);
+    border: var(--border-default, 2px) solid var(--color-fg);
+    font-family: var(--font-mono);
+    font-size: 0.85em;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .sib:hover {
+    background: var(--color-accent);
+    color: var(--color-accent-fg);
+    border-color: var(--color-accent);
+  }
+</style>

@@ -110,6 +110,30 @@ The AI assistant is built on **Mastra** (not the Vercel AI SDK). Per-tutorial ov
 
 Defaults live in `src/config/ai.ts`. Anti-spoiler rule: the system prompt instructs the model to never reveal Quiz answers and to nudge before giving full Checkpoint solutions. Don't override the system prompt unless you preserve that rule.
 
+## GitHub sign-in (optional, Tier 2)
+
+Sign-in is gated on Tier 2 because the Auth.js tables live in Postgres.
+When enabled at scaffold time, learners can sign in with GitHub and
+their anonymous progress is **claimed** on first sign-in — a single
+transaction re-keys their device-cookie progress to the user's learner
+row and drops the device cookie.
+
+To set it up:
+
+1. Register an OAuth App at <https://github.com/settings/developers>.
+   - Authorization callback URL (local): `http://localhost:4321/api/auth/callback/github`
+   - Authorization callback URL (Render): `https://<your-domain>/api/auth/callback/github`
+2. Fill in `GITHUB_CLIENT_ID` and `GITHUB_CLIENT_SECRET` in `.env`
+   (local) or via the Render Dashboard (production).
+3. Generate `AUTH_SECRET` once with `openssl rand -hex 32` and set
+   `AUTH_TRUST_HOST=true` in production so Auth.js trusts Render's
+   X-Forwarded-* headers.
+4. Set `AUTH_URL` to your site's public origin in production (Render
+   doesn't expose a fully-qualified-URL fromService property).
+
+Subsequent sign-ins on a new device claim that device's anonymous
+progress too, so a learner can roam without re-doing work.
+
 ## Common tasks
 
 | You want to…                  | Run / use |

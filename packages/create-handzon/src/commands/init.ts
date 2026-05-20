@@ -92,6 +92,15 @@ export async function runInit(opts: InitOptions = {}): Promise<void> {
     }),
   );
 
+  // GitHub sign-in needs the Auth.js tables in Postgres, so it's gated
+  // on Tier 2. Off by default — users can flip it later by adding the
+  // env vars and re-enabling the integration.
+  const githubAuth = tier2
+    ? await ask(shouldPrompt, false, () =>
+      p.confirm({ message: "Enable GitHub sign-in for learners?", initialValue: false }),
+    )
+    : false;
+
   const packageManager = await ask(shouldPrompt, "pnpm" as const, () =>
     p.select({
       message: "Package manager",
@@ -214,13 +223,28 @@ export type { AiConfig };
     await rename(join(targetDir, "render.full.yaml"), join(targetDir, "render.yaml"));
   }
 
+  // GitHub auth pruning: when off, drop auth.config.ts and strip the
+  // auth-astro integration + its import from astro.config.mjs so we
+  // don't ship a wired-but-unconfigured integration that crashes the
+  // dev server with "AUTH_SECRET is not set".
+  if (!githubAuth) {
+    await rm(join(targetDir, "auth.config.ts"), { force: true });
+    const astroCfgPath = join(targetDir, "astro.config.mjs");
+    const cfg = await readFile(astroCfgPath, "utf8");
+    const stripped = cfg
+      .replace(/^import auth from "auth-astro";\n/m, "")
+      // Remove the auth() integration line + its preceding comment block.
+      .replace(/\s*\/\/[^\n]*\n(?:\s*\/\/[^\n]*\n)*\s*auth\(\),\n/, "\n");
+    await writeFile(astroCfgPath, stripped);
+  }
+
   // Tailor the package.json `dev` script to what the user actually
   // wants running locally (site + AI + Postgres in any combination),
   // and write a single root-level `.env` with localhost defaults so
   // `pnpm dev` works on first try. Both Astro and the AI service load
   // from this one file — no per-service .env to maintain.
-  await writeDevScripts(join(targetDir, "package.json"), { aiEnabled, tier2 });
-  await writeDevEnv(join(targetDir, ".env"), { aiEnabled, tier2 });
+  await writeDevScripts(join(targetDir, "package.json"), { aiEnabled, tier2, githubAuth });
+  await writeDevEnv(join(targetDir, ".env"), { aiEnabled, tier2, githubAuth });
 
   s.stop("Configured");
 
