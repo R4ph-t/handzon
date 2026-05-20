@@ -24,7 +24,7 @@ interface InitOptions {
 }
 
 export async function runInit(opts: InitOptions = {}): Promise<void> {
-  p.intro(pc.bgMagenta(pc.black(" create-tutorial ")));
+  p.intro(pc.bgMagenta(pc.black(" create-handzon ")));
 
   const defaultName = opts.targetName ?? "my-codelab";
   const projectName = opts.yes
@@ -125,6 +125,9 @@ export async function runInit(opts: InitOptions = {}): Promise<void> {
   const templateDir = resolveTemplateDir();
   await cp(templateDir, targetDir, {
     recursive: true,
+    // Preserve .cursor/skills + .claude/skills symlinks rather than
+    // dereferencing them and copying their target into themselves.
+    verbatimSymlinks: true,
     filter: (src) =>
       !src.includes("node_modules") && !src.endsWith("/.astro") && !src.includes("/.astro/"),
   });

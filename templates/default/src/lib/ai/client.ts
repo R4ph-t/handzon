@@ -63,7 +63,7 @@ export async function streamChat(opts: ChatRequestOptions): Promise<ReadableStre
   return res.body.pipeThrough(new TextDecoderStream());
 }
 
-const KEY_STORAGE_PREFIX = "tutorial-tool:byok:";
+const KEY_STORAGE_PREFIX = "handzon:byok:";
 
 export function loadLearnerKey(provider: string): string | null {
   if (typeof window === "undefined") return null;

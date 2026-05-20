@@ -1,10 +1,10 @@
 ---
 name: migrate-from-codelab
-description: Convert an existing Google Codelab repo (claat-style .md) into a tutorial-tool tutorial.
+description: Convert an existing Google Codelab repo (claat-style .md) into a Handzon tutorial.
 triggers: ["migrate codelab", "import codelab", "codelab to mdx", "claat", "from codelab"]
 ---
 
-Google Codelabs are authored as a single `codelab.md` with `claat` metadata + `##`-delimited steps. tutorial-tool splits each step into its own MDX file and wraps step bodies in components. This skill walks through the mechanical conversion.
+Google Codelabs are authored as a single `codelab.md` with `claat` metadata + `##`-delimited steps. Handzon splits each step into its own MDX file and wraps step bodies in components. This skill walks through the mechanical conversion.
 
 ## 0. Locate the source
 
@@ -31,7 +31,7 @@ feedback link: https://github.com/...
 
 Map these to `_meta.json`:
 
-| codelab field      | tutorial-tool `_meta.json` |
+| codelab field      | Handzon `_meta.json` |
 | ------------------ | --------------------------- |
 | `summary`          | `description`               |
 | `id` / first `##`  | folder slug                 |
@@ -69,7 +69,7 @@ summary: <first sentence of the step, optional>
 
 ## 3. Convert codelab syntax to MDX
 
-| codelab                          | tutorial-tool                                  |
+| codelab                          | Handzon                                        |
 | -------------------------------- | ---------------------------------------------- |
 | `Positive\n: tip text…`          | `<Callout type="tip">tip text…</Callout>`      |
 | `Negative\n: warn text…`         | `<Callout type="warn">warn text…</Callout>`    |
@@ -80,9 +80,9 @@ summary: <first sentence of the step, optional>
 | `aside class="positive"`         | `<Callout type="tip">`                         |
 | `aside class="warning"`          | `<Callout type="warn">`                        |
 | `aside class="special"`          | `<Callout type="info">`                        |
-| Survey forms (`## Survey`)        | Drop (no tutorial-tool equivalent in v1)       |
+| Survey forms (`## Survey`)        | Drop (no Handzon equivalent in v1)             |
 
-## 4. Add tutorial-tool affordances at the end of each step
+## 4. Add Handzon affordances at the end of each step
 
 Codelabs don't have checkpoints or recaps. Add them — they're high-value for retention:
 

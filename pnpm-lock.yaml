@@ -12,7 +12,7 @@ importers:
         specifier: ^2.4.15
         version: 2.4.15
 
-  packages/create-tutorial:
+  packages/create-handzon:
     dependencies:
       '@clack/prompts':
         specifier: ^1.4.0

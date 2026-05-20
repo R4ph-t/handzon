@@ -16,7 +16,7 @@ type ProgressEntry = {
   updatedAt?: string;
 };
 
-const PENDING_KEY = "tutorial-tool:pending";
+const PENDING_KEY = "handzon:pending";
 
 function readStorage(): ProgressState {
   if (!isBrowser) return emptyState();

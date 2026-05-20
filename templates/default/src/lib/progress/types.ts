@@ -26,5 +26,5 @@ export const emptyState = (): ProgressState => ({
   lastVisited: {},
 });
 
-export const STORAGE_KEY = "tutorial-tool:v1";
-export const CHANNEL_NAME = "tutorial-tool:v1";
+export const STORAGE_KEY = "handzon:v1";
+export const CHANNEL_NAME = "handzon:v1";

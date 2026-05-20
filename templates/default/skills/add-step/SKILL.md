@@ -19,4 +19,4 @@ triggers: ["add step", "new step", "next step"]
 
 5. Stub the body with a `<Callout type="tip">` placeholder and a closing `<Recap items={["...", "..."]} />`.
 
-**Shortcut:** `pnpm tutorial:step` does this interactively.
+**Shortcut:** `pnpm handzon:step` does this interactively.

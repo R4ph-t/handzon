@@ -1,6 +1,6 @@
 # __PROJECT_NAME__
 
-A Google Codelab-style tutorial site, built with [tutorial-tool](https://github.com/your-org/tutorial-tool).
+A Google Codelab-style hands-on tutorial site, built with [Handzon](https://github.com/your-org/handzon).
 
 ## Getting started
 
@@ -12,8 +12,8 @@ pnpm dev          # http://localhost:4321
 ## Authoring
 
 ```bash
-pnpm tutorial:new     # create a new tutorial
-pnpm tutorial:step    # add a step to an existing tutorial
+pnpm handzon:new     # create a new tutorial
+pnpm handzon:step    # add a step to an existing tutorial
 ```
 
 Tutorials live under `src/content/tutorials/<slug>/`. See `AGENTS.md` for the full content model + component catalog.

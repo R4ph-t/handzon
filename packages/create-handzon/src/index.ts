@@ -31,20 +31,20 @@ function parseArgs(argv: string[]): ParsedArgs {
 }
 
 function printHelp() {
-  console.log(`create-tutorial — scaffold and grow tutorial-tool projects
+  console.log(`create-handzon — scaffold and grow Handzon tutorial projects
 
 USAGE
-  create-tutorial [project-name]        Scaffold a new project (default)
-  create-tutorial new                   Add a tutorial to the current project
-  create-tutorial step                  Add a step to an existing tutorial
+  create-handzon [project-name]        Scaffold a new project (default)
+  create-handzon new                   Add a tutorial to the current project
+  create-handzon step                  Add a step to an existing tutorial
 
 FLAGS
   --yes, -y     Skip prompts (use defaults)
   --help, -h    Show this help
 
 EXAMPLES
-  npx create-tutorial my-codelab
-  cd my-codelab && pnpm tutorial:new
+  npx create-handzon my-codelab
+  cd my-codelab && pnpm handzon:new
 `);
 }
 

@@ -20,6 +20,10 @@ export default defineConfig({
     const dst = resolve(__dirname, "dist/template");
     await cp(src, dst, {
       recursive: true,
+      // Preserve the .cursor/skills + .claude/skills symlinks instead of
+      // dereferencing them (which would try to copy templates/default/skills
+      // into a subpath of itself and fail with ERR_FS_CP_EINVAL).
+      verbatimSymlinks: true,
       filter: (path) =>
         !path.includes("node_modules") &&
         !path.includes("/.astro") &&

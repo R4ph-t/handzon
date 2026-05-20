@@ -14,10 +14,10 @@ interface NewOptions {
 export async function runNew(opts: NewOptions = {}): Promise<void> {
   const root = findProjectRoot();
   if (!root) {
-    p.log.error("Not inside a tutorial-tool project. cd into one and try again.");
+    p.log.error("Not inside a Handzon project. cd into one and try again.");
     process.exit(1);
   }
-  p.intro(pc.bgMagenta(pc.black(" create-tutorial new ")));
+  p.intro(pc.bgMagenta(pc.black(" create-handzon new ")));
 
   const title =
     opts.title ??

@@ -1,6 +1,6 @@
 ---
 name: deploy-to-render
-description: Deploy a tutorial-tool site to Render via a Blueprint.
+description: Deploy a Handzon site to Render via a Blueprint.
 triggers: ["deploy", "render", "ship", "go live"]
 ---
 

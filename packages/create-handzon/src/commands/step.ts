@@ -16,14 +16,14 @@ interface StepOptions {
 export async function runStep(opts: StepOptions = {}): Promise<void> {
   const root = findProjectRoot();
   if (!root) {
-    p.log.error("Not inside a tutorial-tool project. cd into one and try again.");
+    p.log.error("Not inside a Handzon project. cd into one and try again.");
     process.exit(1);
   }
-  p.intro(pc.bgMagenta(pc.black(" create-tutorial step ")));
+  p.intro(pc.bgMagenta(pc.black(" create-handzon step ")));
 
   const tutorials = await listTutorials(root);
   if (tutorials.length === 0) {
-    p.log.error("No tutorials yet. Run `pnpm tutorial:new` first.");
+    p.log.error("No tutorials yet. Run `pnpm handzon:new` first.");
     process.exit(1);
   }
 

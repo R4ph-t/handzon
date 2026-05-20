@@ -1,6 +1,6 @@
 # AGENTS.md
 
-You're editing a tutorial site built with **tutorial-tool**. This file is the single source of truth for project conventions. Read it before generating or modifying content.
+You're editing a tutorial site built with **Handzon**. This file is the single source of truth for project conventions. Read it before generating or modifying content.
 
 ## What this project is
 
@@ -114,8 +114,8 @@ Defaults live in `src/config/ai.ts`. Anti-spoiler rule: the system prompt instru
 
 | You want to…                  | Run / use |
 | ----------------------------- | --------- |
-| Create a new tutorial          | `pnpm tutorial:new` |
-| Add a step to a tutorial       | `pnpm tutorial:step` |
+| Create a new tutorial          | `pnpm handzon:new` |
+| Add a step to a tutorial       | `pnpm handzon:step` |
 | Run the dev server             | `pnpm dev` |
 | Build for production           | `pnpm build` |
 | Type-check + Astro check       | `pnpm check` |

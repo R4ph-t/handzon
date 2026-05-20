@@ -1,21 +1,21 @@
-# create-tutorial
+# create-handzon
 
-CLI for scaffolding and growing [tutorial-tool](../../README.md) projects.
+CLI for scaffolding and growing [Handzon](../../README.md) projects.
 
 ```bash
-npx create-tutorial my-codelab        # scaffold a new project
+npx create-handzon my-codelab        # scaffold a new project
 cd my-codelab
-pnpm tutorial:new                     # add a tutorial
-pnpm tutorial:step                    # add a step
+pnpm handzon:new                     # add a tutorial
+pnpm handzon:step                    # add a step
 ```
 
 ## Subcommands
 
 | command                  | what it does |
 | ------------------------ | ------------ |
-| `create-tutorial [name]` | scaffold a new project (`init`, the default) |
-| `create-tutorial new`    | add a tutorial to the current project |
-| `create-tutorial step`   | add a step to an existing tutorial |
+| `create-handzon [name]` | scaffold a new project (`init`, the default) |
+| `create-handzon new`    | add a tutorial to the current project |
+| `create-handzon step`   | add a step to an existing tutorial |
 
 Add `--yes` to any of them to skip prompts and accept defaults.
 

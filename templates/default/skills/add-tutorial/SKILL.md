@@ -11,4 +11,4 @@ triggers: ["add tutorial", "new tutorial", "create tutorial"]
 5. Write `01-introduction.mdx` with frontmatter (`title`, `duration`, `summary`) and a `<Callout type="tip">` placeholder.
 6. If the author plans cover art, mention they can drop it at `./assets/cover.png` and reference it from `_meta.json.cover`.
 
-**Shortcut:** `pnpm tutorial:new` does steps 1-5 interactively.
+**Shortcut:** `pnpm handzon:new` does steps 1-5 interactively.
