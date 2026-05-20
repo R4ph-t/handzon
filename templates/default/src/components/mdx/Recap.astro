@@ -6,9 +6,21 @@ interface Props {
 const { title = "What you learned", items } = Astro.props;
 ---
 <section class="recap">
-  <h3 class="recap-title">{title}</h3>
+  <h3 class="recap-title">
+    <svg class="recap-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <polyline points="20 6 9 17 4 12"></polyline>
+    </svg>
+    <span>{title}</span>
+  </h3>
   <ul class="recap-items">
-    {items.map((item) => <li>{item}</li>)}
+    {items.map((item) => (
+      <li>
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+        <span>{item}</span>
+      </li>
+    ))}
   </ul>
 </section>
 
@@ -22,21 +34,32 @@ const { title = "What you learned", items } = Astro.props;
     border-radius: 0;
   }
   .recap-title {
-    margin: 0 0 0.5rem;
-    font-size: 0.875rem;
+    margin: 0 0 0.6rem;
+    font-size: 0.78rem;
     text-transform: uppercase;
     letter-spacing: 0.08em;
     color: var(--color-accent);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
   }
+  .recap-icon { color: var(--color-accent); flex-shrink: 0; }
   .recap-items {
+    list-style: none;
     margin: 0;
-    padding-left: 1.25rem;
+    padding: 0;
+    display: grid;
+    gap: 0.3rem;
   }
   .recap-items li {
-    margin: 0.25rem 0;
+    display: grid;
+    grid-template-columns: 1.1rem 1fr;
+    gap: 0.55rem;
+    align-items: start;
+    margin: 0;
   }
-  .recap-items li::marker {
+  .recap-items li :global(svg) {
     color: var(--color-accent);
-    content: "■ ";
+    margin-top: 0.25em;
   }
 </style>

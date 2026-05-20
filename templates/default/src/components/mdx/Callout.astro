@@ -47,13 +47,17 @@ const label = {
     flex: 1;
   }
   .callout-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
     text-transform: uppercase;
     font-size: 0.7rem;
     letter-spacing: 0.08em;
     color: var(--callout-color);
     font-weight: 700;
-    margin-bottom: 0.25rem;
+    margin-bottom: 0.3rem;
   }
+  .callout-icon { color: var(--callout-color); flex-shrink: 0; }
   .callout-content :global(p:first-child) { margin-top: 0; }
   .callout-content :global(p:last-child) { margin-bottom: 0; }
 </style>
