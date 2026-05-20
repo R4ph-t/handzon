@@ -71,7 +71,8 @@ function diffState(prev: ProgressState, next: ProgressState): ProgressEntry[] {
     }
   }
   for (const [scope, value] of Object.entries(next.lastVisited)) {
-    if (prev.lastVisited[scope] !== value) {
+    const prevValue = prev.lastVisited[scope];
+    if (!prevValue || prevValue.step !== value.step || prevValue.ts !== value.ts) {
       out.push({ kind: "lastVisited", scope, key: "step", value });
     }
   }
@@ -144,7 +145,10 @@ export function createRemoteStore(): ProgressStore {
           } else if (e.kind === "pref") {
             (merged.prefs as Record<string, unknown>)[e.key] = e.value;
           } else if (e.kind === "lastVisited") {
-            merged.lastVisited[e.scope] = e.value as string;
+            // Tolerate both new ({step, ts}) and legacy (string) shapes.
+            const v = e.value as unknown;
+            merged.lastVisited[e.scope] =
+              typeof v === "string" ? { step: v, ts: 0 } : (v as { step: string; ts: number });
           }
         }
         state = merged;

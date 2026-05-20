@@ -51,7 +51,7 @@ const compactTutorials = tutorials.map((t) => ({ slug: t.id, title: t.data.title
 
   <script>
     // Hydrate per-card progress mini-bars from localStorage.
-    import { getStore } from "~/lib/progress/local";
+    import { getStore } from "../lib/progress/local";
     function refresh() {
       const state = getStore().get();
       const totals = new Map<string, number>();

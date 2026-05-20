@@ -41,7 +41,7 @@ const nextSlug = next ? parseStepId(next.id).stepSlug : null;
 <script>
   // Gating: if the host step contains a Checkpoint AND tutorial is gated,
   // disable Next until the step is marked complete.
-  import { getStore } from "~/lib/progress/local";
+  import { getStore } from "../lib/progress/local";
   const nav = document.querySelector<HTMLElement>(".step-nav");
   if (nav && nav.dataset.gated === "true") {
     const next = nav.querySelector<HTMLAnchorElement>("[data-next-link]");

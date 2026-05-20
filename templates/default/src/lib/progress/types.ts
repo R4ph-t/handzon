@@ -1,5 +1,10 @@
 export type StepKey = `${string}/${string}`;
 
+export interface LastVisitedEntry {
+  step: string;
+  ts: number;
+}
+
 export type ProgressState = {
   steps: Record<StepKey, "incomplete" | "complete">;
   quizzes: Record<string, { chosen: number[]; correct: boolean; ts: number }>;
@@ -9,7 +14,13 @@ export type ProgressState = {
     os?: "macos" | "linux" | "windows";
     theme?: "light" | "dark";
   };
-  lastVisited: Record<string, string>;
+  /**
+   * Per-tutorial "where was I last?" marker. Tracks `ts` so consumers
+   * (like the ResumeRail) can pick the truly most-recent tutorial
+   * instead of relying on insertion order, which lies when an existing
+   * key is overwritten.
+   */
+  lastVisited: Record<string, LastVisitedEntry>;
 };
 
 export interface ProgressStore {
@@ -26,5 +37,9 @@ export const emptyState = (): ProgressState => ({
   lastVisited: {},
 });
 
+// TODO: when you change ProgressState's shape in a way that's not
+// forward-compatible with the spread-merge in readStorage(), bump the
+// version suffix and add a one-shot migration in `local.ts` that reads
+// the old key, transforms it, and writes the new one.
 export const STORAGE_KEY = "handzon:v1";
 export const CHANNEL_NAME = "handzon:v1";

@@ -84,14 +84,15 @@ const firstStepSlug = steps[0] ? parseStepId(steps[0].id).stepSlug : null;
   <script>
     // Normal <script> so Vite resolves "~/" aliases. Slug comes from the
     // CTA's data-tutorial-slug attribute that's already in the markup.
-    import { getStore } from "~/lib/progress/local";
+    import { getStore } from "../../lib/progress/local";
     const cta = document.querySelector<HTMLAnchorElement>("[data-tutorial-slug]");
     if (cta) {
       const slug = cta.dataset.tutorialSlug!;
       const last = getStore().get().lastVisited[slug];
-      if (last) {
-        cta.textContent = `Continue from "${last}" →`;
-        cta.setAttribute("href", `/${slug}/${last}`);
+      const step = typeof last === "string" ? last : last?.step;
+      if (step) {
+        cta.textContent = `Continue from "${step}" →`;
+        cta.setAttribute("href", `/${slug}/${step}`);
       }
     }
   </script>

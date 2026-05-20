@@ -57,7 +57,10 @@ export function useProgress(): ProgressApi {
       setPref: <K extends keyof ProgressState["prefs"]>(key: K, value: ProgressState["prefs"][K]) =>
         store.set((s) => ({ ...s, prefs: { ...s.prefs, [key]: value } })),
       setLastVisited: (tutorial: string, step: string) =>
-        store.set((s) => ({ ...s, lastVisited: { ...s.lastVisited, [tutorial]: step } })),
+        store.set((s) => ({
+          ...s,
+          lastVisited: { ...s.lastVisited, [tutorial]: { step, ts: Date.now() } },
+        })),
     };
   }, [store]);
 

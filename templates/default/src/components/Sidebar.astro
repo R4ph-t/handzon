@@ -46,7 +46,7 @@ const slug = tutorial.id;
 
 <script>
   // Hydrate per-step check marks from localStorage without an island.
-  import { getStore } from "~/lib/progress/local";
+  import { getStore } from "../lib/progress/local";
   function refresh() {
     const store = getStore();
     const state = store.get();

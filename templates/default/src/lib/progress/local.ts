@@ -1,3 +1,4 @@
+import { createRemoteStore } from "./remote";
 import {
   CHANNEL_NAME,
   emptyState,
@@ -70,12 +71,16 @@ export function createLocalStore(): ProgressStore {
 }
 
 let singleton: ProgressStore | null = null;
+
+/**
+ * Pick the right store based on PUBLIC_PROGRESS_BACKEND. Both stores
+ * are statically imported because dynamic `require()` doesn't exist in
+ * the browser ESM bundle (this file ships to the client) and a dynamic
+ * `import()` would force every call site to become async.
+ */
 export function getStore(): ProgressStore {
   if (singleton) return singleton;
   if (isBrowser && import.meta.env.PUBLIC_PROGRESS_BACKEND === "remote") {
-    // Lazy import to keep Tier 1 builds from pulling the remote store.
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const { createRemoteStore } = require("./remote") as typeof import("./remote");
     singleton = createRemoteStore();
   } else {
     singleton = createLocalStore();

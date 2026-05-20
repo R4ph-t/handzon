@@ -1,16 +1,28 @@
 import type { APIRoute } from "astro";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
+import { z } from "zod";
 import { getDb } from "~/db/client";
 import { progressEntries } from "~/db/schema";
 import { getOrCreateLearner } from "~/lib/auth";
+import { isSameOrigin, json } from "~/lib/http";
+
+const MAX_BODY_BYTES = 32 * 1024;
+const MAX_ENTRIES = 200;
+
+const ProgressEntrySchema = z.object({
+  kind: z.enum(["step", "checkpoint", "quiz", "pref", "lastVisited"]),
+  scope: z.string().min(1).max(128),
+  key: z.string().min(1).max(128),
+  value: z.unknown(),
+});
+
+const ProgressBodySchema = z.array(ProgressEntrySchema).max(MAX_ENTRIES);
 
 // Tier 1: no Postgres — returns an empty list (the frontend uses the
 // local store and never reads this in that mode). Tier 2: hits Postgres.
 export const GET: APIRoute = async ({ cookies }) => {
   if (!process.env.DATABASE_URL) {
-    return new Response(JSON.stringify({ entries: [] }), {
-      headers: { "Content-Type": "application/json" },
-    });
+    return json({ entries: [] });
   }
   const learner = await getOrCreateLearner(cookies);
   const db = getDb();
@@ -18,32 +30,46 @@ export const GET: APIRoute = async ({ cookies }) => {
     .select()
     .from(progressEntries)
     .where(eq(progressEntries.learnerId, learner.id));
-  return new Response(JSON.stringify({ entries: rows }), {
-    headers: { "Content-Type": "application/json" },
-  });
+  return json({ entries: rows });
 };
 
 export const POST: APIRoute = async ({ cookies, request }) => {
-  const learner = await getOrCreateLearner(cookies);
-  const body = (await request.json()) as Array<{
-    kind: string;
-    scope: string;
-    key: string;
-    value: unknown;
-  }>;
-  if (!Array.isArray(body) || body.length === 0) {
-    return new Response(JSON.stringify({ written: 0 }), {
-      headers: { "Content-Type": "application/json" },
-    });
+  if (!isSameOrigin(request)) {
+    return json({ error: "Cross-origin write rejected." }, { status: 403 });
   }
+  if (!process.env.DATABASE_URL) {
+    // Match the GET semantics: silently succeed in Tier 1 so the offline
+    // queue doesn't keep retrying on a misconfigured deploy.
+    return json({ written: 0 });
+  }
+
+  const lengthHeader = request.headers.get("content-length");
+  if (lengthHeader && Number(lengthHeader) > MAX_BODY_BYTES) {
+    return json({ error: "Payload too large." }, { status: 413 });
+  }
+  const raw = await request.text();
+  if (raw.length > MAX_BODY_BYTES) {
+    return json({ error: "Payload too large." }, { status: 413 });
+  }
+
+  let parsed: z.infer<typeof ProgressBodySchema>;
+  try {
+    parsed = ProgressBodySchema.parse(JSON.parse(raw));
+  } catch (e) {
+    return json({ error: e instanceof Error ? e.message : "Invalid JSON." }, { status: 400 });
+  }
+  if (parsed.length === 0) return json({ written: 0 });
+
+  const learner = await getOrCreateLearner(cookies);
   const db = getDb();
-  const rows = body.map((b) => ({
+  const now = new Date();
+  const rows = parsed.map((b) => ({
     learnerId: learner.id,
     kind: b.kind,
     scope: b.scope,
     key: b.key,
     value: b.value,
-    updatedAt: new Date(),
+    updatedAt: now,
   }));
   await db
     .insert(progressEntries)
@@ -55,9 +81,12 @@ export const POST: APIRoute = async ({ cookies, request }) => {
         progressEntries.scope,
         progressEntries.key,
       ],
-      set: { value: progressEntries.value, updatedAt: new Date() },
+      set: {
+        // `excluded` is the row Postgres would have inserted — without
+        // this the SET was a no-op (`value = progress_entries.value`).
+        value: sql`excluded.value`,
+        updatedAt: sql`excluded.updated_at`,
+      },
     });
-  return new Response(JSON.stringify({ written: rows.length }), {
-    headers: { "Content-Type": "application/json" },
-  });
+  return json({ written: rows.length });
 };
