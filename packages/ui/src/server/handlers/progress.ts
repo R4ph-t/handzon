@@ -20,11 +20,11 @@ const ProgressBodySchema = z.array(ProgressEntrySchema).max(MAX_ENTRIES);
 
 // Tier 1: no Postgres — returns an empty list (the frontend uses the
 // local store and never reads this in that mode). Tier 2: hits Postgres.
-export const GET: APIRoute = async ({ cookies }) => {
+export const GET: APIRoute = async ({ cookies, request }) => {
   if (!process.env.DATABASE_URL) {
     return json({ entries: [] });
   }
-  const learner = await getOrCreateLearner(cookies);
+  const learner = await getOrCreateLearner(cookies, request);
   const db = getDb();
   const rows = await db
     .select()
@@ -58,7 +58,7 @@ export const POST: APIRoute = async ({ cookies, request }) => {
   }
   if (parsed.length === 0) return json({ written: 0 });
 
-  const learner = await getOrCreateLearner(cookies);
+  const learner = await getOrCreateLearner(cookies, request);
   const db = getDb();
   const now = new Date();
   const rows = parsed.map((b) => ({

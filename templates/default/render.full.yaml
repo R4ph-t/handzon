@@ -51,6 +51,27 @@ projects:
                 fromDatabase:
                   name: __PROJECT_NAME__-db
                   property: connectionString
+              # --- GitHub auth (optional) ---
+              # Auth.js needs a stable session secret + the public site
+              # URL. AUTH_TRUST_HOST tells Auth.js to trust the X-Forwarded
+              # headers Render's edge sends, so callbacks resolve to the
+              # public HTTPS URL instead of the internal http://host:port.
+              - key: AUTH_SECRET
+                generateValue: true
+              - key: AUTH_TRUST_HOST
+                value: "true"
+              # AUTH_URL: set this to your site's public origin
+              # (https://<your-domain>) post-deploy. Render doesn't expose
+              # a fully-qualified-URL fromService property, so this is
+              # `sync: false` — fill it in once via the Dashboard.
+              - key: AUTH_URL
+                sync: false
+              # Create a GitHub OAuth App, then set these. Authorization
+              # callback URL: <AUTH_URL>/api/auth/callback/github
+              - key: GITHUB_CLIENT_ID
+                sync: false
+              - key: GITHUB_CLIENT_SECRET
+                sync: false
 
           - type: web
             name: __PROJECT_NAME__-ai

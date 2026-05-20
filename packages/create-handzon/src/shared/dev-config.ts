@@ -3,6 +3,7 @@ import { readFile, writeFile } from "node:fs/promises";
 interface Picks {
   aiEnabled: boolean;
   tier2: boolean;
+  githubAuth: boolean;
 }
 
 interface PackageJson {
@@ -48,7 +49,7 @@ export async function writeDevScripts(packageJsonPath: string, picks: Picks): Pr
   await writeFile(packageJsonPath, `${JSON.stringify(pkg, null, 2)}\n`, "utf8");
 }
 
-function composeDevCommand({ aiEnabled, tier2 }: Picks): string {
+function composeDevCommand({ aiEnabled, tier2 }: Pick<Picks, "aiEnabled" | "tier2">): string {
   const procs: Array<{ name: string; color: string; script: string }> = [];
   if (tier2) procs.push({ name: "db", color: "yellow", script: "pnpm dev:db" });
   procs.push({ name: "site", color: "blue", script: "pnpm dev:site" });
@@ -105,6 +106,17 @@ export async function writeDevEnv(envPath: string, picks: Picks): Promise<void> 
     lines.push("# GOOGLE_GENERATIVE_AI_API_KEY=");
     lines.push("# OPENAI_COMPATIBLE_API_KEY=");
     lines.push("# OPENAI_COMPATIBLE_BASE_URL=https://api.groq.com/openai/v1");
+  }
+
+  if (picks.githubAuth) {
+    lines.push("");
+    lines.push("# --- GitHub auth (Tier 2 only) ---");
+    lines.push("# Register an OAuth App at https://github.com/settings/developers");
+    lines.push("# Authorization callback URL (local): http://localhost:4321/api/auth/callback/github");
+    lines.push("AUTH_SECRET=replace-me-openssl-rand-hex-32");
+    lines.push("AUTH_TRUST_HOST=true");
+    lines.push("GITHUB_CLIENT_ID=");
+    lines.push("GITHUB_CLIENT_SECRET=");
   }
 
   await writeFile(envPath, `${lines.join("\n")}\n`, { flag: "wx" }).catch((err) => {

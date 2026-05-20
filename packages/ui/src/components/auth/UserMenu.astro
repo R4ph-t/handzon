@@ -1,0 +1,65 @@
+---
+/**
+ * Server-rendered auth menu. Hidden entirely when Auth.js isn't
+ * configured (no AUTH_SECRET in env) so scaffolds with the integration
+ * stripped don't render an unreachable Sign-in button.
+ */
+import { SignIn, SignOut } from "auth-astro/components";
+import { getAuthedUser } from "../../server/auth/session.ts";
+
+const authEnabled = Boolean(process.env.AUTH_SECRET);
+const authed = authEnabled ? await getAuthedUser(Astro.request) : null;
+---
+{authEnabled && (
+  <div class="user-menu">
+    {authed ? (
+      <>
+        {authed.image && (
+          <img class="um-avatar" src={authed.image} alt="" width="24" height="24" />
+        )}
+        <span class="um-name">{authed.name ?? authed.email ?? "Signed in"}</span>
+        <SignOut class="um-btn">Sign out</SignOut>
+      </>
+    ) : (
+      <SignIn provider="github" class="um-btn">Sign in with GitHub</SignIn>
+    )}
+  </div>
+)}
+
+<style is:global>
+  .user-menu {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.8em;
+  }
+  .um-avatar {
+    border-radius: 50%;
+    border: 1px solid var(--color-border);
+    display: block;
+  }
+  .um-name {
+    color: var(--color-fg);
+    max-width: 12ch;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .um-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.3rem 0.65rem;
+    background: transparent;
+    color: var(--color-fg);
+    border: 1px solid var(--color-border);
+    font: inherit;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .um-btn:hover {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+  }
+</style>

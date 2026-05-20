@@ -3,6 +3,7 @@ import react from "@astrojs/react";
 import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "astro/config";
 import expressiveCode from "astro-expressive-code";
+import auth from "auth-astro";
 import rehypeMermaidPassthrough from "handzon-ui/lib/rehype-mermaid-passthrough.ts";
 
 // Markdown-level config (shared by .md and .mdx); EC auto-extends it.
@@ -40,6 +41,11 @@ export default defineConfig({
     }),
     mdx(),
     react(),
+    // GitHub sign-in via auth-astro (Tier 2 only). Reads
+    // `auth.config.ts` at the project root; mounts handlers under
+    // `/api/auth/[...auth]`. The CLI strips this integration when
+    // GitHub auth is disabled during scaffolding.
+    auth(),
   ],
   vite: {
     plugins: [tailwindcss()],

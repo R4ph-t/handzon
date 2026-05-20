@@ -10,6 +10,10 @@
 #   OPENAI_API_KEY
 #   GOOGLE_GENERATIVE_AI_API_KEY
 #   OPENAI_COMPATIBLE_API_KEY (+ OPENAI_COMPATIBLE_BASE_URL)
+#
+# GitHub sign-in is NOT available on Tier 1 — it needs Postgres for the
+# users/accounts/sessions tables. Use render.full.yaml (Tier 2) if you
+# want learners to sign in.
 
 previews:
   generation: automatic
