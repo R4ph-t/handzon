@@ -3,12 +3,33 @@
   "version": "0.1.0",
   "description": "Scaffold and grow Codelab-style hands-on tutorial sites built with Handzon.",
   "license": "MIT",
+  "author": "r4ph_t",
+  "homepage": "https://github.com/R4ph-t/handzon#readme",
+  "bugs": {
+    "url": "https://github.com/R4ph-t/handzon/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/R4ph-t/handzon.git",
+    "directory": "packages/create-handzon"
+  },
+  "keywords": [
+    "astro",
+    "codelab",
+    "tutorial",
+    "mdx",
+    "scaffold",
+    "starter",
+    "cli",
+    "handzon"
+  ],
   "type": "module",
   "bin": {
     "create-handzon": "./dist/index.js"
   },
   "files": [
-    "dist"
+    "dist",
+    "README.md"
   ],
   "scripts": {
     "build": "tsup",
