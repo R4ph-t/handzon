@@ -321,7 +321,7 @@
 }
 .tut-tabs-list {
   display: flex;
-  gap: 4px;
+  gap: 6px;
   margin: 0;
   padding: 0;
   border-bottom: var(--border-default) solid var(--color-border);
@@ -359,6 +359,9 @@
 .tut-tabs-content {
   background: var(--color-surface);
   padding: 0.95rem 1.1rem;
+  border-left: var(--border-default) solid var(--color-border);
+  border-right: var(--border-default) solid var(--color-border);
+  border-bottom: var(--border-default) solid var(--color-border);
 }
 .tut-tab-panel[hidden] { display: none; }
 .tut-tab-panel > :first-child { margin-top: 0; }
