@@ -1,7 +1,8 @@
 # yaml-language-server: $schema=https://render.com/schema/render.yaml.json
 #
 # Tier 2 Blueprint — Render Web Service (Astro SSR) + Mastra AI service +
-# Render Postgres for cross-device progress sync.
+# Render Postgres for cross-device progress sync. Grouped under a Render
+# Project + production environment.
 #
 # To use: rename this file to render.yaml, push, and run
 # "New → Blueprint" in the Render Dashboard.
@@ -9,80 +10,66 @@
 # After first deploy, set the AI provider keys on the ai service:
 #   ANTHROPIC_API_KEY (or OPENAI_API_KEY / GOOGLE_GENERATIVE_AI_API_KEY)
 
+previews:
+  generation: automatic
+  expireAfterDays: 7
+
 projects:
   - name: __PROJECT_NAME__
     environments:
       - name: production
-        protected: false
+        services:
+          - type: web
+            name: __PROJECT_NAME__-site
+            runtime: node
+            plan: starter
+            rootDir: .
+            buildCommand: pnpm install --frozen-lockfile && pnpm db:migrate && pnpm build
+            startCommand: node ./dist/server/entry.mjs
+            healthCheckPath: /healthz
+            envVars:
+              - key: NODE_VERSION
+                value: "22"
+              - key: PUBLIC_PROGRESS_BACKEND
+                value: remote
+              - key: PUBLIC_AI_SERVICE_URL
+                fromService:
+                  type: web
+                  name: __PROJECT_NAME__-ai
+                  property: host
+              - key: DATABASE_URL
+                fromDatabase:
+                  name: __PROJECT_NAME__-db
+                  property: connectionString
 
-databases:
-  - name: __PROJECT_NAME__-db
-    project:
-      name: __PROJECT_NAME__
-      environment: production
-    plan: basic-256mb
-    postgresMajorVersion: "17"
+          - type: web
+            name: __PROJECT_NAME__-ai
+            runtime: node
+            plan: starter
+            rootDir: services/ai
+            buildCommand: pnpm install --frozen-lockfile && pnpm build
+            startCommand: pnpm start
+            healthCheckPath: /healthz
+            envVars:
+              - key: NODE_VERSION
+                value: "22"
+              - key: ALLOWED_ORIGIN
+                fromService:
+                  type: web
+                  name: __PROJECT_NAME__-site
+                  property: host
+              - key: ANTHROPIC_API_KEY
+                sync: false
+              - key: OPENAI_API_KEY
+                sync: false
+              - key: GOOGLE_GENERATIVE_AI_API_KEY
+                sync: false
+              - key: OPENAI_COMPATIBLE_API_KEY
+                sync: false
+              - key: OPENAI_COMPATIBLE_BASE_URL
+                sync: false
 
-services:
-  - type: web
-    name: __PROJECT_NAME__-site
-    project:
-      name: __PROJECT_NAME__
-      environment: production
-    runtime: node
-    plan: starter
-    rootDir: .
-    buildCommand: pnpm install --frozen-lockfile && pnpm db:migrate && pnpm build
-    startCommand: node ./dist/server/entry.mjs
-    healthCheckPath: /healthz
-    pullRequestPreviewsEnabled: true
-    envVars:
-      - key: NODE_VERSION
-        value: "22"
-      - key: PUBLIC_PROGRESS_BACKEND
-        value: remote
-      - key: PUBLIC_AI_SERVICE_URL
-        fromService:
-          type: web
-          name: __PROJECT_NAME__-ai
-          property: host
-      - key: AI_SERVICE_INTERNAL_URL
-        fromService:
-          type: web
-          name: __PROJECT_NAME__-ai
-          property: hostport
-      - key: DATABASE_URL
-        fromDatabase:
-          name: __PROJECT_NAME__-db
-          property: connectionString
-
-  - type: web
-    name: __PROJECT_NAME__-ai
-    project:
-      name: __PROJECT_NAME__
-      environment: production
-    runtime: node
-    plan: starter
-    rootDir: services/ai
-    buildCommand: pnpm install --frozen-lockfile && pnpm build
-    startCommand: pnpm start
-    healthCheckPath: /healthz
-    pullRequestPreviewsEnabled: true
-    envVars:
-      - key: NODE_VERSION
-        value: "22"
-      - key: ALLOWED_ORIGIN
-        fromService:
-          type: web
-          name: __PROJECT_NAME__-site
-          property: host
-      - key: ANTHROPIC_API_KEY
-        sync: false
-      - key: OPENAI_API_KEY
-        sync: false
-      - key: GOOGLE_GENERATIVE_AI_API_KEY
-        sync: false
-      - key: OPENAI_COMPATIBLE_API_KEY
-        sync: false
-      - key: OPENAI_COMPATIBLE_BASE_URL
-        sync: false
+        databases:
+          - name: __PROJECT_NAME__-db
+            plan: basic-256mb
+            postgresMajorVersion: "17"
