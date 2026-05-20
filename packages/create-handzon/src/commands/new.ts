@@ -2,6 +2,7 @@ import { mkdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import * as p from "@clack/prompts";
 import pc from "picocolors";
+import { ask } from "../shared/ask";
 import { findProjectRoot } from "../shared/find-root";
 import { listTutorials, pad2 } from "../shared/scan-tutorials";
 import { isValidSlug, slugify } from "../shared/slugify";
@@ -19,26 +20,27 @@ export async function runNew(opts: NewOptions = {}): Promise<void> {
   }
   p.intro(pc.bgMagenta(pc.black(" create-handzon new ")));
 
+  const shouldPrompt = !opts.yes;
   const title =
     opts.title ??
-    ((await p.text({
-      message: "Tutorial title",
-      placeholder: "Build a graph database",
-      validate: (v) => (v.trim().length > 2 ? undefined : "Pick a longer title."),
-    })) as string);
-  if (p.isCancel(title)) return cancel();
+    (await ask(true, "", () =>
+      p.text({
+        message: "Tutorial title",
+        placeholder: "Build a graph database",
+        validate: (v) => (v.trim().length > 2 ? undefined : "Pick a longer title."),
+      }),
+    ));
 
   const suggested = slugify(title);
-  const slug = opts.yes
-    ? suggested
-    : ((await p.text({
-        message: "Slug",
-        defaultValue: suggested,
-        placeholder: suggested,
-        validate: (v) =>
-          isValidSlug(v || suggested) ? undefined : "Use lowercase letters, numbers, dashes.",
-      })) as string);
-  if (p.isCancel(slug)) return cancel();
+  const slug = await ask(shouldPrompt, suggested, () =>
+    p.text({
+      message: "Slug",
+      defaultValue: suggested,
+      placeholder: suggested,
+      validate: (v) =>
+        isValidSlug(v || suggested) ? undefined : "Use lowercase letters, numbers, dashes.",
+    }),
+  );
 
   const tutorials = await listTutorials(root);
   if (tutorials.some((t) => t.slug === slug)) {
@@ -47,38 +49,32 @@ export async function runNew(opts: NewOptions = {}): Promise<void> {
   }
   const prefix = pad2((tutorials.at(-1)?.prefix ?? 0) + 1);
 
-  const difficulty = opts.yes
-    ? "beginner"
-    : ((await p.select({
-        message: "Difficulty",
-        options: [
-          { value: "beginner", label: "beginner" },
-          { value: "intermediate", label: "intermediate" },
-          { value: "advanced", label: "advanced" },
-        ],
-      })) as string);
-  if (p.isCancel(difficulty)) return cancel();
+  const difficulty = await ask(shouldPrompt, "beginner" as const, () =>
+    p.select({
+      message: "Difficulty",
+      options: [
+        { value: "beginner", label: "beginner" },
+        { value: "intermediate", label: "intermediate" },
+        { value: "advanced", label: "advanced" },
+      ],
+    }),
+  );
 
-  const tagsRaw = opts.yes
-    ? ""
-    : ((await p.text({
-        message: "Tags (comma-separated)",
-        placeholder: "graphs, databases",
-        defaultValue: "",
-      })) as string);
-  if (p.isCancel(tagsRaw)) return cancel();
+  const tagsRaw = await ask(shouldPrompt, "", () =>
+    p.text({
+      message: "Tags (comma-separated)",
+      placeholder: "graphs, databases",
+      defaultValue: "",
+    }),
+  );
   const tags = tagsRaw
     .split(",")
     .map((t) => t.trim())
     .filter(Boolean);
 
-  const aiEnabled = opts.yes
-    ? true
-    : ((await p.confirm({
-        message: "Enable AI helper for this tutorial?",
-        initialValue: true,
-      })) as boolean);
-  if (p.isCancel(aiEnabled)) return cancel();
+  const aiEnabled = await ask(shouldPrompt, true, () =>
+    p.confirm({ message: "Enable AI helper for this tutorial?", initialValue: true }),
+  );
 
   const folder = `${prefix}-${slug}`;
   const folderPath = join(root, "src/content/tutorials", folder);
@@ -102,9 +98,4 @@ export async function runNew(opts: NewOptions = {}): Promise<void> {
     pc.green("Created!") +
       `\n  src/content/tutorials/${folder}/\n  ├── _meta.json\n  ├── 01-introduction.mdx\n  └── assets/`,
   );
-}
-
-function cancel() {
-  p.cancel("Cancelled.");
-  process.exit(0);
 }

@@ -1,10 +1,11 @@
 import { spawn } from "node:child_process";
 import { existsSync } from "node:fs";
-import { cp, rm, writeFile } from "node:fs/promises";
+import { cp, readFile, rename, rm, writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import * as p from "@clack/prompts";
 import pc from "picocolors";
+import { ask } from "../shared/ask";
 import { replaceProjectName } from "../shared/render-template";
 import { isValidSlug, slugify } from "../shared/slugify";
 
@@ -26,19 +27,20 @@ interface InitOptions {
 export async function runInit(opts: InitOptions = {}): Promise<void> {
   p.intro(pc.bgMagenta(pc.black(" create-handzon ")));
 
+  const shouldPrompt = !opts.yes;
   const defaultName = opts.targetName ?? "my-codelab";
-  const projectName = opts.yes
-    ? defaultName
-    : ((await p.text({
-        message: "Project name",
-        placeholder: defaultName,
-        defaultValue: defaultName,
-        validate: (v) =>
-          isValidSlug(slugify(v || defaultName))
-            ? undefined
-            : "Use lowercase letters, numbers, and dashes.",
-      })) as string);
-  if (p.isCancel(projectName)) return cancel();
+
+  const projectName = await ask(shouldPrompt, defaultName, () =>
+    p.text({
+      message: "Project name",
+      placeholder: defaultName,
+      defaultValue: defaultName,
+      validate: (v) =>
+        isValidSlug(slugify(v || defaultName))
+          ? undefined
+          : "Use lowercase letters, numbers, and dashes.",
+    }),
+  );
 
   const slug = slugify(projectName);
   const targetDir = resolve(process.cwd(), slug);
@@ -47,78 +49,66 @@ export async function runInit(opts: InitOptions = {}): Promise<void> {
     process.exit(1);
   }
 
-  const theme = opts.yes
-    ? "brutalist-dark"
-    : ((await p.select({
-        message: "Theme preset",
-        options: [
-          { value: "brutalist-dark", label: "brutalist-dark (default)" },
-          { value: "brutalist-light", label: "brutalist-light" },
-          { value: "classic", label: "classic (softer)" },
-        ],
-      })) as string);
-  if (p.isCancel(theme)) return cancel();
+  const theme = await ask(shouldPrompt, "brutalist-dark", () =>
+    p.select({
+      message: "Theme preset",
+      options: [
+        { value: "brutalist-dark", label: "brutalist-dark (default)" },
+        { value: "brutalist-light", label: "brutalist-light" },
+        { value: "classic", label: "classic (softer)" },
+      ],
+    }),
+  );
 
-  const aiEnabled = opts.yes
-    ? true
-    : ((await p.confirm({ message: "Enable the AI assistant?", initialValue: true })) as boolean);
-  if (p.isCancel(aiEnabled)) return cancel();
+  const aiEnabled = await ask(shouldPrompt, true, () =>
+    p.confirm({ message: "Enable the AI assistant?", initialValue: true }),
+  );
 
   const assistantName = aiEnabled
-    ? opts.yes
-      ? "Helper"
-      : ((await p.text({
-          message: "Assistant name",
-          placeholder: "Helper",
-          defaultValue: "Helper",
-        })) as string)
+    ? await ask(shouldPrompt, "Helper", () =>
+        p.text({ message: "Assistant name", placeholder: "Helper", defaultValue: "Helper" }),
+      )
     : "Helper";
-  if (p.isCancel(assistantName)) return cancel();
 
   const byok = aiEnabled
-    ? opts.yes
-      ? "required"
-      : ((await p.select({
+    ? await ask(shouldPrompt, "required" as const, () =>
+        p.select({
           message: "BYOK mode",
           options: [
             { value: "required", label: "required — learner provides their key" },
             { value: "optional", label: "optional — you can also provide a server key" },
             { value: "disabled", label: "disabled — no AI helper" },
           ],
-        })) as string)
+        }),
+      )
     : "disabled";
-  if (p.isCancel(byok)) return cancel();
 
-  const tier2 = opts.yes
-    ? false
-    : ((await p.confirm({
-        message: "Set up Postgres-backed cross-device sync? (Tier 2)",
-        initialValue: false,
-      })) as boolean);
-  if (p.isCancel(tier2)) return cancel();
+  const tier2 = await ask(shouldPrompt, false, () =>
+    p.confirm({
+      message: "Set up Postgres-backed cross-device sync? (Tier 2)",
+      initialValue: false,
+    }),
+  );
 
-  const packageManager = opts.yes
-    ? "pnpm"
-    : ((await p.select({
-        message: "Package manager",
-        options: [
-          { value: "pnpm", label: "pnpm" },
-          { value: "npm", label: "npm" },
-          { value: "yarn", label: "yarn" },
-          { value: "bun", label: "bun" },
-        ],
-      })) as string);
-  if (p.isCancel(packageManager)) return cancel();
+  const packageManager = await ask(shouldPrompt, "pnpm" as const, () =>
+    p.select({
+      message: "Package manager",
+      options: [
+        { value: "pnpm", label: "pnpm" },
+        { value: "npm", label: "npm" },
+        { value: "yarn", label: "yarn" },
+        { value: "bun", label: "bun" },
+      ],
+    }),
+  );
 
-  const install = opts.yes
-    ? true
-    : ((await p.confirm({ message: "Install dependencies now?", initialValue: true })) as boolean);
-  if (p.isCancel(install)) return cancel();
+  const install = await ask(shouldPrompt, true, () =>
+    p.confirm({ message: "Install dependencies now?", initialValue: true }),
+  );
 
-  const initGit = opts.yes
-    ? true
-    : ((await p.confirm({ message: "Initialize git?", initialValue: true })) as boolean);
-  if (p.isCancel(initGit)) return cancel();
+  const initGit = await ask(shouldPrompt, true, () =>
+    p.confirm({ message: "Initialize git?", initialValue: true }),
+  );
 
   const s = p.spinner();
   s.start("Copying template");
@@ -142,7 +132,6 @@ export async function runInit(opts: InitOptions = {}): Promise<void> {
   // Theme: swap the @import in global.css if needed.
   if (theme !== "brutalist-dark") {
     const cssPath = join(targetDir, "src/styles/global.css");
-    const { readFile, writeFile } = await import("node:fs/promises");
     const css = await readFile(cssPath, "utf8");
     await writeFile(cssPath, css.replace("./themes/brutalist-dark.css", `./themes/${theme}.css`));
   }
@@ -176,7 +165,6 @@ export type AiConfig = typeof aiDefaults;
   } else {
     // Promote render.full.yaml to render.yaml (Tier 2 default).
     await rm(join(targetDir, "render.yaml"), { force: true });
-    const { rename } = await import("node:fs/promises");
     await rename(join(targetDir, "render.full.yaml"), join(targetDir, "render.yaml"));
   }
   s.stop("Configured");
@@ -210,9 +198,4 @@ export type AiConfig = typeof aiDefaults;
     pc.green("Done!") +
       `\n\n  cd ${slug}\n  ${packageManager} dev\n\n  Then open http://localhost:4321`,
   );
-}
-
-function cancel() {
-  p.cancel("Cancelled.");
-  process.exit(0);
 }

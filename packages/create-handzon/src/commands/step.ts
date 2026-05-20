@@ -2,6 +2,7 @@ import { writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import * as p from "@clack/prompts";
 import pc from "picocolors";
+import { ask } from "../shared/ask";
 import { findProjectRoot } from "../shared/find-root";
 import { listTutorials, nextStepPrefix, pad2 } from "../shared/scan-tutorials";
 import { isValidSlug, slugify } from "../shared/slugify";
@@ -27,6 +28,7 @@ export async function runStep(opts: StepOptions = {}): Promise<void> {
     process.exit(1);
   }
 
+  const shouldPrompt = !opts.yes;
   let targetFolder: string;
   if (opts.tutorial) {
     const match = tutorials.find((t) => t.slug === opts.tutorial || t.folder === opts.tutorial);
@@ -36,21 +38,23 @@ export async function runStep(opts: StepOptions = {}): Promise<void> {
     }
     targetFolder = match.folder;
   } else {
-    targetFolder = (await p.select({
-      message: "Which tutorial?",
-      options: tutorials.map((t) => ({ value: t.folder, label: `${t.folder} — ${t.title}` })),
-    })) as string;
-    if (p.isCancel(targetFolder)) return cancel();
+    targetFolder = await ask(true, tutorials[0]!.folder, () =>
+      p.select({
+        message: "Which tutorial?",
+        options: tutorials.map((t) => ({ value: t.folder, label: `${t.folder} — ${t.title}` })),
+      }),
+    );
   }
 
   const title =
     opts.title ??
-    ((await p.text({
-      message: "Step title",
-      placeholder: "Model your first node",
-      validate: (v) => (v.trim().length > 2 ? undefined : "Pick a longer title."),
-    })) as string);
-  if (p.isCancel(title)) return cancel();
+    (await ask(true, "", () =>
+      p.text({
+        message: "Step title",
+        placeholder: "Model your first node",
+        validate: (v) => (v.trim().length > 2 ? undefined : "Pick a longer title."),
+      }),
+    ));
 
   const stepSlug = slugify(title);
   if (!isValidSlug(stepSlug)) {
@@ -60,12 +64,9 @@ export async function runStep(opts: StepOptions = {}): Promise<void> {
 
   const duration =
     opts.duration ??
-    ((await p.text({
-      message: "Estimated duration",
-      placeholder: "5 min",
-      defaultValue: "5 min",
-    })) as string);
-  if (p.isCancel(duration)) return cancel();
+    (await ask(shouldPrompt, "5 min", () =>
+      p.text({ message: "Estimated duration", placeholder: "5 min", defaultValue: "5 min" }),
+    ));
 
   const folderPath = join(root, "src/content/tutorials", targetFolder);
   const prefix = pad2(await nextStepPrefix(folderPath));
@@ -93,9 +94,4 @@ Replace this with the first sentence the learner reads.
 
   await writeFile(join(folderPath, filename), body, "utf8");
   p.outro(`${pc.green("Created!")}\n  src/content/tutorials/${targetFolder}/${filename}`);
-}
-
-function cancel() {
-  p.cancel("Cancelled.");
-  process.exit(0);
 }
