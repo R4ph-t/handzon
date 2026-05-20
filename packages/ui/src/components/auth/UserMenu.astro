@@ -1,16 +1,49 @@
 ---
 /**
- * Server-rendered auth menu. Hidden entirely when Auth.js isn't
- * configured (no AUTH_SECRET in env) so scaffolds with the integration
- * stripped don't render an unreachable Sign-in button.
+ * Server-rendered auth menu. Renders nothing when Auth.js isn't wired
+ * (no AUTH_SECRET in env, or `auth-astro` integration not registered).
+ *
+ * All auth-astro and session imports are deferred via dynamic import
+ * so scaffolds that haven't opted into GitHub auth never trigger the
+ * `auth:config` virtual module — which only exists when the
+ * `auth-astro` integration has set it up. Without this dance, BaseLayout
+ * crashes any consumer that upgrades handzon-ui without wiring auth.
  */
-import { SignIn, SignOut } from "auth-astro/components";
-import { getAuthedUser } from "../../server/auth/session.ts";
+type AuthedUser = {
+  userId: string;
+  email: string | null;
+  name: string | null;
+  image: string | null;
+};
 
 const authEnabled = Boolean(process.env.AUTH_SECRET);
-const authed = authEnabled ? await getAuthedUser(Astro.request) : null;
+
+let authed: AuthedUser | null = null;
+let SignIn: unknown = null;
+let SignOut: unknown = null;
+
+if (authEnabled) {
+  try {
+    const [components, session] = await Promise.all([
+      import("auth-astro/components"),
+      import("../../server/auth/session.ts"),
+    ]);
+    SignIn = components.SignIn;
+    SignOut = components.SignOut;
+    authed = await session.getAuthedUser(Astro.request);
+  } catch {
+    // auth-astro isn't wired in this scaffold — degrade to "hidden"
+    // rather than crashing every page that uses BaseLayout.
+    SignIn = null;
+    SignOut = null;
+  }
+}
+
+const ready = authEnabled && SignIn && SignOut;
+const SignInTag = SignIn as never;
+const SignOutTag = SignOut as never;
 ---
-{authEnabled && (
+{ready && (
   <div class="user-menu">
     {authed ? (
       <>
@@ -18,10 +51,10 @@ const authed = authEnabled ? await getAuthedUser(Astro.request) : null;
           <img class="um-avatar" src={authed.image} alt="" width="24" height="24" />
         )}
         <span class="um-name">{authed.name ?? authed.email ?? "Signed in"}</span>
-        <SignOut class="um-btn">Sign out</SignOut>
+        <SignOutTag class="um-btn">Sign out</SignOutTag>
       </>
     ) : (
-      <SignIn provider="github" class="um-btn">Sign in with GitHub</SignIn>
+      <SignInTag provider="github" class="um-btn">Sign in with GitHub</SignInTag>
     )}
   </div>
 )}
