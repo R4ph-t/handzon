@@ -1,10 +1,5 @@
-@import "tailwindcss";
-
 /* Active theme. Swap this one line to switch the look. */
 @import "./themes/brutalist-dark.css";
 
-/* Resets, prose typography, focus rings. */
-@import "./base.css";
-
-/* Component styles for React islands. */
-@import "./components.css";
+/* Handzon framework styles (tailwind + base + component styles). */
+@import "handzon/styles/global.css";

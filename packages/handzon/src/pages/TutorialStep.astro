@@ -1,0 +1,47 @@
+---
+import { render } from "astro:content";
+import TutorialLayout from "../layouts/TutorialLayout.astro";
+import ChatButton from "../components/ai/ChatButton.tsx";
+import { parseStepId } from "../lib/content.ts";
+import type { StepEntry, TutorialEntry } from "../lib/content.ts";
+import { mdxComponents } from "../lib/mdx-components.ts";
+import { buildContext } from "../lib/ai/context.ts";
+import { emptyState } from "../lib/progress/types.ts";
+import type { AiConfig } from "../types/ai.ts";
+
+interface Props {
+  tutorial: TutorialEntry;
+  steps: StepEntry[];
+  currentStep: StepEntry;
+  aiDefaults: AiConfig;
+}
+
+const { tutorial, steps, currentStep, aiDefaults } = Astro.props;
+const { stepSlug } = parseStepId(currentStep.id);
+const { Content } = await render(currentStep);
+
+const components = mdxComponents();
+const hasCheckpoint = currentStep.body?.includes("<Checkpoint") ?? false;
+
+const aiConfig: AiConfig = { ...aiDefaults, ...(tutorial.data.ai ?? {}) };
+const initialContext = buildContext({
+  tutorial,
+  steps,
+  currentStep,
+  progress: emptyState(),
+  references: [],
+  includeFutureSteps: aiConfig.includeFutureSteps,
+});
+---
+<TutorialLayout
+  tutorial={tutorial}
+  steps={steps}
+  currentStep={currentStep}
+  currentStepSlug={stepSlug}
+  hasCheckpoint={hasCheckpoint}
+>
+  <Content components={components} />
+  {aiConfig.enabled && (
+    <ChatButton client:idle config={aiConfig} context={initialContext} />
+  )}
+</TutorialLayout>

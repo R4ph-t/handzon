@@ -1,0 +1,124 @@
+---
+import BaseLayout from "./BaseLayout.astro";
+import Sidebar from "../components/Sidebar.astro";
+import StepNav from "../components/StepNav.astro";
+import type { TutorialEntry, StepEntry } from "../lib/content";
+
+interface Props {
+  tutorial: TutorialEntry;
+  steps: StepEntry[];
+  currentStep: StepEntry;
+  currentStepSlug: string;
+  hasCheckpoint?: boolean;
+}
+
+const { tutorial, steps, currentStep, currentStepSlug, hasCheckpoint = false } = Astro.props;
+---
+<BaseLayout title={`${currentStep.data.title} — ${tutorial.data.title}`} description={currentStep.data.summary}>
+  <div class="layout">
+    <div class="sidebar-wrap">
+      <Sidebar tutorial={tutorial} steps={steps} currentStepSlug={currentStepSlug} />
+    </div>
+
+    <main class="main">
+      <header class="step-head">
+        <div class="crumb">{tutorial.data.title}</div>
+        <h1 class="step-title">{currentStep.data.title}</h1>
+        {currentStep.data.duration && (
+          <div class="step-dur">⏱ {currentStep.data.duration}</div>
+        )}
+      </header>
+
+      <article class="prose">
+        <slot />
+      </article>
+
+      <StepNav
+        tutorialSlug={tutorial.id}
+        steps={steps}
+        currentStepSlug={currentStepSlug}
+        gated={tutorial.data.gated}
+        hasCheckpoint={hasCheckpoint}
+      />
+
+      {tutorial.data.feedbackUrl && (
+        <footer class="step-foot">
+          <a href={tutorial.data.feedbackUrl} target="_blank" rel="noopener">
+            Report an issue with this tutorial →
+          </a>
+        </footer>
+      )}
+    </main>
+  </div>
+
+  <div
+    id="tt-route"
+    data-tutorial-slug={tutorial.id}
+    data-step-slug={currentStepSlug}
+    hidden
+  ></div>
+  <script>
+    // Record last-visited from a data marker (set in the markup above).
+    // Using a normal <script> + relative import so Vite resolves the path
+    // alias correctly; define:vars + dynamic import("~/...") bypasses
+    // Vite's resolver and the browser can't load the module.
+    import { getStore } from "../lib/progress/local";
+    const route = document.getElementById("tt-route");
+    if (route) {
+      const tutorialSlug = route.dataset.tutorialSlug!;
+      const stepSlug = route.dataset.stepSlug!;
+      getStore().set((s) => ({
+        ...s,
+        lastVisited: { ...s.lastVisited, [tutorialSlug]: { step: stepSlug, ts: Date.now() } },
+      }));
+    }
+  </script>
+</BaseLayout>
+
+<style>
+  .layout {
+    display: grid;
+    grid-template-columns: 280px minmax(0, 1fr);
+    min-height: 100dvh;
+  }
+  .sidebar-wrap {
+    position: sticky;
+    top: 0;
+    height: 100dvh;
+  }
+  .main {
+    padding: 2rem clamp(1rem, 4vw, 3rem);
+    max-width: 80ch;
+  }
+  .crumb {
+    font-family: var(--font-mono);
+    font-size: 0.75em;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-muted);
+  }
+  .step-title {
+    font-size: clamp(1.75rem, 3vw, 2.25rem);
+    font-weight: 700;
+    margin: 0.3rem 0 0.5rem;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+  }
+  .step-dur {
+    font-family: var(--font-mono);
+    font-size: 0.85em;
+    color: var(--color-muted);
+  }
+  .step-head { margin-bottom: 1.5rem; padding-bottom: 1.5rem; border-bottom: var(--border-default, 2px) solid var(--color-border); }
+  .step-foot {
+    margin-top: 3rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--color-border);
+    font-size: 0.85em;
+    color: var(--color-muted);
+  }
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; }
+    .sidebar-wrap { display: none; }
+  }
+</style>

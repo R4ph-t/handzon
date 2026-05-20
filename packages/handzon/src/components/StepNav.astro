@@ -1,0 +1,107 @@
+---
+import type { StepEntry } from "../lib/content";
+import { parseStepId } from "../lib/content";
+
+interface Props {
+  tutorialSlug: string;
+  steps: StepEntry[];
+  currentStepSlug: string;
+  gated: boolean;
+  hasCheckpoint: boolean;
+}
+
+const { tutorialSlug, steps, currentStepSlug, gated, hasCheckpoint } = Astro.props;
+const idx = steps.findIndex((s) => parseStepId(s.id).stepSlug === currentStepSlug);
+const prev = idx > 0 ? steps[idx - 1] : null;
+const next = idx >= 0 && idx < steps.length - 1 ? steps[idx + 1] : null;
+const prevSlug = prev ? parseStepId(prev.id).stepSlug : null;
+const nextSlug = next ? parseStepId(next.id).stepSlug : null;
+---
+<nav class="step-nav" data-gated={gated && hasCheckpoint ? "true" : "false"} data-step-key={`${tutorialSlug}/${currentStepSlug}`}>
+  <div>
+    {prev && (
+      <a class="sn-prev" href={`/${tutorialSlug}/${prevSlug}`}>
+        ← {prev.data.title}
+      </a>
+    )}
+  </div>
+  <div>
+    {next ? (
+      <a class="sn-next" href={`/${tutorialSlug}/${nextSlug}`} data-next-link="true">
+        {hasCheckpoint ? "Continue" : "Next"}: {next.data.title} →
+      </a>
+    ) : (
+      <a class="sn-next sn-done" href={`/${tutorialSlug}`}>
+        Finish tutorial →
+      </a>
+    )}
+  </div>
+</nav>
+
+<script>
+  // Gating: if the host step contains a Checkpoint AND tutorial is gated,
+  // disable Next until the step is marked complete.
+  import { getStore } from "../lib/progress/local";
+  const nav = document.querySelector<HTMLElement>(".step-nav");
+  if (nav && nav.dataset.gated === "true") {
+    const next = nav.querySelector<HTMLAnchorElement>("[data-next-link]");
+    if (next) {
+      const key = nav.dataset.stepKey as `${string}/${string}`;
+      const refresh = () => {
+        const done = getStore().get().steps[key] === "complete";
+        if (!done) {
+          next.classList.add("is-disabled");
+          next.setAttribute("aria-disabled", "true");
+          next.addEventListener("click", blockClick);
+        } else {
+          next.classList.remove("is-disabled");
+          next.removeAttribute("aria-disabled");
+          next.removeEventListener("click", blockClick);
+        }
+      };
+      function blockClick(e: Event) { e.preventDefault(); }
+      refresh();
+      getStore().subscribe(refresh);
+    }
+  }
+
+  // Keyboard nav: ← prev, → next.
+  document.addEventListener("keydown", (e) => {
+    if (e.target instanceof HTMLElement && /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
+    if (e.key === "ArrowLeft") {
+      const prev = document.querySelector<HTMLAnchorElement>(".sn-prev");
+      if (prev) window.location.href = prev.href;
+    } else if (e.key === "ArrowRight") {
+      const next = document.querySelector<HTMLAnchorElement>(".sn-next:not(.is-disabled)");
+      if (next) window.location.href = next.href;
+    }
+  });
+</script>
+
+<style>
+  .step-nav {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 3rem;
+    padding-top: 1.5rem;
+    border-top: var(--border-default, 2px) solid var(--color-border);
+  }
+  .sn-prev, .sn-next {
+    display: inline-block;
+    padding: 0.7rem 1rem;
+    border: var(--border-default, 2px) solid var(--color-fg);
+    text-decoration: none;
+    color: var(--color-fg);
+    font-weight: 700;
+    transition: transform 0.08s ease, box-shadow 0.08s ease;
+  }
+  .sn-prev:hover, .sn-next:hover:not(.is-disabled) {
+    transform: translate(-2px, -2px);
+    box-shadow: var(--shadow-raised);
+    color: var(--color-fg);
+  }
+  .sn-next { background: var(--color-accent); color: var(--color-accent-fg); border-color: var(--color-accent); }
+  .sn-next:hover:not(.is-disabled) { color: var(--color-accent-fg); }
+  .sn-next.is-disabled { opacity: 0.4; cursor: not-allowed; }
+</style>

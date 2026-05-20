@@ -26,7 +26,7 @@ export async function writeDevScripts(packageJsonPath: string, picks: Picks): Pr
 
   scripts["dev:site"] = "astro dev";
   if (picks.aiEnabled) {
-    scripts["dev:ai"] = "pnpm --filter ./services/ai dev";
+    scripts["dev:ai"] = "pnpm exec handzon-ai";
   } else {
     delete scripts["dev:ai"];
   }

@@ -1,0 +1,291 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { getStepsForTutorial, parseStepId, sumDurations } from "../lib/content.ts";
+import type { TutorialEntry } from "../lib/content.ts";
+
+interface Props {
+  tutorial: TutorialEntry;
+  siteName?: string;
+  tagline?: string;
+}
+
+const { tutorial, siteName, tagline } = Astro.props;
+const steps = await getStepsForTutorial(tutorial.id);
+const duration = tutorial.data.estimatedDuration ?? sumDurations(steps) ?? "";
+const firstStepSlug = steps[0] ? parseStepId(steps[0].id).stepSlug : null;
+---
+<BaseLayout
+  title={tutorial.data.title}
+  description={tutorial.data.description}
+  siteName={siteName}
+  tagline={tagline}
+>
+  <div class="landing">
+    <a class="back" href="/">← All tutorials</a>
+
+    <header class="hero">
+      <div class="hero-meta">
+        <span class={`pill pill-${tutorial.data.difficulty}`}>{tutorial.data.difficulty}</span>
+        {duration && <span class="pill pill-neutral">⏱ {duration}</span>}
+        <span class="pill pill-neutral">{steps.length} {steps.length === 1 ? "step" : "steps"}</span>
+        {tutorial.data.tags.map((tag) => <span class="pill pill-soft">#{tag}</span>)}
+      </div>
+
+      <h1>{tutorial.data.title}</h1>
+      <p class="desc">{tutorial.data.description}</p>
+
+      <div class="hero-actions">
+        {firstStepSlug && (
+          <a class="cta" href={`/${tutorial.id}/${firstStepSlug}`} data-tutorial-slug={tutorial.id}>
+            <span class="cta-label">Start tutorial</span>
+            <span class="cta-arrow" aria-hidden="true">→</span>
+          </a>
+        )}
+        {tutorial.data.author && (
+          <div class="author">
+            By <strong>{tutorial.data.author.name}</strong>
+            {tutorial.data.publishedAt && (
+              <> · {new Date(tutorial.data.publishedAt).toLocaleDateString()}</>
+            )}
+          </div>
+        )}
+      </div>
+    </header>
+
+    {tutorial.data.prerequisites.length > 0 && (
+      <section class="block">
+        <h2>Prerequisites</h2>
+        <ul class="prereqs">{tutorial.data.prerequisites.map((p) => <li>{p}</li>)}</ul>
+      </section>
+    )}
+
+    <section class="block">
+      <h2>Steps</h2>
+      <ol class="step-list">
+        {steps.map((s, i) => {
+          const { stepSlug } = parseStepId(s.id);
+          return (
+            <li>
+              <a href={`/${tutorial.id}/${stepSlug}`}>
+                <span class="step-num">{String(i + 1).padStart(2, "0")}</span>
+                <span class="step-body">
+                  <strong>{s.data.title}</strong>
+                  {s.data.summary && <span class="step-summary">{s.data.summary}</span>}
+                </span>
+                {s.data.duration && <span class="step-dur">{s.data.duration}</span>}
+                <span class="step-chevron" aria-hidden="true">→</span>
+              </a>
+            </li>
+          );
+        })}
+      </ol>
+    </section>
+  </div>
+
+  <script>
+    // Resume from last visited if we have one.
+    import { getStore } from "../lib/progress/local.ts";
+    const cta = document.querySelector<HTMLAnchorElement>("[data-tutorial-slug]");
+    if (cta) {
+      const slug = cta.dataset.tutorialSlug!;
+      const last = getStore().get().lastVisited[slug];
+      const step = typeof last === "string" ? last : last?.step;
+      if (step) {
+        cta.textContent = `Continue from "${step}" →`;
+        cta.setAttribute("href", `/${slug}/${step}`);
+      }
+    }
+  </script>
+</BaseLayout>
+
+<style>
+  .landing {
+    max-width: 56rem;
+    margin: 0 auto;
+    padding: 2rem clamp(1rem, 4vw, 3rem) 5rem;
+  }
+  .back {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 0.75em;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-muted);
+    text-decoration: none;
+    margin-bottom: 1.5rem;
+  }
+  .back:hover { color: var(--color-accent); }
+  .hero {
+    position: relative;
+    padding: 2rem 2rem 2.25rem;
+    background: linear-gradient(
+      180deg,
+      color-mix(in oklab, var(--color-accent) 8%, var(--color-bg)),
+      var(--color-bg) 80%
+    );
+    border: var(--border-default, 2px) solid var(--color-border);
+    border-left-width: var(--border-thick, 4px);
+    border-left-color: var(--color-accent);
+    margin-bottom: 3rem;
+  }
+  .hero-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-bottom: 1.1rem;
+  }
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.22rem 0.55rem;
+    font-family: var(--font-mono);
+    font-size: 0.7em;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    border: var(--border-default, 2px) solid var(--color-border);
+    color: var(--color-muted);
+    background: var(--color-bg);
+  }
+  .pill-soft {
+    border-color: transparent;
+    background: var(--color-surface);
+  }
+  .pill-beginner { color: var(--color-success); border-color: var(--color-success); }
+  .pill-intermediate { color: var(--color-warn); border-color: var(--color-warn); }
+  .pill-advanced { color: var(--color-danger); border-color: var(--color-danger); }
+  h1 {
+    font-size: clamp(2.1rem, 4.5vw, 3rem);
+    font-weight: 800;
+    margin: 0 0 0.75rem;
+    letter-spacing: -0.025em;
+    line-height: 1.05;
+  }
+  .desc {
+    font-size: clamp(1rem, 1.5vw, 1.15rem);
+    line-height: 1.55;
+    color: var(--color-muted);
+    margin: 0 0 1.75rem;
+    max-width: 50ch;
+  }
+  .hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1.25rem;
+  }
+  .author { color: var(--color-muted); font-size: 0.85em; }
+  .cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.65rem;
+    padding: 0.85rem 1.4rem;
+    background: color-mix(in oklab, var(--color-accent) 10%, transparent);
+    color: var(--color-accent);
+    border: 1px solid var(--color-accent);
+    font-weight: 700;
+    font-size: 0.95em;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 0.12s ease, color 0.12s ease;
+  }
+  .cta:hover {
+    background: var(--color-accent);
+    color: var(--color-accent-fg);
+  }
+  .cta:hover .cta-arrow { transform: translateX(3px); }
+  .cta-arrow {
+    display: inline-block;
+    transition: transform 0.12s ease;
+    font-family: var(--font-mono);
+  }
+  .block { margin-top: 3rem; }
+  .block h2 {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--color-accent);
+    margin: 0 0 1rem;
+    font-weight: 700;
+  }
+  .prereqs {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 0.4rem;
+  }
+  .prereqs li {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    padding: 0.55rem 0.85rem;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    color: var(--color-fg);
+    font-size: 0.95em;
+    line-height: 1.4;
+  }
+  .prereqs li::before {
+    content: "✓";
+    display: inline-grid;
+    place-items: center;
+    width: 1.1rem;
+    height: 1.1rem;
+    border: 1px solid color-mix(in oklab, var(--color-accent) 40%, var(--color-border));
+    background: color-mix(in oklab, var(--color-accent) 12%, var(--color-bg));
+    color: var(--color-accent);
+    font-family: var(--font-mono);
+    font-size: 0.7em;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .step-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 0.5rem; }
+  .step-list li { border: 1px solid var(--color-border); background: var(--color-bg); }
+  .step-list a {
+    display: grid;
+    grid-template-columns: auto 1fr auto auto;
+    gap: 1rem;
+    align-items: center;
+    padding: 0.9rem 1rem;
+    text-decoration: none;
+    color: var(--color-fg);
+    transition: background 0.12s ease, border-color 0.12s ease;
+  }
+  .step-list li:hover { border-color: var(--color-accent); }
+  .step-list a:hover { background: var(--color-surface); }
+  .step-list a:hover .step-chevron { color: var(--color-accent); transform: translateX(3px); }
+  .step-num {
+    display: inline-grid;
+    place-items: center;
+    min-width: 2.25rem;
+    height: 2.25rem;
+    padding: 0 0.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.8em;
+    font-weight: 700;
+    color: var(--color-accent);
+    background: color-mix(in oklab, var(--color-accent) 10%, var(--color-bg));
+    border: 1px solid color-mix(in oklab, var(--color-accent) 35%, var(--color-border));
+  }
+  .step-body { display: grid; gap: 0.15rem; min-width: 0; }
+  .step-body strong { font-weight: 600; font-size: 1em; letter-spacing: -0.005em; }
+  .step-summary { color: var(--color-muted); font-size: 0.88em; }
+  .step-dur {
+    font-family: var(--font-mono);
+    font-size: 0.75em;
+    color: var(--color-muted);
+    padding: 0.2rem 0.5rem;
+    border: 1px solid var(--color-border);
+  }
+  .step-chevron {
+    font-family: var(--font-mono);
+    color: var(--color-muted);
+    transition: transform 0.12s ease, color 0.12s ease;
+  }
+  @media (max-width: 640px) {
+    .hero { padding: 1.5rem 1.25rem 1.75rem; }
+    .step-list a { grid-template-columns: auto 1fr auto; padding: 0.75rem; }
+    .step-chevron { display: none; }
+  }
+</style>

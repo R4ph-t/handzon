@@ -1,0 +1,15 @@
+/*
+ * Handzon framework styles. Consumers should chain this with their own
+ * theme tokens:
+ *
+ *   @import "handzon/styles/global.css";
+ *   @import "./themes/<chosen>.css";
+ *
+ * Theme tokens (--color-*, --font-*, --border-*, --shadow-*) are NOT
+ * provided here — they live in user-owned `src/styles/themes/*.css` so
+ * the scaffold can pick or override them without ejecting the framework.
+ */
+@import "tailwindcss";
+
+@import "./base.css";
+@import "./components.css";

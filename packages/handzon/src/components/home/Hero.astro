@@ -1,0 +1,35 @@
+---
+interface Props {
+  title?: string;
+  subtitle?: string;
+}
+const {
+  title = "Handzon.",
+  subtitle = "Step-by-step tutorials.",
+} = Astro.props;
+---
+<header class="hero">
+  <h1>{title}</h1>
+  <p>{subtitle}</p>
+</header>
+
+<style>
+  .hero {
+    padding: 4rem 0 2rem;
+    border-bottom: var(--border-default, 2px) solid var(--color-border);
+  }
+  .hero h1 {
+    font-size: clamp(2.25rem, 5vw, 3.75rem);
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    margin: 0 0 0.75rem;
+    line-height: 1.05;
+  }
+  .hero p {
+    font-size: 1.125rem;
+    line-height: 1.55;
+    color: var(--color-muted);
+    max-width: 60ch;
+    margin: 0;
+  }
+</style>
