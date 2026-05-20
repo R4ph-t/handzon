@@ -1,0 +1,75 @@
+---
+title: Render a list
+duration: 6 min
+summary: Replace the boilerplate App.tsx with a hard-coded TODO list rendered from an array.
+---
+
+You'll throw away the Vite welcome screen and render a list from an array.
+
+## Edit App.tsx
+
+<Playground template="react-ts" files={{
+  "/App.tsx": `const todos = [
+  { id: 1, text: "Read the React docs" },
+  { id: 2, text: "Build a TODO app" },
+  { id: 3, text: "Deploy it to Render" },
+]
+
+export default function App() {
+  return (
+    <main style={{ fontFamily: "system-ui", padding: 24 }}>
+      <h1>My TODOs</h1>
+      <ul>
+        {todos.map(todo => (
+          <li key={todo.id}>{todo.text}</li>
+        ))}
+      </ul>
+    </main>
+  )
+}`
+}} />
+
+<Hint title="Why the `key` prop?">
+React uses `key` to identify which items changed between renders. Without a stable key, React falls back to index-based diffing, which causes weirdness when items reorder or get removed.
+</Hint>
+
+## A peek at what changed
+
+<Diff
+  beforeLabel="Vite default"
+  afterLabel="Your version"
+  before={`function App() {
+  return <h1>Vite + React</h1>
+}`}
+  after={`const todos = [
+  { id: 1, text: "Read the React docs" },
+]
+
+function App() {
+  return (
+    <ul>
+      {todos.map(t => <li key={t.id}>{t.text}</li>)}
+    </ul>
+  )
+}`}
+/>
+
+<Quiz
+  question="What's the purpose of the `key` prop on list items?"
+  options={[
+    "It's required by HTML",
+    "It identifies items so React can diff them efficiently",
+    "It's the order of the item in the list",
+    "It's used by CSS to style alternating rows"
+  ]}
+  answer={1}
+  explanation="React uses keys to match items across renders. A stable id is the right choice; array index is fine only for never-reordering lists."
+/>
+
+<Checkpoint label="My TODOs render as a `<ul>` in the browser." />
+
+<Recap items={[
+  "Replaced the welcome screen with a real component",
+  "Rendered a list from an array",
+  "Learned why `key` matters"
+]} />

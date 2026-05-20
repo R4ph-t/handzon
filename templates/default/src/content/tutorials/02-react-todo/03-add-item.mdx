@@ -1,0 +1,71 @@
+---
+title: Add new items
+duration: 8 min
+summary: Wire up a controlled form with useState to let the learner add TODOs.
+---
+
+A hard-coded list isn't useful. Time to take user input.
+
+<Playground template="react-ts" files={{
+  "/App.tsx": `import { useState } from "react"
+
+type Todo = { id: number; text: string }
+
+export default function App() {
+  const [todos, setTodos] = useState<Todo[]>([])
+  const [draft, setDraft] = useState("")
+
+  function add(e: React.FormEvent) {
+    e.preventDefault()
+    if (!draft.trim()) return
+    setTodos(t => [...t, { id: Date.now(), text: draft.trim() }])
+    setDraft("")
+  }
+
+  return (
+    <main style={{ fontFamily: "system-ui", padding: 24, maxWidth: 480 }}>
+      <h1>My TODOs</h1>
+      <form onSubmit={add} style={{ display: "flex", gap: 8 }}>
+        <input
+          value={draft}
+          onChange={e => setDraft(e.target.value)}
+          placeholder="Add a todo…"
+          style={{ flex: 1, padding: 8 }}
+        />
+        <button type="submit">Add</button>
+      </form>
+      <ul>
+        {todos.map(t => <li key={t.id}>{t.text}</li>)}
+      </ul>
+    </main>
+  )
+}`
+}} />
+
+<Callout type="tip">
+The `e.preventDefault()` call stops the browser from reloading the page on form submit. Forget it once and you'll remember it forever.
+</Callout>
+
+<Reveal label="Why call Date.now() for the id?">
+It's the cheapest way to get a unique number per item without a backend. For real apps you'd use a UUID or a server-assigned id, but for a local-only TODO it's fine.
+</Reveal>
+
+<Quiz
+  question="The form uses a 'controlled input'. What does that mean?"
+  options={[
+    "The input value is stored in React state, not the DOM",
+    "The input is read-only",
+    "The input requires a Submit button",
+    "The input cannot be empty"
+  ]}
+  answer={0}
+  explanation="A controlled input's value is owned by React state. The opposite — an uncontrolled input — keeps its value in the DOM, accessed via refs."
+/>
+
+<Checkpoint label="I can type a todo and see it appear in the list." />
+
+<Recap items={[
+  "Wired up a controlled form with `useState`",
+  "Used the spread operator to append immutably",
+  "Reset the draft after each submission"
+]} />

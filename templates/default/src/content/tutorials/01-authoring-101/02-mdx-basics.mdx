@@ -1,0 +1,79 @@
+---
+title: MDX basics
+duration: 5 min
+summary: The static components — Callout, Hint, Steps, File, Recap, Embed, Download.
+---
+
+Every component below is **globally available** in MDX — no imports needed.
+
+## Callouts
+
+```mdx
+<Callout type="info">Heads up.</Callout>
+<Callout type="tip">A nudge in the right direction.</Callout>
+<Callout type="warn">Stop and read this.</Callout>
+<Callout type="danger">Don't do this in production.</Callout>
+```
+
+<Callout type="info">This is what an info callout looks like.</Callout>
+<Callout type="tip">Tips share the accent color.</Callout>
+<Callout type="warn">Warnings draw the eye.</Callout>
+<Callout type="danger">Danger callouts are for footguns.</Callout>
+
+## Hints (collapsible)
+
+```mdx
+<Hint title="Stuck? Reveal the answer">
+The answer is 42.
+</Hint>
+```
+
+<Hint title="Stuck? Reveal the answer">
+The answer is 42.
+</Hint>
+
+## Steps (sub-step lists inside a page)
+
+```mdx
+<Steps>
+  <Step title="First do this">Some explanation.</Step>
+  <Step title="Then this">More explanation.</Step>
+</Steps>
+```
+
+<Steps>
+  <Step title="First do this">Some explanation.</Step>
+  <Step title="Then this">More explanation.</Step>
+</Steps>
+
+## Code blocks
+
+Fenced code blocks pass through Expressive Code. You get **titles**, **line highlights**, **diff markers**, **copy-to-clipboard** out of the box.
+
+```ts title="src/lib/math.ts" {2,4-5}
+export function add(a: number, b: number) {
+  return a + b;
+}
+export function mul(a: number, b: number) {
+  return a * b;
+}
+```
+
+```diff lang="ts" title="diff: tighten types"
+- function add(a, b) {
++ function add(a: number, b: number) {
+    return a + b;
+  }
+```
+
+## Recap (end-of-step summary)
+
+```mdx
+<Recap items={["You learned X", "You also learned Y"]} />
+```
+
+<Recap items={[
+  "Static components ship with zero JS",
+  "Fenced code blocks support multi-language syntax via Shiki",
+  "Recap belongs at the end of a step"
+]} />

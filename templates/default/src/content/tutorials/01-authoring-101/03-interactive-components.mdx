@@ -1,0 +1,55 @@
+---
+title: Interactive components
+duration: 7 min
+summary: Tabs, Quiz, Checkpoint, Playground, FileTree, Reveal, Terminal — the React islands.
+---
+
+These components ship JavaScript only on the steps that use them.
+
+## Tabs
+
+```mdx
+<Tabs items={[{label: "npm", value: "npm"}, {label: "pnpm", value: "pnpm"}]} group="pm">
+  <Tab value="npm">`npm install`</Tab>
+  <Tab value="pnpm">`pnpm install`</Tab>
+</Tabs>
+```
+
+<Tabs items={[{label: "npm", value: "npm"}, {label: "pnpm", value: "pnpm"}, {label: "yarn", value: "yarn"}]} group="pm">
+  <Tab value="npm">Run `npm install`.</Tab>
+  <Tab value="pnpm">Run `pnpm install`.</Tab>
+  <Tab value="yarn">Run `yarn install`.</Tab>
+</Tabs>
+
+## Reveal
+
+<Reveal label="Show solution">
+The point of `<Reveal>` is to keep a solution one click away — useful for exercises.
+</Reveal>
+
+## Quiz
+
+<Quiz
+  question="What gates the Next button in a step?"
+  options={["Reading the page", "A Checkpoint component", "Time on page", "Nothing — it's always enabled"]}
+  answer={1}
+  explanation="If a <Checkpoint /> exists on a step, Next is disabled until the learner toggles it complete."
+/>
+
+## Checkpoint
+
+<Checkpoint label="I understand how interactive components hydrate." />
+
+## Playground (Sandpack — JS/TS only in v1)
+
+<Playground template="react-ts" files={{
+  "/App.tsx": `export default function App() {
+  return <h1 style={{fontFamily: "system-ui"}}>Hello from a tutorial!</h1>
+}`,
+}} />
+
+<Recap items={[
+  "Tabs, Quiz, Checkpoint, Playground, Reveal are React islands",
+  "Quiz + Checkpoint persist learner state via the progress store",
+  "Playground uses Sandpack for JS/TS only in v1"
+]} />

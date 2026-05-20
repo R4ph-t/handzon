@@ -1,0 +1,42 @@
+---
+title: Welcome
+duration: 3 min
+summary: What this tool is, what you'll learn here, and how the content model works.
+---
+
+This is a Codelab-style tutorial site. You're reading the first step of the **meta-tutorial** — a tutorial about authoring tutorials with this tool.
+
+<Callout type="tip">
+You can edit any tutorial while reading it. Find this file at `src/content/tutorials/01-authoring-101/01-welcome.mdx` and try changing the text below.
+</Callout>
+
+## The content model
+
+Every tutorial lives in a single folder under `src/content/tutorials/`:
+
+<FileTree paths={[
+  "src/content/tutorials/01-authoring-101/_meta.json",
+  "src/content/tutorials/01-authoring-101/01-welcome.mdx",
+  "src/content/tutorials/01-authoring-101/02-mdx-basics.mdx",
+  "src/content/tutorials/01-authoring-101/03-interactive-components.mdx",
+  "src/content/tutorials/01-authoring-101/04-publishing.mdx",
+]} />
+
+- `_meta.json` describes the tutorial (title, tags, difficulty, AI config…).
+- Numbered MDX files become the steps in order. The number is just for sorting.
+- Everything else is regular MDX with a global set of components available.
+
+<Steps>
+  <Step title="Read this welcome">You're here.</Step>
+  <Step title="Skim the MDX basics">Step 2 walks through the static components.</Step>
+  <Step title="Try the interactive bits">Step 3 covers quizzes, checkpoints, playgrounds.</Step>
+  <Step title="Ship it">Step 4 covers `pnpm build` + Render Blueprints.</Step>
+</Steps>
+
+<Checkpoint label="I see how tutorials are organized." />
+
+<Recap items={[
+  "Tutorials are folders of numbered MDX files under src/content/tutorials/",
+  "_meta.json holds the per-tutorial config",
+  "You can run pnpm tutorial:new to scaffold a new one"
+]} />

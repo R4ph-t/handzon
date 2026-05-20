@@ -1,0 +1,59 @@
+---
+title: Persist with localStorage
+duration: 6 min
+summary: Survive page reloads with a tiny useLocalStorage hook.
+---
+
+Right now your TODOs evaporate on refresh. Let's fix that.
+
+<Playground template="react-ts" files={{
+  "/useLocalStorage.ts": `import { useEffect, useState } from "react"
+
+export function useLocalStorage<T>(key: string, initial: T) {
+  const [value, setValue] = useState<T>(() => {
+    try {
+      const raw = localStorage.getItem(key)
+      return raw ? JSON.parse(raw) as T : initial
+    } catch {
+      return initial
+    }
+  })
+  useEffect(() => {
+    localStorage.setItem(key, JSON.stringify(value))
+  }, [key, value])
+  return [value, setValue] as const
+}`,
+  "/App.tsx": `import { useLocalStorage } from "./useLocalStorage"
+
+type Todo = { id: number; text: string }
+
+export default function App() {
+  const [todos, setTodos] = useLocalStorage<Todo[]>("todos", [])
+  // ...rest of the component as before
+  return <div>TODO: paste in the form + list code from the last step.</div>
+}`
+}} />
+
+<Hint title="Why lazy init the useState?">
+Passing a function to `useState` means React calls it **once**, on first render — not on every render. Without the function form, `localStorage.getItem` would run on every render, which is a waste.
+</Hint>
+
+<Quiz
+  question="What happens if you call `localStorage.setItem` on every render without `useEffect`?"
+  options={[
+    "Nothing — React batches it",
+    "It silently fails",
+    "It writes on every render, including state updates triggered by the write itself, risking infinite loops",
+    "It throws a TypeError"
+  ]}
+  answer={2}
+  explanation="Writing during render is a side effect — React rules forbid it. `useEffect` defers the write until after render commits."
+/>
+
+<Checkpoint label="My TODOs survive a page refresh." />
+
+<Recap items={[
+  "Extracted a reusable `useLocalStorage` hook",
+  "Lazy-initialized state to avoid wasted work",
+  "Used `useEffect` to sync writes outside the render path"
+]} />

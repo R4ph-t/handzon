@@ -1,0 +1,48 @@
+---
+title: Publishing
+duration: 5 min
+summary: Build, deploy to Render, and decide between Tier 1 (static) and Tier 2 (Postgres-synced).
+---
+
+## Build
+
+```bash title="Terminal"
+pnpm build
+```
+
+The output goes to `dist/`. By default the site is static — every page is pre-rendered at build time.
+
+## Deploy to Render
+
+Two Blueprints ship in this repo:
+
+- **`render.yaml`** — Tier 1: Render Static Site, no Postgres, BYOK AI only. This is the default and the cheapest path.
+- **`render.full.yaml`** — Tier 2: Render Web Service + Render Postgres for cross-device progress sync and a server-side AI proxy.
+
+<Terminal entries={[
+  { command: "git push origin main" },
+  { output: "Render auto-deploys via the Blueprint." }
+]} />
+
+## Picking a tier
+
+<Tabs items={[{label: "Tier 1 (static)", value: "tier1"}, {label: "Tier 2 (synced)", value: "tier2"}]} group="tier">
+  <Tab value="tier1">
+    **Best for:** most tutorial sites. Learners' progress lives in their browser's localStorage. Zero database cost.
+
+    Use this unless you specifically need cross-device sync.
+  </Tab>
+  <Tab value="tier2">
+    **Best for:** sites where learners are expected to bounce across desktop and mobile and want their progress to follow them. Adds an anonymous device-ID flow + a 6-char transfer code for cross-device login.
+
+    Costs the price of a tiny Render Web Service + Postgres.
+  </Tab>
+</Tabs>
+
+<Checkpoint label="I picked a tier and pushed my first deploy." />
+
+<Recap items={[
+  "Tier 1 = Render Static Site, no DB, no server",
+  "Tier 2 = Render Web Service + Postgres for sync",
+  "Switching tiers later is a config change, not a rewrite"
+]} />

@@ -1,0 +1,12 @@
+{
+  "title": "Deploy a Python API",
+  "description": "Wire a Flask API, containerize it, and ship to Render via a Blueprint.",
+  "order": 4,
+  "tags": ["python", "flask", "docker", "render", "devops"],
+  "difficulty": "intermediate",
+  "estimatedDuration": "40 min",
+  "prerequisites": ["Comfortable in a terminal", "Python 3.11+ installed"],
+  "ai": {
+    "tone": "socratic"
+  }
+}

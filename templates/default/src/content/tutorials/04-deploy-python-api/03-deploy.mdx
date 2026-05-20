@@ -1,0 +1,75 @@
+---
+title: Deploy to Render
+duration: 8 min
+summary: Push to a GitHub repo, point Render at a Blueprint, and watch your API go live.
+---
+
+You'll commit the project, push to GitHub, and let Render do the rest.
+
+## The Blueprint
+
+```yaml title="render.yaml"
+# yaml-language-server: $schema=https://render.com/schema/render.yaml.json
+services:
+  - type: web
+    name: my-python-api
+    runtime: docker
+    plan: starter
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /healthz
+    envVars:
+      - key: PORT
+        value: "8000"
+    pullRequestPreviewsEnabled: true
+```
+
+<Callout type="tip">
+`healthCheckPath` tells Render which URL to ping to decide if your service is alive. We wrote `/healthz` in step 1 specifically so this contract holds.
+</Callout>
+
+## Push and deploy
+
+<Terminal entries={[
+  { command: "git init && git add . && git commit -m 'init: flask api'" },
+  { output: "[main (root-commit) 8f4d2e1] init: flask api" },
+  { command: "git remote add origin git@github.com:you/my-python-api.git" },
+  { command: "git push -u origin main" }
+]} />
+
+Then in the Render Dashboard:
+
+<Steps>
+  <Step title="New → Blueprint">Render reads `render.yaml` from the repo root.</Step>
+  <Step title="Connect your repo">Render lists your accessible GitHub repos. Pick this one.</Step>
+  <Step title="Confirm services">Review the proposed service. Click "Apply".</Step>
+  <Step title="Wait for first deploy">~2 minutes for a small Flask app.</Step>
+</Steps>
+
+## Verify
+
+```bash
+curl https://my-python-api.onrender.com/healthz
+# {"status":"ok"}
+```
+
+<Embed src="https://www.youtube.com/embed/dQw4w9WgXcQ" title="Optional walkthrough video" />
+
+<Quiz
+  question="What's the purpose of the healthCheckPath in render.yaml?"
+  options={[
+    "It blocks deploys without a passing test suite",
+    "It tells Render which URL to probe to decide if the service is alive",
+    "It's a placeholder for monitoring",
+    "It's required for free tier"
+  ]}
+  answer={1}
+  explanation="Render polls healthCheckPath during and after deploy. If it doesn't return 200, Render keeps the previous deploy running and the new one fails."
+/>
+
+<Checkpoint label="My Python API is live on a Render onrender.com URL." />
+
+<Recap items={[
+  "Wrote a render.yaml Blueprint with healthCheckPath",
+  "Deployed via 'New → Blueprint' in the Render Dashboard",
+  "Verified the live API with curl"
+]} />

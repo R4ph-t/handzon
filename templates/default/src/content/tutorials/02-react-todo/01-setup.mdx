@@ -1,0 +1,78 @@
+---
+title: Set up the project
+duration: 5 min
+summary: Scaffold a Vite + React + TypeScript app and verify hot reload.
+---
+
+You'll boot the dev server and confirm hot reload before writing a line of TODO code.
+
+<Callout type="tip">
+The commands below have tabs for npm, pnpm, and yarn — pick the one you have installed.
+</Callout>
+
+## Install dependencies
+
+<Tabs items={[
+  { label: "npm",  value: "npm" },
+  { label: "pnpm", value: "pnpm" },
+  { label: "yarn", value: "yarn" }
+]} group="pm">
+  <Tab value="npm">
+    ```bash title="Terminal"
+    npm create vite@latest todo -- --template react-ts
+    cd todo && npm install
+    ```
+  </Tab>
+  <Tab value="pnpm">
+    ```bash title="Terminal"
+    pnpm create vite todo --template react-ts
+    cd todo && pnpm install
+    ```
+  </Tab>
+  <Tab value="yarn">
+    ```bash title="Terminal"
+    yarn create vite todo --template react-ts
+    cd todo && yarn
+    ```
+  </Tab>
+</Tabs>
+
+Your project tree should look like this:
+
+<FileTree paths={[
+  "package.json",
+  "index.html",
+  "src/main.tsx",
+  "src/App.tsx",
+  "src/index.css"
+]} />
+
+## Start the dev server
+
+<Terminal entries={[
+  { command: "pnpm dev" },
+  { output: "VITE v6.0.0  ready in 312 ms\n➜  Local:   http://localhost:5173/" }
+]} />
+
+## Try the live playground
+
+<Playground template="react-ts" files={{
+  "/App.tsx": `export default function App() {
+  return <h1>Hello, tutorial!</h1>
+}`
+}} />
+
+<Quiz
+  question="What port does Vite listen on by default?"
+  options={["3000", "5173", "8080", "4321"]}
+  answer={1}
+  explanation="Vite uses 5173 unless overridden via `server.port` in vite.config.ts."
+/>
+
+<Checkpoint label="My dev server is running and the browser shows the Vite + React welcome screen." />
+
+<Recap items={[
+  "Scaffolded a Vite + React + TypeScript project",
+  "Confirmed the dev server starts on port 5173",
+  "Edited the live playground above"
+]} />

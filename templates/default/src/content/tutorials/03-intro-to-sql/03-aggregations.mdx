@@ -1,0 +1,60 @@
+---
+title: Aggregations
+duration: 8 min
+summary: GROUP BY, COUNT, SUM, AVG, and the classic HAVING-vs-WHERE confusion.
+---
+
+Aggregations collapse many rows into one summary row per group.
+
+## The core functions
+
+| Function | Returns                          |
+|----------|----------------------------------|
+| COUNT(*) | Number of rows                   |
+| SUM(col) | Sum of a numeric column          |
+| AVG(col) | Average of a numeric column      |
+| MIN/MAX  | Smallest / largest                |
+
+## GROUP BY
+
+```sql title="Orders per user"
+SELECT user_id, COUNT(*) AS order_count
+FROM orders
+GROUP BY user_id
+ORDER BY order_count DESC;
+```
+
+## HAVING vs WHERE
+
+`WHERE` filters rows **before** grouping. `HAVING` filters groups **after**.
+
+```sql title="Users with more than 5 orders"
+SELECT user_id, COUNT(*) AS order_count
+FROM orders
+WHERE status = 'paid'      -- filters rows
+GROUP BY user_id
+HAVING COUNT(*) > 5;       -- filters groups
+```
+
+<Callout type="warn">
+You cannot use an aggregate (like `COUNT(*)`) in a `WHERE` clause — that's what `HAVING` is for. The error you get usually says "aggregate functions are not allowed in WHERE".
+</Callout>
+
+<Reveal label="Show the result mentally">
+`WHERE status = 'paid'` first throws out any non-paid orders. Then we group what's left by user. Then `HAVING COUNT(*) > 5` keeps only the users who have more than 5 paid orders. Reading SQL in execution order — `FROM → WHERE → GROUP BY → HAVING → SELECT → ORDER BY → LIMIT` — clears most confusion.
+</Reveal>
+
+<Quiz
+  question="Which clause runs LAST in a SELECT statement?"
+  options={["WHERE", "SELECT", "ORDER BY", "FROM"]}
+  answer={2}
+  explanation="The logical order is FROM → WHERE → GROUP BY → HAVING → SELECT → ORDER BY → LIMIT. That's why an ORDER BY can reference column aliases defined in SELECT."
+/>
+
+<Checkpoint label="I can write a GROUP BY query with HAVING." />
+
+<Recap items={[
+  "COUNT, SUM, AVG, MIN, MAX are the workhorses",
+  "WHERE filters rows; HAVING filters groups",
+  "Logical execution order: FROM → WHERE → GROUP BY → HAVING → SELECT → ORDER BY → LIMIT"
+]} />

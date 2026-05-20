@@ -1,0 +1,92 @@
+---
+title: Write a Flask app
+duration: 10 min
+summary: Build a tiny JSON API with Flask 3 — one health endpoint and one data endpoint.
+---
+
+You'll set up a Python virtualenv, install Flask, and write a 25-line API.
+
+## Pick your package manager
+
+<Tabs items={[
+  { label: "uv", value: "uv" },
+  { label: "pip", value: "pip" },
+  { label: "poetry", value: "poetry" }
+]} group="pypm">
+  <Tab value="uv">
+    ```bash title="Terminal"
+    uv venv && source .venv/bin/activate
+    uv pip install flask
+    ```
+  </Tab>
+  <Tab value="pip">
+    ```bash title="Terminal"
+    python -m venv .venv && source .venv/bin/activate
+    pip install flask
+    ```
+  </Tab>
+  <Tab value="poetry">
+    ```bash title="Terminal"
+    poetry init -n
+    poetry add flask
+    poetry shell
+    ```
+  </Tab>
+</Tabs>
+
+## The app
+
+```python title="app.py"
+from flask import Flask, jsonify
+import os
+
+app = Flask(__name__)
+
+@app.get("/healthz")
+def health():
+    return jsonify(status="ok")
+
+@app.get("/items")
+def items():
+    return jsonify(items=[
+        {"id": 1, "name": "Render"},
+        {"id": 2, "name": "Astro"},
+        {"id": 3, "name": "Flask"},
+    ])
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 8000)))
+```
+
+<Callout type="warn">
+Binding to `0.0.0.0` (not `127.0.0.1`) and reading `PORT` from the environment are both **required** for Render — and most container hosts. Skip them and the platform health check fails.
+</Callout>
+
+## Run it
+
+<Terminal entries={[
+  { command: "python app.py" },
+  { output: " * Running on http://0.0.0.0:8000" },
+  { command: "curl http://localhost:8000/healthz", prompt: "$" },
+  { output: '{"status":"ok"}' }
+]} />
+
+<Quiz
+  question="Why bind to 0.0.0.0 instead of 127.0.0.1?"
+  options={[
+    "Performance",
+    "127.0.0.1 is insecure",
+    "0.0.0.0 makes the server reachable on all network interfaces — required for containers and cloud hosts",
+    "It's a Flask requirement"
+  ]}
+  answer={2}
+  explanation="127.0.0.1 only listens on localhost. In a container or behind a load balancer, the platform needs to reach the server from outside — 0.0.0.0 binds to every interface."
+/>
+
+<Checkpoint label="My Flask app responds to /healthz and /items locally." />
+
+<Recap items={[
+  "Wrote a 25-line Flask API",
+  "Bound to 0.0.0.0 and read PORT from env — both required by Render",
+  "Confirmed the API responds via curl"
+]} />

@@ -1,0 +1,63 @@
+---
+title: SELECT
+duration: 8 min
+summary: The core query — projection, filtering, ordering, limiting.
+---
+
+SQL's `SELECT` statement is the foundation of every read query.
+
+## Anatomy of a SELECT
+
+```sql title="Anatomy"
+SELECT column1, column2          -- projection
+FROM table_name                  -- source
+WHERE condition                  -- filter
+ORDER BY column1 ASC             -- sort
+LIMIT 10;                        -- cap rows
+```
+
+## Try it
+
+Imagine a `users` table:
+
+```sql title="users"
+| id | name    | age | country |
+|----|---------|-----|---------|
+| 1  | Ada     | 31  | UK      |
+| 2  | Linus   | 54  | FI      |
+| 3  | Margaret| 87  | US      |
+| 4  | Donald  | 87  | US      |
+```
+
+Get all American users older than 50, name only:
+
+```sql
+SELECT name
+FROM users
+WHERE country = 'US' AND age > 50
+ORDER BY age DESC;
+```
+
+<Terminal title="psql" entries={[
+  { command: "SELECT name FROM users WHERE country = 'US' AND age > 50 ORDER BY age DESC;" },
+  { output: "    name    \n------------\n Margaret\n Donald\n(2 rows)" }
+]} />
+
+<Reveal label="Show the equivalent in plain English">
+"Give me the `name` column for every row in `users` where the country is the US and the age is over 50, oldest first."
+</Reveal>
+
+<Quiz
+  question="Which clause limits which rows come back?"
+  options={["SELECT", "FROM", "WHERE", "ORDER BY"]}
+  answer={2}
+  explanation="`SELECT` chooses which columns; `WHERE` chooses which rows."
+/>
+
+<Checkpoint label="I can write a SELECT with WHERE and ORDER BY." />
+
+<Recap items={[
+  "SELECT chooses columns",
+  "WHERE chooses rows",
+  "ORDER BY sorts, LIMIT caps"
+]} />
