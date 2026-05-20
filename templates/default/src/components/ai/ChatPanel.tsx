@@ -1,5 +1,5 @@
 import * as Dialog from "@radix-ui/react-dialog";
-import { KeyRound, Send, Settings, Trash2, X } from "lucide-react";
+import { KeyRound, Send, Settings, Sparkles, Trash2, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import type { AiConfig } from "~/config/ai";
 import { type ChatMessage, clearLearnerKey, loadLearnerKey, streamChat } from "~/lib/ai/client";
@@ -117,9 +117,12 @@ export default function ChatPanel({ open, onOpenChange, config, context }: Props
             onInteractOutside={(e) => e.preventDefault()}
           >
             <header className="chat-head">
-              <div>
-                <Dialog.Title className="chat-title">{config.name}</Dialog.Title>
-                {config.tagline && <div className="chat-tagline">{config.tagline}</div>}
+              <div className="chat-head-id">
+                <Sparkles size={16} className="chat-head-icon" aria-hidden="true" />
+                <div>
+                  <Dialog.Title className="chat-title">{config.name}</Dialog.Title>
+                  {config.tagline && <div className="chat-tagline">{config.tagline}</div>}
+                </div>
               </div>
               <div className="chat-head-actions">
                 <button type="button" title="Reset key" onClick={resetKey}>

@@ -39,6 +39,8 @@
   border-bottom: var(--border-default) solid var(--color-border);
   background: var(--color-surface);
 }
+.chat-head-id { display: inline-flex; align-items: center; gap: 0.5rem; }
+.chat-head-icon { color: var(--color-accent); flex-shrink: 0; }
 .chat-title { margin: 0; font-size: 1rem; font-weight: 700; }
 .chat-tagline { color: var(--color-muted); font-size: 0.8em; }
 .chat-head-actions { display: inline-flex; gap: 0.25rem; }
