@@ -1,0 +1,32 @@
+{
+  "name": "create-tutorial",
+  "version": "0.1.0",
+  "description": "Scaffold and grow Codelab-style tutorial sites built with tutorial-tool.",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "create-tutorial": "./dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "node --test tests/*.test.ts",
+    "prepublishOnly": "pnpm build"
+  },
+  "dependencies": {
+    "@clack/prompts": "^0.7.0",
+    "picocolors": "^1.1.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.9.0",
+    "tsup": "^8.3.5",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3"
+  },
+  "engines": {
+    "node": ">=20.10.0"
+  }
+}
