@@ -3,8 +3,6 @@ import { readFile, writeFile } from "node:fs/promises";
 interface Picks {
   aiEnabled: boolean;
   tier2: boolean;
-  /** Lowercased provider id, e.g. "anthropic", "openai". */
-  aiProvider?: string;
 }
 
 interface PackageJson {
@@ -69,14 +67,20 @@ function sortObject<T extends Record<string, unknown>>(o: T): T {
 }
 
 /**
- * Write a `.env` next to the scaffold root with sensible local-dev
- * defaults. Skips overwriting an existing file. Pairs with the
- * `.env.example` that ships in the template (kept as documentation).
+ * Write a single root-level `.env` with sensible local-dev defaults.
+ * Both the Astro site (auto-loaded) and the AI service (via
+ * dotenv.config({path:"../../../.env"}) in server.ts) read from this
+ * same file. Skips overwriting an existing file. Pairs with the
+ * `.env.example` that ships in the template as documentation.
  */
 export async function writeDevEnv(envPath: string, picks: Picks): Promise<void> {
-  const lines = ["# Local-dev defaults. See .env.example for the full list of supported vars.\n"];
-
-  lines.push("SITE_URL=http://localhost:4321");
+  const lines: string[] = [
+    "# Local-dev defaults. Shared by the Astro site and the AI service.",
+    "# In production each var is set via your hosting platform (Render Blueprint).",
+    "",
+    "# --- Site ---",
+    "SITE_URL=http://localhost:4321",
+  ];
 
   if (picks.aiEnabled) {
     lines.push("PUBLIC_AI_SERVICE_URL=http://localhost:4111");
@@ -84,48 +88,27 @@ export async function writeDevEnv(envPath: string, picks: Picks): Promise<void> 
 
   if (picks.tier2) {
     lines.push("PUBLIC_PROGRESS_BACKEND=remote");
+    lines.push("");
+    lines.push("# --- Database (Tier 2) ---");
     lines.push("DATABASE_URL=postgres://handzon:handzon@localhost:5432/handzon");
+  }
+
+  if (picks.aiEnabled) {
+    lines.push("");
+    lines.push("# --- AI service ---");
+    lines.push("ALLOWED_ORIGIN=http://localhost:4321");
+    lines.push("");
+    lines.push("# Uncomment + set ONE provider key matching your src/config/ai.ts.");
+    lines.push("# Leave commented if you're using BYOK only.");
+    lines.push("# ANTHROPIC_API_KEY=");
+    lines.push("# OPENAI_API_KEY=");
+    lines.push("# GOOGLE_GENERATIVE_AI_API_KEY=");
+    lines.push("# OPENAI_COMPATIBLE_API_KEY=");
+    lines.push("# OPENAI_COMPATIBLE_BASE_URL=https://api.groq.com/openai/v1");
   }
 
   await writeFile(envPath, `${lines.join("\n")}\n`, { flag: "wx" }).catch((err) => {
     if ((err as NodeJS.ErrnoException).code !== "EEXIST") throw err;
     // .env already present — don't clobber whatever the user has.
-  });
-}
-
-/**
- * AI provider env var names, by provider id. The AI service falls back
- * to these when the browser hasn't sent an X-Llm-Api-Key header.
- */
-const PROVIDER_KEY: Record<string, string> = {
-  anthropic: "ANTHROPIC_API_KEY",
-  openai: "OPENAI_API_KEY",
-  google: "GOOGLE_GENERATIVE_AI_API_KEY",
-  "openai-compatible": "OPENAI_COMPATIBLE_API_KEY",
-};
-
-/**
- * Write `services/ai/.env` with the dev-time config the AI service
- * needs: a CORS origin that matches the local site, plus a commented
- * placeholder for the provider key the user picked. Same `wx`
- * semantics as the root env writer.
- */
-export async function writeAiServiceEnv(envPath: string, picks: Picks): Promise<void> {
-  if (!picks.aiEnabled) return;
-  const keyName = PROVIDER_KEY[picks.aiProvider ?? "anthropic"] ?? "ANTHROPIC_API_KEY";
-  const body =
-    [
-      "# Local-dev defaults for the AI service. See .env.example for the",
-      "# full list of supported vars.",
-      "",
-      "ALLOWED_ORIGIN=http://localhost:4321",
-      "",
-      `# Add your ${picks.aiProvider ?? "anthropic"} key below to enable server-side`,
-      "# fallback (used when the learner hasn't set their own BYOK key).",
-      `# ${keyName}=`,
-    ].join("\n") + "\n";
-
-  await writeFile(envPath, body, { flag: "wx" }).catch((err) => {
-    if ((err as NodeJS.ErrnoException).code !== "EEXIST") throw err;
   });
 }

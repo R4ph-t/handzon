@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 import * as p from "@clack/prompts";
 import pc from "picocolors";
 import { ask } from "../shared/ask";
-import { writeAiServiceEnv, writeDevEnv, writeDevScripts } from "../shared/dev-config";
+import { writeDevEnv, writeDevScripts } from "../shared/dev-config";
 import { replaceProjectName } from "../shared/render-template";
 import { installSkillsInteractive } from "./skills";
 import { isValidSlug, slugify } from "../shared/slugify";
@@ -68,21 +68,21 @@ export async function runInit(opts: InitOptions = {}): Promise<void> {
 
   const assistantName = aiEnabled
     ? await ask(shouldPrompt, "Helper", () =>
-        p.text({ message: "Assistant name", placeholder: "Helper", defaultValue: "Helper" }),
-      )
+      p.text({ message: "Assistant name", placeholder: "Helper", defaultValue: "Helper" }),
+    )
     : "Helper";
 
   const byok = aiEnabled
     ? await ask(shouldPrompt, "required" as const, () =>
-        p.select({
-          message: "BYOK mode",
-          options: [
-            { value: "required", label: "required — learner provides their key" },
-            { value: "optional", label: "optional — you can also provide a server key" },
-            { value: "disabled", label: "disabled — no AI helper" },
-          ],
-        }),
-      )
+      p.select({
+        message: "BYOK mode",
+        options: [
+          { value: "required", label: "required — learner provides their key" },
+          { value: "optional", label: "optional — you can also provide a server key" },
+          { value: "disabled", label: "disabled — no AI helper" },
+        ],
+      }),
+    )
     : "disabled";
 
   const tier2 = await ask(shouldPrompt, false, () =>
@@ -212,15 +212,11 @@ export type AiConfig = typeof aiDefaults;
 
   // Tailor the package.json `dev` script to what the user actually
   // wants running locally (site + AI + Postgres in any combination),
-  // and write a `.env` with localhost defaults so `pnpm dev` works on
-  // first try.
+  // and write a single root-level `.env` with localhost defaults so
+  // `pnpm dev` works on first try. Both Astro and the AI service load
+  // from this one file — no per-service .env to maintain.
   await writeDevScripts(join(targetDir, "package.json"), { aiEnabled, tier2 });
   await writeDevEnv(join(targetDir, ".env"), { aiEnabled, tier2 });
-  await writeAiServiceEnv(join(targetDir, "services/ai/.env"), {
-    aiEnabled,
-    tier2,
-    aiProvider: "anthropic",
-  });
 
   s.stop("Configured");
 
@@ -270,7 +266,7 @@ export type AiConfig = typeof aiDefaults;
     await new Promise<void>((res, rej) => {
       const child = spawn("git", ["init"], { cwd: targetDir, stdio: "ignore" });
       child.on("exit", (code) => (code === 0 ? res() : rej(new Error(`git init exited ${code}`))));
-    }).catch(() => {});
+    }).catch(() => { });
     s.stop("Git initialized");
   }
 
@@ -288,9 +284,9 @@ export type AiConfig = typeof aiDefaults;
 
   p.outro(
     pc.green("Done!") +
-      `\n\n  cd ${slug}\n  ${packageManager} dev   ${pc.dim(`# ${devProcs}`)}\n\n  Then open http://localhost:4321` +
-      tier2Notice +
-      skillsHint,
+    `\n\n  cd ${slug}\n  ${packageManager} dev   ${pc.dim(`# ${devProcs}`)}\n\n  Then open http://localhost:4321` +
+    tier2Notice +
+    skillsHint,
   );
 }
 

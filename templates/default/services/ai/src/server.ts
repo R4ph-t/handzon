@@ -1,3 +1,15 @@
+// Load the scaffold's root .env BEFORE any module that reads
+// process.env. Same file the Astro site uses — single source of truth
+// for local dev. Walk up from services/ai/(src|dist)/server.(ts|js)
+// to the project root. dotenv silently no-ops if the file doesn't
+// exist (production on Render: env comes from the platform) and never
+// overrides values already set in process.env.
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+import dotenv from "dotenv";
+const __dirname = dirname(fileURLToPath(import.meta.url));
+dotenv.config({ path: resolve(__dirname, "../../../.env") });
+
 import { serve } from "@hono/node-server";
 import { Hono } from "hono";
 import { bodyLimit } from "hono/body-limit";

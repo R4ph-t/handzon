@@ -22,6 +22,7 @@ export default defineConfig({
     "@ai-sdk/openai-compatible",
     "@hono/node-server",
     "hono",
+    "dotenv",
     "zod",
   ],
 });
