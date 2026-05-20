@@ -65,6 +65,14 @@ export function createLocalStore(): ProgressStore {
 
 let singleton: ProgressStore | null = null;
 export function getStore(): ProgressStore {
-  if (!singleton) singleton = createLocalStore();
+  if (singleton) return singleton;
+  if (isBrowser && import.meta.env.PUBLIC_PROGRESS_BACKEND === "remote") {
+    // Lazy import to keep Tier 1 builds from pulling the remote store.
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const { createRemoteStore } = require("./remote") as typeof import("./remote");
+    singleton = createRemoteStore();
+  } else {
+    singleton = createLocalStore();
+  }
   return singleton;
 }
