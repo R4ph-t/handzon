@@ -22,11 +22,6 @@ export function parseStepId(id: string): { tutorialSlug: string; stepSlug: strin
   };
 }
 
-export function tutorialSlugFromMetaId(id: string): string {
-  // ids in the tutorials collection come from _index.json entries keyed by slug.
-  return id;
-}
-
 export async function getTutorials(): Promise<TutorialEntry[]> {
   const all = await getCollection("tutorials");
   return all.sort((a, b) => (a.data.order ?? 0) - (b.data.order ?? 0));

@@ -100,7 +100,6 @@ const tutorials = defineCollection({
           provider: z.string().optional(),
           model: z.string().optional(),
           byok: z.enum(["required", "optional", "disabled"]).optional(),
-          systemPrompt: z.string().optional(),
           references: z.array(z.string()).default([]),
           allowedDomains: z.array(z.string()).default([]),
           disabledSkills: z.array(z.string()).default([]),

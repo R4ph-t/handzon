@@ -23,11 +23,3 @@ export const progressEntries = pgTable(
     byLearner: index("progress_by_learner").on(table.learnerId, table.scope),
   }),
 );
-
-export const transferCodes = pgTable("transfer_codes", {
-  code: text("code").primaryKey(),
-  learnerId: uuid("learner_id")
-    .notNull()
-    .references(() => learners.id, { onDelete: "cascade" }),
-  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
-});

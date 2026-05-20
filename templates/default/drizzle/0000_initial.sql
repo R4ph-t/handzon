@@ -15,21 +15,8 @@ CREATE TABLE IF NOT EXISTS "progress_entries" (
 	CONSTRAINT "progress_entries_pkey" PRIMARY KEY("learner_id","kind","scope","key")
 );
 --> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "transfer_codes" (
-	"code" text PRIMARY KEY NOT NULL,
-	"learner_id" uuid NOT NULL,
-	"expires_at" timestamptz NOT NULL
-);
---> statement-breakpoint
 DO $$ BEGIN
 	ALTER TABLE "progress_entries" ADD CONSTRAINT "progress_entries_learner_id_learners_id_fk"
-		FOREIGN KEY ("learner_id") REFERENCES "learners"("id") ON DELETE CASCADE ON UPDATE NO ACTION;
-EXCEPTION
-	WHEN duplicate_object THEN null;
-END $$;
---> statement-breakpoint
-DO $$ BEGIN
-	ALTER TABLE "transfer_codes" ADD CONSTRAINT "transfer_codes_learner_id_learners_id_fk"
 		FOREIGN KEY ("learner_id") REFERENCES "learners"("id") ON DELETE CASCADE ON UPDATE NO ACTION;
 EXCEPTION
 	WHEN duplicate_object THEN null;

@@ -265,23 +265,6 @@
   font-size: 0.8em;
 }
 
-/* ThemeToggle */
-.theme-toggle {
-  display: inline-grid;
-  place-items: center;
-  width: 32px;
-  height: 32px;
-  background: transparent;
-  border: var(--border-default) solid var(--color-border);
-  color: var(--color-fg);
-  cursor: pointer;
-  border-radius: 0;
-}
-.theme-toggle:hover {
-  color: var(--color-accent);
-  border-color: var(--color-accent);
-}
-
 /* sr-only utility for accessibility-only text */
 .sr-only {
   position: absolute;
@@ -295,35 +278,12 @@
   border: 0;
 }
 
-/* Mobile sidebar dialog */
-.ms-trigger {
-  display: none;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.4rem 0.7rem;
-  background: var(--color-surface);
-  color: var(--color-fg);
-  border: var(--border-default) solid var(--color-border);
-  cursor: pointer;
-  font-family: var(--font-mono);
-  font-size: 0.8em;
-  border-radius: 0;
-}
+/* Modal overlay + close button (shared by AI chat + BYOK dialogs) */
 .ms-overlay {
   position: fixed;
   inset: 0;
   background: oklch(0% 0 0 / 0.5);
   backdrop-filter: blur(2px);
-}
-.ms-panel {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: min(320px, 86vw);
-  height: 100dvh;
-  background: var(--color-bg);
-  border-right: var(--border-default) solid var(--color-border);
-  overflow-y: auto;
 }
 .ms-close {
   position: absolute;
@@ -341,9 +301,6 @@
   border-radius: 0;
 }
 .ms-close:hover { color: var(--color-fg); background: var(--color-surface); }
-@media (max-width: 900px) {
-  .ms-trigger { display: inline-flex; }
-}
 
 /* Tabs — browser-tab look. Triggers at top, content directly below.
  * No outer container. Active trigger shares the content's surface bg
