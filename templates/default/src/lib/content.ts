@@ -18,7 +18,7 @@ export function parseStepId(id: string): { tutorialSlug: string; stepSlug: strin
   return {
     tutorialSlug: tutorialMatch?.[2] ?? tutorialDir,
     stepSlug: stepMatch?.[2] ?? stepFile,
-    order: stepMatch ? Number.parseInt(stepMatch[1], 10) : 0,
+    order: stepMatch?.[1] ? Number.parseInt(stepMatch[1], 10) : 0,
   };
 }
 
@@ -58,7 +58,7 @@ export function sumDurations(steps: StepEntry[]): string | undefined {
     const dur = step.data.duration;
     if (!dur) return undefined;
     const match = /(\d+)\s*min/i.exec(dur);
-    if (!match) return undefined;
+    if (!match?.[1]) return undefined;
     total += Number.parseInt(match[1], 10);
   }
   return total > 0 ? `${total} min` : undefined;

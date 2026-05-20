@@ -1,10 +1,11 @@
 import { defineCollection, z } from "astro:content";
 import { glob } from "astro/loaders";
 import { readdir, readFile } from "node:fs/promises";
-import { join, resolve } from "node:path";
+import { join, resolve, relative } from "node:path";
 import type { Loader } from "astro/loaders";
 
-const TUTORIALS_DIR = resolve("./src/content/tutorials");
+const TUTORIALS_REL = "src/content/tutorials";
+const TUTORIALS_DIR = resolve(TUTORIALS_REL);
 const STEP_FOLDER = /^\d+-/;
 
 /**
@@ -36,7 +37,7 @@ function tutorialsLoader(): Loader {
         const slug = folder.replace(STEP_FOLDER, "");
         const order = parsed.order ?? Number.parseInt(folder.match(/^(\d+)-/)?.[1] ?? "0", 10);
         const data = await parseData({ id: slug, data: { ...parsed, order } });
-        store.set({ id: slug, data, filePath: metaPath });
+        store.set({ id: slug, data, filePath: relative(process.cwd(), metaPath) });
       }
       if (watcher) {
         watcher.add(`${TUTORIALS_DIR}/**/_meta.json`);

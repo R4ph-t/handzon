@@ -3,7 +3,7 @@ import mdx from "@astrojs/mdx";
 import react from "@astrojs/react";
 import expressiveCode from "astro-expressive-code";
 import tailwindcss from "@tailwindcss/vite";
-import rehypeMermaid from "rehype-mermaid";
+import rehypeMermaidPassthrough from "./src/lib/rehype-mermaid-passthrough.ts";
 
 const useRemoteBackend = process.env.PUBLIC_PROGRESS_BACKEND === "remote";
 
@@ -33,7 +33,7 @@ export default defineConfig({
       },
     }),
     mdx({
-      rehypePlugins: [[rehypeMermaid, { strategy: "inline-svg" }]],
+      rehypePlugins: [rehypeMermaidPassthrough],
     }),
     react(),
   ],

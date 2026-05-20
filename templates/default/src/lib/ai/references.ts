@@ -1,5 +1,5 @@
 import { readFile } from "node:fs/promises";
-import { resolve, dirname } from "node:path";
+import { resolve } from "node:path";
 
 interface LoadOptions {
   references: string[];

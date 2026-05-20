@@ -39,7 +39,7 @@ function diffState(prev: ProgressState, next: ProgressState): ProgressEntry[] {
   const out: ProgressEntry[] = [];
   for (const [key, value] of Object.entries(next.steps)) {
     if (prev.steps[key as `${string}/${string}`] !== value) {
-      const [scope, k] = key.split("/");
+      const [scope, k] = key.split("/") as [string, string];
       out.push({ kind: "step", scope, key: k, value });
     }
   }

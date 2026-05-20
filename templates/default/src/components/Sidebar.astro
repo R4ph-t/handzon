@@ -51,7 +51,7 @@ const slug = tutorial.id;
     const store = getStore();
     const state = store.get();
     document.querySelectorAll<HTMLElement>("[data-step-key]").forEach((el) => {
-      const key = el.dataset.stepKey!;
+      const key = el.dataset.stepKey as `${string}/${string}`;
       const done = state.steps[key] === "complete";
       el.dataset.done = done ? "true" : "false";
     });

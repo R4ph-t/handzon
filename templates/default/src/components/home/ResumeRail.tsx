@@ -18,7 +18,9 @@ export default function ResumeRail({ tutorials }: Props) {
     if (!state) return;
     const entries = Object.entries(state.lastVisited);
     if (entries.length === 0) return setMostRecent(null);
-    const [slug, step] = entries[entries.length - 1];
+    const latest = entries[entries.length - 1];
+    if (!latest) return setMostRecent(null);
+    const [slug, step] = latest;
     const tutorial = tutorials.find((t) => t.slug === slug);
     if (!tutorial) return setMostRecent(null);
     setMostRecent({ slug, title: tutorial.title, step });

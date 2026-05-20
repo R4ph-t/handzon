@@ -18,6 +18,7 @@ export interface AssistantPayload {
 /**
  * Build the assistant's tool set. Each tool reads from the per-request
  * payload — tools are pure functions over the context the client sent.
+ * Mastra 1.x passes the validated input directly as the first arg.
  */
 export function buildTools(payload: AssistantPayload) {
   return {
@@ -25,12 +26,12 @@ export function buildTools(payload: AssistantPayload) {
       id: "getStep",
       description: "Fetch the full markdown source of any step in this tutorial by its slug.",
       inputSchema: z.object({ slug: z.string() }),
-      execute: async ({ context }) => {
+      execute: async (input: { slug: string }) => {
         const target =
-          payload.currentStep.slug === context.slug
+          payload.currentStep.slug === input.slug
             ? payload.currentStep
-            : payload.priorSteps.find((s) => s.slug === context.slug);
-        if (!target) return { error: `No step "${context.slug}" available in context.` };
+            : payload.priorSteps.find((s) => s.slug === input.slug);
+        if (!target) return { error: `No step "${input.slug}" available in context.` };
         return { slug: target.slug, title: target.title, source: target.source };
       },
     }),
@@ -39,18 +40,20 @@ export function buildTools(payload: AssistantPayload) {
       id: "getStepCodeBlocks",
       description: "Fetch just the code blocks from a step. Cheaper than getStep.",
       inputSchema: z.object({ slug: z.string(), lang: z.string().optional() }),
-      execute: async ({ context }) => {
+      execute: async (input: { slug: string; lang?: string }) => {
         const target =
-          payload.currentStep.slug === context.slug
+          payload.currentStep.slug === input.slug
             ? payload.currentStep
-            : payload.priorSteps.find((s) => s.slug === context.slug);
-        if (!target) return { error: `No step "${context.slug}" available.` };
+            : payload.priorSteps.find((s) => s.slug === input.slug);
+        if (!target) return { error: `No step "${input.slug}" available.` };
         const blocks: Array<{ lang: string; code: string }> = [];
         const re = /```([a-zA-Z0-9_+-]*)\s*(?:[^\n]*\n)([\s\S]*?)```/g;
         let m: RegExpExecArray | null;
         while ((m = re.exec(target.source))) {
-          if (!context.lang || m[1] === context.lang) {
-            blocks.push({ lang: m[1] || "text", code: m[2] });
+          const matchLang = m[1] ?? "text";
+          const code = m[2] ?? "";
+          if (!input.lang || matchLang === input.lang) {
+            blocks.push({ lang: matchLang || "text", code });
           }
         }
         return { blocks };
@@ -97,12 +100,11 @@ export function buildTools(payload: AssistantPayload) {
       id: "searchReferences",
       description: "Keyword search across the author-configured reference docs.",
       inputSchema: z.object({ query: z.string() }),
-      execute: async ({ context }) => {
-        const q = context.query.toLowerCase();
+      execute: async (input: { query: string }) => {
+        const q = input.query.toLowerCase();
         const hits = payload.references
           .map((r) => ({
             source: r.source,
-            // surface the line containing the match
             line: r.content.split("\n").find((l) => l.toLowerCase().includes(q)) ?? "",
           }))
           .filter((h) => h.line);
@@ -114,18 +116,19 @@ export function buildTools(payload: AssistantPayload) {
       id: "searchCodeBlocks",
       description: "Keyword search across every code block in this tutorial.",
       inputSchema: z.object({ query: z.string(), lang: z.string().optional() }),
-      execute: async ({ context }) => {
+      execute: async (input: { query: string; lang?: string }) => {
         const allSteps = [payload.currentStep, ...payload.priorSteps];
-        const q = context.query.toLowerCase();
+        const q = input.query.toLowerCase();
         const hits: Array<{ stepSlug: string; lang: string; snippet: string }> = [];
         const re = /```([a-zA-Z0-9_+-]*)\s*(?:[^\n]*\n)([\s\S]*?)```/g;
         for (const step of allSteps) {
           let m: RegExpExecArray | null;
           while ((m = re.exec(step.source))) {
-            const lang = m[1] || "text";
-            if (context.lang && lang !== context.lang) continue;
-            if (m[2].toLowerCase().includes(q)) {
-              hits.push({ stepSlug: step.slug, lang, snippet: m[2].slice(0, 280) });
+            const matchLang = m[1] ?? "text";
+            const code = m[2] ?? "";
+            if (input.lang && matchLang !== input.lang) continue;
+            if (code.toLowerCase().includes(q)) {
+              hits.push({ stepSlug: step.slug, lang: matchLang, snippet: code.slice(0, 280) });
             }
           }
         }
@@ -144,20 +147,20 @@ export function buildTools(payload: AssistantPayload) {
       id: "fetchUrl",
       description: "Fetch the body of a URL. Restricted to the tutorial's allowedDomains list.",
       inputSchema: z.object({ url: z.string().url() }),
-      execute: async ({ context }) => {
+      execute: async (input: { url: string }) => {
         if (payload.allowedDomains.length === 0) {
           return { error: "fetchUrl is disabled (no allowedDomains configured)." };
         }
         let host: string;
         try {
-          host = new URL(context.url).hostname;
+          host = new URL(input.url).hostname;
         } catch {
           return { error: "Invalid URL." };
         }
         if (!payload.allowedDomains.some((d) => host === d || host.endsWith(`.${d}`))) {
           return { error: `Domain "${host}" not in allowedDomains.` };
         }
-        const res = await fetch(context.url);
+        const res = await fetch(input.url);
         if (!res.ok) return { error: `HTTP ${res.status}` };
         const text = await res.text();
         return { content: text.slice(0, 8000) };

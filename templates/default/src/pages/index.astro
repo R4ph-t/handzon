@@ -56,7 +56,8 @@ const compactTutorials = tutorials.map((t) => ({ slug: t.id, title: t.data.title
       const totals = new Map<string, number>();
       const completed = new Map<string, number>();
       for (const [key, value] of Object.entries(state.steps)) {
-        const [slug] = key.split("/");
+        const slug = key.split("/")[0];
+        if (!slug) continue;
         totals.set(slug, (totals.get(slug) ?? 0) + 1);
         if (value === "complete") completed.set(slug, (completed.get(slug) ?? 0) + 1);
       }

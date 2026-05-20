@@ -24,5 +24,14 @@ const desc = description ?? site.tagline;
   </head>
   <body>
     <slot />
+    <script>
+      // Render any <pre class="mermaid"> blocks emitted by rehype-mermaid.
+      if (document.querySelector("pre.mermaid")) {
+        import("mermaid").then(({ default: mermaid }) => {
+          mermaid.initialize({ startOnLoad: false, theme: "dark", securityLevel: "strict" });
+          mermaid.run({ querySelector: "pre.mermaid" });
+        });
+      }
+    </script>
   </body>
 </html>

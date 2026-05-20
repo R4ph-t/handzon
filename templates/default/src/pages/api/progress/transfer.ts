@@ -1,7 +1,7 @@
 import type { APIRoute } from "astro";
 import { getDb } from "~/db/client";
 import { transferCodes, learners } from "~/db/schema";
-import { eq, lt, and } from "drizzle-orm";
+import { eq, lt } from "drizzle-orm";
 import { getOrCreateLearner, rebindLearner } from "~/lib/auth";
 
 export const prerender = false;

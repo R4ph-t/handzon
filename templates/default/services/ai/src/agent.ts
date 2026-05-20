@@ -39,9 +39,9 @@ export function createAssistant({ payload, config, learnerKey }: AgentOptions): 
     id: "useSkill",
     description: `Load the full body of a built-in skill. Available: ${enabledSkills.map((s) => s.name).join(", ")}.`,
     inputSchema: z.object({ name: z.string() }),
-    execute: async ({ context }) => {
-      const skill = enabledSkills.find((s) => s.name === context.name);
-      if (!skill) return { error: `No skill "${context.name}".` };
+    execute: async (input: { name: string }) => {
+      const skill = enabledSkills.find((s) => s.name === input.name);
+      if (!skill) return { error: `No skill "${input.name}".` };
       return { name: skill.name, body: skill.body };
     },
   });
@@ -84,6 +84,7 @@ ${skillsHeader}
 `;
 
   return new Agent({
+    id: name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "helper",
     name,
     instructions: systemPrompt,
     model: pickModel(config.provider, config.model, learnerKey),

@@ -46,7 +46,7 @@ const nextSlug = next ? parseStepId(next.id).stepSlug : null;
   if (nav && nav.dataset.gated === "true") {
     const next = nav.querySelector<HTMLAnchorElement>("[data-next-link]");
     if (next) {
-      const key = nav.dataset.stepKey!;
+      const key = nav.dataset.stepKey as `${string}/${string}`;
       const refresh = () => {
         const done = getStore().get().steps[key] === "complete";
         if (!done) {

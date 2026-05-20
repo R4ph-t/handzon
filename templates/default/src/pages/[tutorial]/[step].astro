@@ -44,7 +44,12 @@ const components = mdxComponents({ tutorialSlug: tutorial.id, stepSlug });
 const hasCheckpoint = currentStep.body?.includes("<Checkpoint") ?? false;
 
 // AI assistant config: merge per-tutorial overrides on top of site defaults.
-const aiConfig = { ...aiDefaults, ...(tutorial.data.ai ?? {}) };
+// Cast: the schema's image() helper types `avatar` as ImageMetadata, but the
+// chat UI only ever reads its src string, so collapsing to `unknown` is fine.
+const aiConfig = { ...aiDefaults, ...(tutorial.data.ai ?? {}) } as typeof aiDefaults & {
+  disabledSkills?: string[];
+  allowedDomains?: string[];
+};
 const initialContext = buildContext({
   tutorial,
   steps,
