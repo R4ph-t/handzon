@@ -2,29 +2,32 @@
   /* Surfaces */
   --color-bg:          oklch(0% 0 0);
   --color-fg:          oklch(96% 0 0);
-  --color-muted:       oklch(72% 0 0);
-  --color-border:      oklch(55% 0 0);
-  --color-surface:     oklch(8% 0 0);
+  --color-muted:       oklch(64% 0 0);
+  --color-border:      oklch(28% 0 0);   /* much subtler than before */
+  --color-border-strong: oklch(50% 0 0); /* for emphasis only */
+  --color-surface:     oklch(13% 0 0);   /* slight lift, code blocks + cards */
+  --color-surface-2:   oklch(18% 0 0);   /* hover/active row */
 
   /* Accent + intent */
-  --color-accent:      oklch(60.6% 0.25 292.7);
-  --color-accent-fg:   oklch(96% 0 0);
-  --color-info:        oklch(62% 0.20 252);
+  --color-accent:      oklch(64% 0.22 292.7);
+  --color-accent-fg:   oklch(98% 0 0);
+  --color-accent-soft: oklch(36% 0.18 292.7); /* for backgrounds tinted with accent */
+  --color-info:        oklch(68% 0.18 252);
   --color-tip:         var(--color-accent);
-  --color-warn:        oklch(75% 0.16 75);
-  --color-danger:      oklch(64% 0.24 25);
-  --color-success:     oklch(70% 0.18 145);
+  --color-warn:        oklch(78% 0.16 75);
+  --color-danger:      oklch(68% 0.22 25);
+  --color-success:     oklch(72% 0.18 145);
 
-  /* Geometry */
+  /* Geometry — thin strokes, no rounding */
   --radius-sm: 0;
   --radius-md: 0;
   --radius-lg: 0;
-  --border-default: 2px;
-  --border-thick:   3px;
+  --border-default: 1px;
+  --border-thick:   2px;
 
-  /* Shadow (brutalist hard offset) */
-  --shadow-raised: 4px 4px 0 0 var(--color-fg);
-  --shadow-press:  2px 2px 0 0 var(--color-fg);
+  /* Shadow — none by default; specific components opt-in via raised. */
+  --shadow-raised: none;
+  --shadow-press:  none;
 
   /* Type */
   --font-sans: "Geist Variable", ui-sans-serif, system-ui, sans-serif;
@@ -39,8 +42,8 @@
   --color-bg:          oklch(98% 0 0);
   --color-fg:          oklch(12% 0 0);
   --color-muted:       oklch(40% 0 0);
-  --color-border:      oklch(45% 0 0);
-  --color-surface:     oklch(94% 0 0);
-  --shadow-raised: 4px 4px 0 0 var(--color-fg);
-  --shadow-press:  2px 2px 0 0 var(--color-fg);
+  --color-border:      oklch(85% 0 0);
+  --color-border-strong: oklch(65% 0 0);
+  --color-surface:     oklch(95% 0 0);
+  --color-surface-2:   oklch(91% 0 0);
 }

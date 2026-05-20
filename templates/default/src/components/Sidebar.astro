@@ -89,30 +89,36 @@ const slug = tutorial.id;
     list-style: none;
     padding: 0;
     margin: 1rem 0 0;
-    border-top: var(--border-default, 2px) solid var(--color-border);
   }
   .sb-steps li {
-    border-bottom: 1px solid var(--color-border);
+    /* no row borders — color-fill the active row, hover lifts inactive rows */
   }
   .sb-steps a {
     display: grid;
-    grid-template-columns: 22px 1fr auto;
+    grid-template-columns: 18px 1fr auto;
     align-items: center;
     gap: 0.6rem;
-    padding: 0.6rem 0.4rem;
+    padding: 0.55rem 0.7rem;
     color: var(--color-fg);
     text-decoration: none;
-    font-size: 0.95em;
+    font-size: 0.93em;
+  }
+  .sb-steps a:hover {
+    background: var(--color-surface);
+    color: var(--color-fg);
   }
   .sb-steps li.is-current a {
-    background: var(--color-surface);
-    box-shadow: inset 3px 0 0 var(--color-accent);
+    background: color-mix(in oklab, var(--color-accent) 40%, var(--color-bg));
+    color: var(--color-fg);
+    font-weight: 500;
   }
-  .sb-steps a:hover { color: var(--color-accent); }
+  .sb-steps li.is-current a:hover {
+    background: color-mix(in oklab, var(--color-accent) 48%, var(--color-bg));
+  }
   .sb-check {
-    width: 16px;
-    height: 16px;
-    border: var(--border-default, 2px) solid var(--color-border);
+    width: 14px;
+    height: 14px;
+    border: var(--border-default) solid var(--color-border-strong);
     display: inline-block;
   }
   .sb-check[data-done="true"],

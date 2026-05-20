@@ -17,8 +17,9 @@ const { title = "What you learned", items } = Astro.props;
     margin: 2rem 0;
     padding: 1rem 1.25rem;
     background: var(--color-surface);
-    border: var(--border-default, 2px) solid var(--color-fg);
-    box-shadow: var(--shadow-press);
+    border: var(--border-default) solid var(--color-border);
+    border-top: var(--border-thick) solid var(--color-accent);
+    border-radius: 0;
   }
   .recap-title {
     margin: 0 0 0.5rem;

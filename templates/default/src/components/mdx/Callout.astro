@@ -36,21 +36,19 @@ const label = {
     display: flex;
     gap: 0;
     margin: 1.25rem 0;
-    background: var(--color-bg);
-    border: var(--border-default, 2px) solid var(--color-border);
+    background: color-mix(in oklab, var(--callout-color) 12%, var(--color-bg));
+    border-left: 3px solid var(--callout-color);
+    border-radius: 0;
+    overflow: hidden;
   }
-  .callout-bar {
-    width: 4px;
-    background: var(--callout-color);
-    flex-shrink: 0;
-  }
+  .callout-bar { display: none; }
   .callout-body {
-    padding: 0.75rem 1rem;
+    padding: 0.7rem 1rem;
     flex: 1;
   }
   .callout-label {
     text-transform: uppercase;
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     letter-spacing: 0.08em;
     color: var(--callout-color);
     font-weight: 700;

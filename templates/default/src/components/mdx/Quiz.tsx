@@ -68,8 +68,11 @@ export default function Quiz({ question, options, answer, explanation, id, multi
                 checked={isChosen}
                 onChange={() => toggle(i)}
               />
-              <span className="quiz-marker">
-                {isCorrect ? <Check size={14} /> : wasWrong ? <X size={14} /> : null}
+              <span
+                className={`quiz-opt-toggle quiz-opt-toggle--${expectMulti ? "multi" : "single"}`}
+                aria-hidden="true"
+              >
+                {isCorrect ? <Check size={12} /> : wasWrong ? <X size={12} /> : null}
               </span>
               <span>{opt}</span>
             </label>

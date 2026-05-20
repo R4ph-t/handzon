@@ -13,13 +13,15 @@ const { title = "Show hint" } = Astro.props;
 <style>
   .hint {
     margin: 1rem 0;
-    border: var(--border-default, 2px) solid var(--color-border);
     background: var(--color-surface);
+    border: var(--border-default) solid var(--color-border);
+    border-radius: 0;
+    overflow: hidden;
   }
   .hint > summary {
-    padding: 0.5rem 0.75rem;
+    padding: 0.6rem 0.85rem;
     cursor: pointer;
-    font-weight: 600;
+    font-weight: 500;
     color: var(--color-accent);
     list-style: none;
     user-select: none;
@@ -31,10 +33,12 @@ const { title = "Show hint" } = Astro.props;
     margin-right: 0.5em;
     transition: transform 0.15s ease;
     color: var(--color-muted);
+    font-size: 0.75em;
   }
   .hint[open] > summary::before { transform: rotate(90deg); }
   .hint-body {
-    padding: 0.5rem 0.75rem 0.75rem;
-    border-top: var(--border-default, 2px) solid var(--color-border);
+    padding: 0.6rem 0.85rem;
+    background: var(--color-bg);
+    margin: 0 0.5rem 0.5rem;
   }
 </style>
