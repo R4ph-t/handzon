@@ -155,10 +155,10 @@ importers:
       '@astrojs/react':
         specifier: ^5.0.5
         version: 5.0.5(@types/node@25.9.1)(@types/react-dom@19.2.3(@types/react@19.2.15))(@types/react@19.2.15)(jiti@2.7.0)(lightningcss@1.32.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(tsx@4.22.3)(yaml@2.9.0)
-      '@handzon/ai':
+      'handzon-ai':
         specifier: workspace:*
         version: link:../../packages/ai
-      '@handzon/ui':
+      'handzon-ui':
         specifier: workspace:*
         version: link:../../packages/ui
       '@tailwindcss/vite':

@@ -1,5 +1,5 @@
 {
-  "name": "@handzon/ui",
+  "name": "handzon-ui",
   "version": "0.2.0",
   "description": "UI framework for Handzon — layouts, components, lib, styles consumed by Handzon scaffolds.",
   "publishConfig": {
@@ -33,7 +33,7 @@
     "./styles/*": "./styles/*"
   },
   "scripts": {
-    "build": "echo '@handzon/ui ships source — Astro type-checks at consume time'"
+    "build": "echo 'handzon-ui ships source — Astro type-checks at consume time'"
   },
   "peerDependencies": {
     "astro": "^6.0.0",

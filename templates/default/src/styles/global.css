@@ -2,4 +2,4 @@
 @import "./themes/brutalist-dark.css";
 
 /* Handzon framework styles (tailwind + base + component styles). */
-@import "@handzon/ui/styles/global.css";
+@import "handzon-ui/styles/global.css";

@@ -1,5 +1,5 @@
 {
-  "name": "@handzon/ai",
+  "name": "handzon-ai",
   "version": "0.2.0",
   "description": "Standalone AI backend for Handzon (Hono + Mastra). Exposes /chat and /healthz.",
   "publishConfig": {

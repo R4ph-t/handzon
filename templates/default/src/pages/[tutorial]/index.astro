@@ -1,8 +1,8 @@
 ---
 export const prerender = true;
 import "~/styles/global.css";
-import TutorialLandingPage from "@handzon/ui/pages/TutorialLanding.astro";
-import { getTutorialLandingPaths } from "@handzon/ui/pages/paths.ts";
+import TutorialLandingPage from "handzon-ui/pages/TutorialLanding.astro";
+import { getTutorialLandingPaths } from "handzon-ui/pages/paths.ts";
 import { site } from "~/config/site";
 
 export const getStaticPaths = getTutorialLandingPaths;
