@@ -1,0 +1,90 @@
+# yaml-language-server: $schema=https://render.com/schema/render.yaml.json
+#
+# Monorepo demo deployment.
+#
+# This Blueprint deploys the default template from the monorepo directly,
+# so visitors can see what `npx create-handzon` produces. The Blueprints
+# inside `templates/default/` (render.yaml + render.full.yaml) are the
+# ones that ship to scaffolded projects — they assume the template is at
+# the repo root and intentionally use `rootDir: .`.
+#
+# Tier 2 setup: SSR Astro + Mastra AI service + Postgres for cross-device
+# progress. Migrations run as a pre-deploy hook on the site service.
+#
+# After "New → Blueprint", set the AI provider keys on the assistant
+# service (only one is required, depending on the chosen provider):
+#   ANTHROPIC_API_KEY
+#   OPENAI_API_KEY
+#   GOOGLE_GENERATIVE_AI_API_KEY
+#   OPENAI_COMPATIBLE_API_KEY (+ OPENAI_COMPATIBLE_BASE_URL)
+
+previews:
+  generation: automatic
+  expireAfterDays: 7
+
+projects:
+  - name: handzon-demo
+    environments:
+      - name: production
+        services:
+          - type: web
+            name: handzon-demo-site
+            runtime: node
+            plan: starter
+            # pnpm walks up to find pnpm-workspace.yaml, so workspace
+            # deps resolve correctly even though we're inside a subdir.
+            rootDir: templates/default
+            buildCommand: pnpm install --frozen-lockfile && pnpm build
+            startCommand: node ./dist/server/entry.mjs
+            preDeployCommand: pnpm db:migrate
+            healthCheckPath: /healthz
+            envVars:
+              - key: NODE_VERSION
+                value: "22"
+              - key: PUBLIC_PROGRESS_BACKEND
+                value: remote
+              - key: PUBLIC_AI_SERVICE_URL
+                # Bare private-network hostname; the browser-side fetch
+                # expands it to `https://<host>.onrender.com`.
+                fromService:
+                  type: web
+                  name: handzon-demo-ai
+                  property: host
+              - key: DATABASE_URL
+                fromDatabase:
+                  name: handzon-demo-db
+                  property: connectionString
+
+          - type: web
+            name: handzon-demo-ai
+            runtime: node
+            plan: starter
+            rootDir: templates/default/services/ai
+            buildCommand: pnpm install --frozen-lockfile && pnpm build
+            startCommand: pnpm start
+            healthCheckPath: /healthz
+            envVars:
+              - key: NODE_VERSION
+                value: "22"
+              - key: ALLOWED_ORIGIN
+                # CORS middleware expands this to
+                # `https://<host>.onrender.com`.
+                fromService:
+                  type: web
+                  name: handzon-demo-site
+                  property: host
+              - key: ANTHROPIC_API_KEY
+                sync: false
+              - key: OPENAI_API_KEY
+                sync: false
+              - key: GOOGLE_GENERATIVE_AI_API_KEY
+                sync: false
+              - key: OPENAI_COMPATIBLE_API_KEY
+                sync: false
+              - key: OPENAI_COMPATIBLE_BASE_URL
+                sync: false
+
+        databases:
+          - name: handzon-demo-db
+            plan: basic-256mb
+            postgresMajorVersion: "17"
