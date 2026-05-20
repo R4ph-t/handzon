@@ -1,10 +1,10 @@
 export const site = {
-  name: "Tutorial Tool",
+  name: "Handzon",
   tagline: "Step-by-step tutorials for the modern web.",
   hero: {
-    title: "Learn by building.",
+    title: "Handzon.",
     subtitle:
-      "Hands-on tutorials with live code, quizzes, and an AI tutor that nudges instead of solves.",
+      "Tutorials with live code, quizzes, and an AI tutor that helps you learn.",
   },
   showResumeRail: true,
 };
