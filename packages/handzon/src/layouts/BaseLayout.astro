@@ -1,0 +1,41 @@
+---
+interface Props {
+  title?: string;
+  description?: string;
+  siteName?: string;
+  tagline?: string;
+}
+const {
+  title,
+  description,
+  siteName = "Handzon",
+  tagline = "Hands-on tutorials",
+} = Astro.props;
+const pageTitle = title ? `${title} — ${siteName}` : siteName;
+const desc = description ?? tagline;
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={desc} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={desc} />
+    <meta property="og:type" content="website" />
+  </head>
+  <body>
+    <slot />
+    <script>
+      // Render any <pre class="mermaid"> blocks emitted by rehype-mermaid.
+      if (document.querySelector("pre.mermaid")) {
+        import("mermaid").then(({ default: mermaid }) => {
+          mermaid.initialize({ startOnLoad: false, theme: "dark", securityLevel: "strict" });
+          mermaid.run({ querySelector: "pre.mermaid" });
+        });
+      }
+    </script>
+  </body>
+</html>

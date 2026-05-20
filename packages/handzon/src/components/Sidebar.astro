@@ -1,0 +1,146 @@
+---
+import type { TutorialEntry, StepEntry } from "../lib/content";
+import { parseStepId } from "../lib/content";
+import Progress from "./Progress.tsx";
+
+interface Props {
+  tutorial: TutorialEntry;
+  steps: StepEntry[];
+  currentStepSlug: string;
+}
+
+const { tutorial, steps, currentStepSlug } = Astro.props;
+const slug = tutorial.id;
+---
+<aside class="sidebar" aria-label="Tutorial steps">
+  <header class="sb-header">
+    <a class="sb-back" href="/">← All tutorials</a>
+    <h2 class="sb-title">
+      <a href={`/${slug}`}>{tutorial.data.title}</a>
+    </h2>
+    {tutorial.data.estimatedDuration && (
+      <div class="sb-meta">{tutorial.data.estimatedDuration}</div>
+    )}
+  </header>
+
+  {tutorial.data.showProgress && (
+    <Progress tutorialSlug={slug} totalSteps={steps.length} client:load />
+  )}
+
+  <ol class="sb-steps">
+    {steps.map((step) => {
+      const { stepSlug } = parseStepId(step.id);
+      const isCurrent = stepSlug === currentStepSlug;
+      return (
+        <li class={isCurrent ? "is-current" : ""} data-step-slug={stepSlug}>
+          <a href={`/${slug}/${stepSlug}`}>
+            <span class="sb-check" data-step-key={`${slug}/${stepSlug}`}></span>
+            <span class="sb-name">{step.data.title}</span>
+            {step.data.duration && <span class="sb-dur">{step.data.duration}</span>}
+          </a>
+        </li>
+      );
+    })}
+  </ol>
+</aside>
+
+<script>
+  // Hydrate per-step check marks from localStorage without an island.
+  import { getStore } from "../lib/progress/local";
+  function refresh() {
+    const store = getStore();
+    const state = store.get();
+    document.querySelectorAll<HTMLElement>("[data-step-key]").forEach((el) => {
+      const key = el.dataset.stepKey as `${string}/${string}`;
+      const done = state.steps[key] === "complete";
+      el.dataset.done = done ? "true" : "false";
+    });
+  }
+  refresh();
+  getStore().subscribe(refresh);
+</script>
+
+<style>
+  .sidebar {
+    border-right: var(--border-default, 2px) solid var(--color-border);
+    background: var(--color-bg);
+    padding: 1rem 1rem 2rem;
+    overflow-y: auto;
+    height: 100%;
+  }
+  .sb-header { margin-bottom: 1rem; }
+  .sb-back {
+    font-family: var(--font-mono);
+    font-size: 0.75em;
+    color: var(--color-muted);
+    text-decoration: none;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .sb-back:hover { color: var(--color-accent); }
+  .sb-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    letter-spacing: -0.015em;
+    margin: 0.5rem 0 0.25rem;
+    line-height: 1.2;
+  }
+  .sb-title a { color: var(--color-fg); text-decoration: none; }
+  .sb-meta {
+    color: var(--color-muted);
+    font-size: 0.72em;
+    font-family: var(--font-mono);
+    letter-spacing: 0.04em;
+  }
+  .sb-steps {
+    list-style: none;
+    padding: 0;
+    margin: 1rem 0 0;
+    border-top: var(--border-default) solid var(--color-border);
+  }
+  .sb-steps li + li {
+    border-top: var(--border-default) solid var(--color-border);
+  }
+  .sb-steps a {
+    display: grid;
+    grid-template-columns: 18px 1fr auto;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.6rem 0.7rem;
+    color: var(--color-fg);
+    text-decoration: none;
+    font-size: 0.92em;
+    font-weight: 500;
+    letter-spacing: -0.005em;
+  }
+  .sb-steps a:hover {
+    background: var(--color-surface);
+    color: var(--color-fg);
+  }
+  .sb-steps li.is-current a {
+    background: color-mix(in oklab, var(--color-accent) 40%, var(--color-bg));
+    color: var(--color-fg);
+    font-weight: 500;
+  }
+  .sb-steps li.is-current a:hover {
+    background: color-mix(in oklab, var(--color-accent) 48%, var(--color-bg));
+  }
+  .sb-check {
+    width: 14px;
+    height: 14px;
+    border: var(--border-default) solid var(--color-border-strong);
+    display: inline-block;
+  }
+  .sb-check[data-done="true"],
+  .sb-steps [data-step-key][data-done="true"] {
+    background: var(--color-accent);
+    border-color: var(--color-accent);
+  }
+  .sb-dur {
+    color: var(--color-muted);
+    font-family: var(--font-mono);
+    font-size: 0.72em;
+    font-weight: 400;
+    letter-spacing: 0.02em;
+  }
+</style>

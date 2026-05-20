@@ -1,77 +1,17 @@
 ---
-import { render } from "astro:content";
-import TutorialLayout from "~/layouts/TutorialLayout.astro";
-import {
-  getTutorials,
-  getStepsForTutorial,
-  parseStepId,
-  type TutorialEntry,
-  type StepEntry,
-} from "~/lib/content";
-import { mdxComponents } from "~/lib/mdx-components";
-import ChatButton from "~/components/ai/ChatButton";
-import { buildContext } from "~/lib/ai/context";
-import { aiDefaults } from "~/config/ai";
-import { emptyState } from "~/lib/progress/types";
-
-// Pre-render every tutorial step to static HTML at build time.
 export const prerender = true;
+import "~/styles/global.css";
+import TutorialStepPage from "handzon/pages/TutorialStep.astro";
+import { getTutorialStepPaths } from "handzon/pages/paths.ts";
+import { aiDefaults } from "~/config/ai";
 
-export async function getStaticPaths() {
-  const tutorials = await getTutorials();
-  const paths: Array<{
-    params: { tutorial: string; step: string };
-    props: { tutorial: TutorialEntry; steps: StepEntry[]; currentStep: StepEntry };
-  }> = [];
-  for (const tut of tutorials) {
-    const steps = await getStepsForTutorial(tut.id);
-    for (const step of steps) {
-      const { stepSlug } = parseStepId(step.id);
-      paths.push({
-        params: { tutorial: tut.id, step: stepSlug },
-        props: { tutorial: tut, steps, currentStep: step },
-      });
-    }
-  }
-  return paths;
-}
+export const getStaticPaths = getTutorialStepPaths;
 
 const { tutorial, steps, currentStep } = Astro.props;
-const { stepSlug } = parseStepId(currentStep.id);
-const { Content } = await render(currentStep);
-
-// Checkpoint reads the host route from the page-level marker emitted by
-// TutorialLayout, so the components map no longer needs context.
-const components = mdxComponents();
-
-// rehype-mermaid + a quick scan tell us if a Checkpoint exists in the source.
-const hasCheckpoint = currentStep.body?.includes("<Checkpoint") ?? false;
-
-// AI assistant config: merge per-tutorial overrides on top of site defaults.
-// Cast: the schema's image() helper types `avatar` as ImageMetadata, but the
-// chat UI only ever reads its src string, so collapsing to `unknown` is fine.
-const aiConfig = { ...aiDefaults, ...(tutorial.data.ai ?? {}) } as typeof aiDefaults & {
-  disabledSkills?: string[];
-  allowedDomains?: string[];
-};
-const initialContext = buildContext({
-  tutorial,
-  steps,
-  currentStep,
-  progress: emptyState(),
-  references: [],
-  includeFutureSteps: aiConfig.includeFutureSteps,
-});
 ---
-<TutorialLayout
+<TutorialStepPage
   tutorial={tutorial}
   steps={steps}
   currentStep={currentStep}
-  currentStepSlug={stepSlug}
-  hasCheckpoint={hasCheckpoint}
->
-  <Content components={components} />
-  {aiConfig.enabled && (
-    <ChatButton client:idle config={aiConfig} context={initialContext} />
-  )}
-</TutorialLayout>
+  aiDefaults={aiDefaults}
+/>

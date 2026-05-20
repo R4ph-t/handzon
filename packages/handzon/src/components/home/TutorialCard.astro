@@ -1,0 +1,77 @@
+---
+import type { TutorialEntry } from "../../lib/content";
+
+interface Props {
+  tutorial: TutorialEntry;
+  duration?: string;
+}
+const { tutorial, duration } = Astro.props;
+const data = tutorial.data;
+const slug = tutorial.id;
+---
+<article class="card" data-difficulty={data.difficulty} data-tags={data.tags.join(",")} data-search={`${data.title} ${data.description} ${data.tags.join(" ")}`.toLowerCase()}>
+  <a href={`/${slug}`} class="card-link">
+    <div class="card-body">
+      <div class="badges">
+        <span class={`badge badge-${data.difficulty}`}>{data.difficulty}</span>
+        {duration && <span class="badge badge-neutral">{duration}</span>}
+      </div>
+      <h3>{data.title}</h3>
+      <p>{data.description}</p>
+      {data.tags.length > 0 && (
+        <div class="tags">
+          {data.tags.map((tag) => <span class="tag">#{tag}</span>)}
+        </div>
+      )}
+      <div class="card-progress" data-tutorial-slug={slug}></div>
+    </div>
+  </a>
+</article>
+
+<style>
+  .card {
+    border: var(--border-default, 2px) solid var(--color-border);
+    background: var(--color-bg);
+    transition: transform 0.08s ease, box-shadow 0.08s ease, border-color 0.1s ease;
+  }
+  .card:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: var(--shadow-raised);
+    border-color: var(--color-fg);
+  }
+  .card-link {
+    color: var(--color-fg);
+    text-decoration: none;
+    display: block;
+  }
+  .card-body { padding: 1rem 1.1rem; }
+  .badges { display: flex; gap: 0.4rem; margin-bottom: 0.5rem; flex-wrap: wrap; }
+  .badge {
+    display: inline-block;
+    padding: 0.15rem 0.45rem;
+    font-family: var(--font-mono);
+    font-size: 0.7em;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    border: var(--border-default, 2px) solid var(--color-border);
+    color: var(--color-muted);
+  }
+  .badge-beginner { color: var(--color-success); border-color: var(--color-success); }
+  .badge-intermediate { color: var(--color-warn); border-color: var(--color-warn); }
+  .badge-advanced { color: var(--color-danger); border-color: var(--color-danger); }
+  h3 {
+    font-size: 1.05rem;
+    font-weight: 700;
+    margin: 0.3rem 0;
+    letter-spacing: -0.015em;
+    line-height: 1.25;
+  }
+  p { margin: 0.4rem 0; color: var(--color-muted); font-size: 0.93em; line-height: 1.55; }
+  .tags { display: flex; gap: 0.3rem; flex-wrap: wrap; margin-top: 0.5rem; }
+  .tag {
+    font-family: var(--font-mono);
+    font-size: 0.7em;
+    color: var(--color-muted);
+  }
+  .card-progress { margin-top: 0.75rem; }
+</style>

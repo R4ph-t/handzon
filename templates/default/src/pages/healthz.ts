@@ -1,6 +1,1 @@
-import type { APIRoute } from "astro";
-import { json } from "~/lib/http";
-
-// Hit by Render's healthCheckPath on both tiers. Both tiers are SSR
-// node services in this template, so the response is computed at runtime.
-export const GET: APIRoute = () => json({ status: "ok" });
+export { GET } from "handzon/server/handlers/healthz.ts";

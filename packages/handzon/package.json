@@ -1,0 +1,65 @@
+{
+  "name": "handzon",
+  "version": "0.2.0",
+  "description": "UI framework for Handzon — layouts, components, lib, styles consumed by Handzon scaffolds.",
+  "license": "MIT",
+  "author": "r4ph_t",
+  "homepage": "https://github.com/R4ph-t/handzon#readme",
+  "bugs": {
+    "url": "https://github.com/R4ph-t/handzon/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/R4ph-t/handzon.git",
+    "directory": "packages/handzon"
+  },
+  "type": "module",
+  "files": [
+    "src",
+    "styles",
+    "README.md"
+  ],
+  "exports": {
+    ".": "./src/index.ts",
+    "./collections.ts": "./src/collections.ts",
+    "./components/*": "./src/components/*",
+    "./layouts/*": "./src/layouts/*",
+    "./lib/*": "./src/lib/*",
+    "./pages/*": "./src/pages/*",
+    "./server/*": "./src/server/*",
+    "./styles/*": "./styles/*"
+  },
+  "scripts": {
+    "build": "echo 'handzon ships source — Astro type-checks at consume time'"
+  },
+  "peerDependencies": {
+    "astro": "^6.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "dependencies": {
+    "@codesandbox/sandpack-react": "^2.20.0",
+    "@fontsource-variable/geist": "^5.2.9",
+    "@fontsource-variable/geist-mono": "^5.2.8",
+    "@radix-ui/react-dialog": "^1.1.15",
+    "diff": "^9.0.0",
+    "drizzle-orm": "^0.45.2",
+    "postgres": "^3.4.9",
+    "lucide-react": "^1.16.0",
+    "mermaid": "^11.15.0",
+    "react-markdown": "^9.0.1",
+    "remark-gfm": "^4.0.0",
+    "unist-util-visit": "^5.0.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/hast": "^3.0.4",
+    "@types/react": "^19.2.15",
+    "@types/react-dom": "^19.2.3",
+    "astro": "^6.3.5",
+    "typescript": "^6.0.3"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  }
+}

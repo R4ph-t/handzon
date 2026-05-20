@@ -1,4 +1,4 @@
-import { cp, rm } from "node:fs/promises";
+import { cp, readFile, rm, writeFile } from "node:fs/promises";
 import { relative, resolve, sep } from "node:path";
 import { defineConfig } from "tsup";
 
@@ -15,6 +15,30 @@ const EXCLUDED_SEGMENTS = new Set([
   ".cursor",
   ".claude",
 ]);
+
+// Workspace deps that need to point at published versions in the
+// bundled template — see `rewriteWorkspaceDeps()` below.
+const WORKSPACE_DEPS_TO_VERSIONS: Record<string, string> = {
+  handzon: "^0.2.0",
+  "handzon-ai-service": "^0.2.0",
+};
+
+async function rewriteWorkspaceDeps(pkgJsonPath: string) {
+  const raw = await readFile(pkgJsonPath, "utf8");
+  const pkg = JSON.parse(raw);
+  let changed = false;
+  for (const block of ["dependencies", "devDependencies"] as const) {
+    const deps = pkg[block];
+    if (!deps) continue;
+    for (const [name, version] of Object.entries(WORKSPACE_DEPS_TO_VERSIONS)) {
+      if (deps[name] === "workspace:*" || deps[name]?.startsWith?.("workspace:")) {
+        deps[name] = version;
+        changed = true;
+      }
+    }
+  }
+  if (changed) await writeFile(pkgJsonPath, `${JSON.stringify(pkg, null, 2)}\n`, "utf8");
+}
 
 export default defineConfig({
   entry: ["src/index.ts"],
@@ -51,5 +75,11 @@ export default defineConfig({
         return !rel.split(sep).some((seg) => EXCLUDED_SEGMENTS.has(seg));
       },
     });
+
+    // The template inside the monorepo uses `workspace:*` for handzon
+    // and handzon-ai-service so dev links the local sources. In the
+    // bundled tarball that's not resolvable, so replace those with the
+    // published version ranges users actually need.
+    await rewriteWorkspaceDeps(resolve(dst, "package.json"));
   },
 });

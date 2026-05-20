@@ -177,26 +177,29 @@ export async function runInit(opts: InitOptions = {}): Promise<void> {
     await writeFile(cssPath, css.replace("./themes/brutalist-dark.css", `./themes/${theme}.css`));
   }
 
-  // AI config: overwrite src/config/ai.ts with the user's picks.
+  // AI config: overwrite src/config/ai.ts with the user's picks. AiConfig
+  // type comes from handzon — the scaffold just supplies values.
   await writeFile(
     join(targetDir, "src/config/ai.ts"),
-    `export const aiDefaults = {
+    `import type { AiConfig } from "handzon";
+
+export const aiDefaults: AiConfig = {
   enabled: ${aiEnabled},
   name: ${JSON.stringify(assistantName)},
-  tagline: undefined as string | undefined,
-  greeting: undefined as string | undefined,
-  avatar: undefined as string | undefined,
-  persona: undefined as string | undefined,
-  provider: "anthropic" as "anthropic" | "openai" | "google" | "openai-compatible",
+  tagline: undefined,
+  greeting: undefined,
+  avatar: undefined,
+  persona: undefined,
+  provider: "anthropic",
   model: "claude-sonnet-4-5",
-  byok: ${JSON.stringify(byok)} as "required" | "optional" | "disabled",
-  tone: "socratic" as "socratic" | "direct" | "encouraging",
+  byok: ${JSON.stringify(byok)},
+  tone: "socratic",
   contextBudgetTokens: 8000,
   includeFutureSteps: false,
   tools: { suggestPlaygroundEdit: false },
 };
 
-export type AiConfig = typeof aiDefaults;
+export type { AiConfig };
 `,
   );
 
