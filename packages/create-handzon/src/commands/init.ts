@@ -153,12 +153,13 @@ export async function runInit(opts: InitOptions = {}): Promise<void> {
     },
   });
 
-  // npm strips `.gitignore` from the published tarball (it treats the
-  // name as a filtering directive, not a file to ship). The template
-  // stores it as `gitignore` (no dot); restore the dot in the scaffold.
-  const gitignoreSrc = join(targetDir, "gitignore");
-  if (existsSync(gitignoreSrc)) {
-    await rename(gitignoreSrc, join(targetDir, ".gitignore"));
+  // npm strips dotfiles like `.gitignore` and `.npmrc` from the
+  // published tarball (it treats those names as filtering directives,
+  // not files to ship). The template stores them without the leading
+  // dot; restore it in the scaffold so they actually take effect.
+  for (const name of ["gitignore", "npmrc"]) {
+    const src = join(targetDir, name);
+    if (existsSync(src)) await rename(src, join(targetDir, `.${name}`));
   }
 
   s.stop("Template copied");

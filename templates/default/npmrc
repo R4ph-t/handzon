@@ -1,0 +1,14 @@
+# Hoist React (and its transitive types/DOM friends) to the root
+# node_modules so every workspace member resolves to the same instance.
+# pnpm's default strict layout puts React under each consumer (Sandpack,
+# Radix, lucide, etc.), and Astro 6 + React 19 SSR doesn't always dedupe
+# the duplicates — you'd get "Invalid hook call" on the first island.
+# This .npmrc is per-project; it doesn't affect users' globals or
+# any other repo.
+public-hoist-pattern[]=*react*
+public-hoist-pattern[]=*react-dom*
+public-hoist-pattern[]=@types/react*
+
+# Don't fail install on peer-dep mismatches in this large dep tree.
+# Real conflicts still surface as warnings.
+strict-peer-dependencies=false
