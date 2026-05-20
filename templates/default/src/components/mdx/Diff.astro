@@ -1,0 +1,6 @@
+---
+import DiffIsland from "./Diff.tsx";
+type Props = Parameters<typeof DiffIsland>[0];
+const props = Astro.props as Props;
+---
+<DiffIsland client:visible {...props} />

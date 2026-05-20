@@ -4,9 +4,14 @@ import { getDb } from "~/db/client";
 import { progressEntries } from "~/db/schema";
 import { getOrCreateLearner } from "~/lib/auth";
 
-export const prerender = false;
-
+// Tier 1: no Postgres — returns an empty list (the frontend uses the
+// local store and never reads this in that mode). Tier 2: hits Postgres.
 export const GET: APIRoute = async ({ cookies }) => {
+  if (!process.env.DATABASE_URL) {
+    return new Response(JSON.stringify({ entries: [] }), {
+      headers: { "Content-Type": "application/json" },
+    });
+  }
   const learner = await getOrCreateLearner(cookies);
   const db = getDb();
   const rows = await db

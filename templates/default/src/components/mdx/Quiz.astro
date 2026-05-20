@@ -1,0 +1,6 @@
+---
+import QuizIsland from "./Quiz.tsx";
+type Props = Parameters<typeof QuizIsland>[0];
+const props = Astro.props as Props;
+---
+<QuizIsland client:load {...props} />

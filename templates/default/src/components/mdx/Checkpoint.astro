@@ -1,0 +1,14 @@
+---
+import CheckpointIsland from "./Checkpoint.tsx";
+
+interface Props {
+  label: string;
+  id?: string;
+}
+const props = Astro.props as Props;
+
+// The host step/tutorial come from the page-level route marker (set by
+// TutorialLayout). Reading them client-side keeps the Astro wrapper simple
+// and means authors never have to pass them by hand.
+---
+<CheckpointIsland client:load {...props} />

@@ -1,0 +1,7 @@
+---
+import RevealIsland from "./Reveal.tsx";
+const { label } = Astro.props;
+---
+<RevealIsland client:visible label={label}>
+  <slot />
+</RevealIsland>

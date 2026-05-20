@@ -51,15 +51,27 @@ const { tutorial, steps, currentStep, currentStepSlug, hasCheckpoint = false } =
     </main>
   </div>
 
-  <script define:vars={{ tutorialSlug: tutorial.id, currentStepSlug }}>
-    // Record last-visited as soon as the page loads.
-    import("~/lib/progress/local").then(({ getStore }) => {
-      const store = getStore();
-      store.set((s) => ({
+  <div
+    id="tt-route"
+    data-tutorial-slug={tutorial.id}
+    data-step-slug={currentStepSlug}
+    hidden
+  ></div>
+  <script>
+    // Record last-visited from a data marker (set in the markup above).
+    // Using a normal <script> + relative import so Vite resolves the path
+    // alias correctly; define:vars + dynamic import("~/...") bypasses
+    // Vite's resolver and the browser can't load the module.
+    import { getStore } from "~/lib/progress/local";
+    const route = document.getElementById("tt-route");
+    if (route) {
+      const tutorialSlug = route.dataset.tutorialSlug!;
+      const stepSlug = route.dataset.stepSlug!;
+      getStore().set((s) => ({
         ...s,
-        lastVisited: { ...s.lastVisited, [tutorialSlug]: currentStepSlug },
+        lastVisited: { ...s.lastVisited, [tutorialSlug]: stepSlug },
       }));
-    });
+    }
   </script>
 </BaseLayout>
 

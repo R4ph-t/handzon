@@ -1,0 +1,6 @@
+---
+import PlaygroundIsland from "./Playground.tsx";
+type Props = Parameters<typeof PlaygroundIsland>[0];
+const props = Astro.props as Props;
+---
+<PlaygroundIsland client:load {...props} />

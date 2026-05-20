@@ -4,8 +4,6 @@ import { getDb } from "~/db/client";
 import { learners, transferCodes } from "~/db/schema";
 import { getOrCreateLearner, rebindLearner } from "~/lib/auth";
 
-export const prerender = false;
-
 function randomCode(): string {
   const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
   const bytes = new Uint8Array(6);

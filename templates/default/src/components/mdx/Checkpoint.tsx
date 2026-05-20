@@ -1,35 +1,44 @@
 import { Check } from "lucide-react";
-import { useEffect, useId } from "react";
+import { useEffect, useId, useState } from "react";
 import { useProgress } from "~/lib/progress/useProgress";
 
 interface Props {
   label: string;
   id?: string;
-  /**
-   * The current step key, injected by the layout (tutorial slug / step slug).
-   * Components that aren't aware of the route still work — they just won't
-   * mark step completion.
-   */
-  tutorial?: string;
-  step?: string;
 }
 
-export default function Checkpoint({ label, id, tutorial, step }: Props) {
+/**
+ * Reads the host tutorial/step from the page-level route marker
+ * (<div id="tt-route" data-tutorial-slug=... data-step-slug=...>) that
+ * TutorialLayout emits. Looking it up here keeps the Astro wrapper trivial.
+ */
+function useRoute() {
+  const [route, setRoute] = useState<{ tutorial: string; step: string } | null>(null);
+  useEffect(() => {
+    const el = document.getElementById("tt-route");
+    if (!el) return;
+    const tutorial = el.dataset.tutorialSlug;
+    const step = el.dataset.stepSlug;
+    if (tutorial && step) setRoute({ tutorial, step });
+  }, []);
+  return route;
+}
+
+export default function Checkpoint({ label, id }: Props) {
   const reactId = useId();
   const checkpointId = id ?? `checkpoint:${reactId}:${label.slice(0, 40)}`;
   const { state, recordCheckpoint, markStepComplete } = useProgress();
+  const route = useRoute();
   const done = !!state.checkpoints[checkpointId];
 
-  // When a checkpoint is completed, mark the host step complete so the
-  // sidebar and Next button update in sync.
   useEffect(() => {
-    if (done && tutorial && step) markStepComplete(tutorial, step);
-  }, [done, tutorial, step, markStepComplete]);
+    if (done && route) markStepComplete(route.tutorial, route.step);
+  }, [done, route, markStepComplete]);
 
   function onToggle() {
     if (done) return;
     recordCheckpoint(checkpointId);
-    if (tutorial && step) markStepComplete(tutorial, step);
+    if (route) markStepComplete(route.tutorial, route.step);
   }
 
   return (

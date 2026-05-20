@@ -8,6 +8,9 @@ import {
   type TutorialEntry,
 } from "~/lib/content";
 
+// Pre-render every tutorial landing page at build time.
+export const prerender = true;
+
 export async function getStaticPaths() {
   const tutorials = await getTutorials();
   return tutorials.map((tut) => ({ params: { tutorial: tut.id }, props: { tutorial: tut } }));
@@ -78,16 +81,19 @@ const firstStepSlug = steps[0] ? parseStepId(steps[0].id).stepSlug : null;
     </section>
   </div>
 
-  <script define:vars={{ slug: tutorial.id }}>
-    import("~/lib/progress/local").then(({ getStore }) => {
+  <script>
+    // Normal <script> so Vite resolves "~/" aliases. Slug comes from the
+    // CTA's data-tutorial-slug attribute that's already in the markup.
+    import { getStore } from "~/lib/progress/local";
+    const cta = document.querySelector<HTMLAnchorElement>("[data-tutorial-slug]");
+    if (cta) {
+      const slug = cta.dataset.tutorialSlug!;
       const last = getStore().get().lastVisited[slug];
-      if (!last) return;
-      const cta = document.querySelector("[data-tutorial-slug]");
-      if (cta) {
+      if (last) {
         cta.textContent = `Continue from "${last}" →`;
         cta.setAttribute("href", `/${slug}/${last}`);
       }
-    });
+    }
   </script>
 </BaseLayout>
 

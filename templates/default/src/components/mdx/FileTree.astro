@@ -1,0 +1,6 @@
+---
+import FileTreeIsland from "./FileTree.tsx";
+type Props = Parameters<typeof FileTreeIsland>[0];
+const props = Astro.props as Props;
+---
+<FileTreeIsland client:visible {...props} />

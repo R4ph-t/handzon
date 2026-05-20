@@ -5,14 +5,16 @@ import { defineConfig } from "astro/config";
 import expressiveCode from "astro-expressive-code";
 import rehypeMermaidPassthrough from "./src/lib/rehype-mermaid-passthrough.ts";
 
-const useRemoteBackend = process.env.PUBLIC_PROGRESS_BACKEND === "remote";
+// Markdown-level config (shared by .md and .mdx); EC auto-extends it.
 
+// Always run as a Node web service. Tier 1 (no Postgres) still ships every
+// page; the API routes return empty stubs when DATABASE_URL is unset. This
+// keeps the build simple — Astro 6 can't mix prerendered pages with
+// SSR-only API routes in static output (directory/file path collisions).
 export default defineConfig({
   site: process.env.SITE_URL ?? "http://localhost:4321",
-  output: useRemoteBackend ? "server" : "static",
-  adapter: useRemoteBackend
-    ? (await import("@astrojs/node")).default({ mode: "standalone" })
-    : undefined,
+  output: "server",
+  adapter: (await import("@astrojs/node")).default({ mode: "standalone" }),
   server: {
     host: process.env.HOST ?? "0.0.0.0",
     port: Number(process.env.PORT ?? 4321),
@@ -30,9 +32,7 @@ export default defineConfig({
         },
       },
     }),
-    mdx({
-      rehypePlugins: [rehypeMermaidPassthrough],
-    }),
+    mdx(),
     react(),
   ],
   vite: {
@@ -51,5 +51,6 @@ export default defineConfig({
   },
   markdown: {
     syntaxHighlight: false,
+    rehypePlugins: [rehypeMermaidPassthrough],
   },
 });
