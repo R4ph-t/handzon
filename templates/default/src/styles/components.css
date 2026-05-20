@@ -434,6 +434,7 @@
   overflow: hidden;
   position: relative;
   border-radius: 0;
+  border: var(--border-default) solid var(--color-border);
 }
 .term-bar {
   display: flex;
