@@ -9,6 +9,10 @@ import {
   type StepEntry,
 } from "~/lib/content";
 import { mdxComponents } from "~/lib/mdx-components";
+import ChatButton from "~/components/ai/ChatButton";
+import { buildContext } from "~/lib/ai/context";
+import { aiDefaults } from "~/config/ai";
+import { emptyState } from "~/lib/progress/types";
 
 export async function getStaticPaths() {
   const tutorials = await getTutorials();
@@ -38,6 +42,17 @@ const components = mdxComponents({ tutorialSlug: tutorial.id, stepSlug });
 
 // rehype-mermaid + a quick scan tell us if a Checkpoint exists in the source.
 const hasCheckpoint = currentStep.body?.includes("<Checkpoint") ?? false;
+
+// AI assistant config: merge per-tutorial overrides on top of site defaults.
+const aiConfig = { ...aiDefaults, ...(tutorial.data.ai ?? {}) };
+const initialContext = buildContext({
+  tutorial,
+  steps,
+  currentStep,
+  progress: emptyState(),
+  references: [],
+  includeFutureSteps: aiConfig.includeFutureSteps,
+});
 ---
 <TutorialLayout
   tutorial={tutorial}
@@ -47,4 +62,7 @@ const hasCheckpoint = currentStep.body?.includes("<Checkpoint") ?? false;
   hasCheckpoint={hasCheckpoint}
 >
   <Content components={components} />
+  {aiConfig.enabled && (
+    <ChatButton client:idle config={aiConfig} context={initialContext} />
+  )}
 </TutorialLayout>

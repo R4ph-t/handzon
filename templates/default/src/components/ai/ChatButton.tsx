@@ -1,0 +1,30 @@
+import { useState } from "react";
+import { MessageCircle } from "lucide-react";
+import ChatPanel from "./ChatPanel";
+import type { AssistantContext } from "~/lib/ai/context";
+import type { AiConfig } from "~/config/ai";
+
+interface Props {
+  config: AiConfig & { disabledSkills?: string[]; allowedDomains?: string[] };
+  context: AssistantContext;
+}
+
+export default function ChatButton({ config, context }: Props) {
+  const [open, setOpen] = useState(false);
+  if (!config.enabled) return null;
+
+  return (
+    <>
+      <button
+        type="button"
+        className="chat-fab"
+        onClick={() => setOpen(true)}
+        aria-label={`Open ${config.name}`}
+      >
+        <MessageCircle size={20} />
+        <span>{config.name}</span>
+      </button>
+      <ChatPanel open={open} onOpenChange={setOpen} config={config} context={context} />
+    </>
+  );
+}
