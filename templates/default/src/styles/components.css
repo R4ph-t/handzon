@@ -321,14 +321,15 @@
 }
 .tut-tabs-list {
   display: flex;
-  gap: 2px;
+  gap: 4px;
   margin: 0;
   padding: 0;
   border-bottom: var(--border-default) solid var(--color-border);
 }
 .tut-tabs-trigger {
-  padding: 0.5rem 1rem;
-  background: transparent;
+  padding: 0.55rem 1.1rem;
+  /* Inactive tab: clearly visible chip in the secondary surface tier. */
+  background: color-mix(in oklab, var(--color-surface) 75%, var(--color-bg));
   border: 0;
   color: var(--color-muted);
   font: inherit;
@@ -337,14 +338,23 @@
   cursor: pointer;
   border-radius: 0;
   margin-bottom: -1px;
-  border-bottom: var(--border-default) solid transparent;
+  border-top: var(--border-default) solid var(--color-border);
+  border-left: var(--border-default) solid var(--color-border);
+  border-right: var(--border-default) solid var(--color-border);
+  border-bottom: var(--border-default) solid var(--color-border);
   transition: color 0.12s ease, background 0.12s ease, border-color 0.12s ease;
 }
-.tut-tabs-trigger:hover { color: var(--color-fg); }
-.tut-tabs-trigger[data-active="true"] {
+.tut-tabs-trigger:hover {
   color: var(--color-fg);
   background: var(--color-surface);
-  border-bottom-color: var(--color-accent);
+}
+.tut-tabs-trigger[data-active="true"] {
+  color: var(--color-fg);
+  font-weight: 600;
+  background: var(--color-surface);
+  border-top: var(--border-thick) solid var(--color-accent);
+  /* Hide the bottom border so the active tab merges with the panel. */
+  border-bottom-color: var(--color-surface);
 }
 .tut-tabs-content {
   background: var(--color-surface);
