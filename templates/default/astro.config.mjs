@@ -54,6 +54,15 @@ export default defineConfig({
       // "single React" invariant — Invalid hook call otherwise).
       dedupe: ["react", "react-dom"],
     },
+    optimizeDeps: {
+      // Pre-bundle react-markdown so esbuild wraps its CJS-only
+      // transitive deps (style-to-js → "does not provide an export
+      // named 'default'") with proper ESM interop. Without this the
+      // chat panel fails to hydrate on a fresh `pnpm install` —
+      // workspace dev hides it because the Vite cache from earlier
+      // runs already has the wrapped version.
+      include: ["react-markdown"],
+    },
   },
   markdown: {
     syntaxHighlight: false,
