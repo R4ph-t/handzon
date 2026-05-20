@@ -221,18 +221,43 @@ export type AiConfig = typeof aiDefaults;
 
   if (install) {
     s.start(`Installing dependencies with ${packageManager}`);
-    await new Promise<void>((resolveInstall, rejectInstall) => {
-      const child = spawn(packageManager, ["install"], { cwd: targetDir, stdio: "inherit" });
-      child.on("exit", (code) =>
-        code === 0
-          ? resolveInstall()
-          : rejectInstall(new Error(`${packageManager} install exited ${code}`)),
-      );
-    }).catch((e) => {
-      s.stop("Install failed");
-      p.log.warn(String(e));
+    // Pipe stdio so the spinner has the line to itself — `stdio: "inherit"`
+    // makes pnpm's progress writer fight the spinner and produces the
+    // garbled overlap users were seeing. Buffer everything in case we
+    // need to surface it on failure.
+    const stdoutChunks: Buffer[] = [];
+    const stderrChunks: Buffer[] = [];
+    const result = await new Promise<{ ok: boolean; combined: string }>((resolveInstall) => {
+      const child = spawn(packageManager, ["install"], {
+        cwd: targetDir,
+        stdio: ["ignore", "pipe", "pipe"],
+      });
+      child.stdout?.on("data", (c: Buffer) => stdoutChunks.push(c));
+      child.stderr?.on("data", (c: Buffer) => stderrChunks.push(c));
+      const done = (ok: boolean) =>
+        resolveInstall({
+          ok,
+          combined:
+            Buffer.concat(stdoutChunks).toString("utf8") +
+            Buffer.concat(stderrChunks).toString("utf8"),
+        });
+      child.on("exit", (code) => done(code === 0));
+      child.on("error", (err) => {
+        stderrChunks.push(Buffer.from(err.message));
+        done(false);
+      });
     });
-    s.stop("Dependencies installed");
+    if (result.ok) {
+      s.stop("Dependencies installed");
+    } else {
+      s.stop(`${packageManager} install failed`);
+      if (result.combined.trim()) {
+        p.log.error(result.combined.trim());
+      }
+      p.log.info(
+        `You can finish the install yourself with \`cd ${slug} && ${packageManager} install\`.`,
+      );
+    }
   }
 
   if (initGit) {
