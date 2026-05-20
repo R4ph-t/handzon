@@ -1,18 +1,23 @@
 import { runInit } from "./commands/init";
 import { runNew } from "./commands/new";
+import { runSkills } from "./commands/skills";
 import { runStep } from "./commands/step";
 
+type Command = "init" | "new" | "step" | "skills";
+
 interface ParsedArgs {
-  command: "init" | "new" | "step";
+  command: Command;
   positional: string[];
   flags: { yes?: boolean };
 }
+
+const SUBCOMMANDS: ReadonlySet<Command> = new Set(["init", "new", "step", "skills"]);
 
 function parseArgs(argv: string[]): ParsedArgs {
   const args = argv.slice(2);
   const flags: ParsedArgs["flags"] = {};
   const positional: string[] = [];
-  let command: ParsedArgs["command"] = "init";
+  let command: Command = "init";
 
   for (const arg of args) {
     if (arg === "--yes" || arg === "-y") flags.yes = true;
@@ -23,8 +28,8 @@ function parseArgs(argv: string[]): ParsedArgs {
   }
 
   // First positional MAY be a subcommand.
-  if (positional[0] === "new" || positional[0] === "step" || positional[0] === "init") {
-    command = positional.shift() as ParsedArgs["command"];
+  if (positional[0] && SUBCOMMANDS.has(positional[0] as Command)) {
+    command = positional.shift() as Command;
   }
 
   return { command, positional, flags };
@@ -37,6 +42,7 @@ USAGE
   create-handzon [project-name]        Scaffold a new project (default)
   create-handzon new                   Add a tutorial to the current project
   create-handzon step                  Add a step to an existing tutorial
+  create-handzon skills                Install Handzon authoring skills into your AI agent
 
 FLAGS
   --yes, -y     Skip prompts (use defaults)
@@ -45,6 +51,7 @@ FLAGS
 EXAMPLES
   npx create-handzon my-codelab
   cd my-codelab && pnpm handzon:new
+  npx create-handzon skills
 `);
 }
 
@@ -59,6 +66,9 @@ async function main() {
       break;
     case "step":
       await runStep({ yes: parsed.flags.yes });
+      break;
+    case "skills":
+      await runSkills({ yes: parsed.flags.yes });
       break;
   }
 }

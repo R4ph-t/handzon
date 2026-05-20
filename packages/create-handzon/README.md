@@ -16,8 +16,13 @@ pnpm handzon:step                    # add a step
 | `create-handzon [name]` | scaffold a new project (`init`, the default) |
 | `create-handzon new`    | add a tutorial to the current project |
 | `create-handzon step`   | add a step to an existing tutorial |
+| `create-handzon skills` | install Handzon authoring skills into your AI agent (Cursor, Claude Code, Codex, …) |
 
 Add `--yes` to any of them to skip prompts and accept defaults.
+
+## Skills
+
+Authoring skills (e.g. `add-tutorial`, `add-quiz`, `deploy-to-render`) are not copied into the scaffold. They're installed on demand via the [skills](https://www.npmjs.com/package/skills) CLI so they land in your agent's per-tool location (e.g. `~/.cursor/skills/`, `~/.claude/skills/`) rather than as inert files in the repo. Run the prompt during `create-handzon`, or do it later with `pnpm handzon:skills`.
 
 ## How `init` works
 

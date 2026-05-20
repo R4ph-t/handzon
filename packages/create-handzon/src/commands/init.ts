@@ -7,6 +7,7 @@ import * as p from "@clack/prompts";
 import pc from "picocolors";
 import { ask } from "../shared/ask";
 import { replaceProjectName } from "../shared/render-template";
+import { installSkillsInteractive } from "./skills";
 import { isValidSlug, slugify } from "../shared/slugify";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -110,6 +111,16 @@ export async function runInit(opts: InitOptions = {}): Promise<void> {
     p.confirm({ message: "Initialize git?", initialValue: true }),
   );
 
+  // Skills install runs after the scaffold so the user can see what was
+  // created first. Default off in --yes mode because it requires an
+  // interactive agent picker.
+  const installSkills = await ask(shouldPrompt, false, () =>
+    p.confirm({
+      message: "Install Handzon authoring skills into your AI agent? (Cursor, Claude Code, …)",
+      initialValue: true,
+    }),
+  );
+
   const s = p.spinner();
   s.start("Copying template");
   const templateDir = resolveTemplateDir();
@@ -118,7 +129,17 @@ export async function runInit(opts: InitOptions = {}): Promise<void> {
   // substring check on the absolute source path matches every file and
   // silently excludes the whole template (the spinner still says
   // "Template copied" but the target is empty).
-  const EXCLUDED_SEGMENTS = new Set(["node_modules", ".astro"]);
+  //
+  // skills/ + .cursor/ + .claude/ are intentionally excluded — they
+  // ship to the user's AI agent on demand via `npx skills add`, not as
+  // files inside the scaffold (see commands/skills.ts).
+  const EXCLUDED_SEGMENTS = new Set([
+    "node_modules",
+    ".astro",
+    "skills",
+    ".cursor",
+    ".claude",
+  ]);
   await cp(templateDir, targetDir, {
     recursive: true,
     // Preserve .cursor/skills + .claude/skills symlinks rather than
@@ -212,8 +233,15 @@ export type AiConfig = typeof aiDefaults;
     s.stop("Git initialized");
   }
 
+  if (installSkills) {
+    await installSkillsInteractive(targetDir);
+  }
+
   p.outro(
     pc.green("Done!") +
-      `\n\n  cd ${slug}\n  ${packageManager} dev\n\n  Then open http://localhost:4321`,
+      `\n\n  cd ${slug}\n  ${packageManager} dev\n\n  Then open http://localhost:4321` +
+      (installSkills
+        ? ""
+        : "\n\n  Want the authoring skills later? Run `pnpm handzon:skills`."),
   );
 }

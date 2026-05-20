@@ -10,6 +10,7 @@
     "check": "astro check",
     "handzon:new": "create-handzon new",
     "handzon:step": "create-handzon step",
+    "handzon:skills": "create-handzon skills",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "tsx src/db/migrate.ts"
   },
