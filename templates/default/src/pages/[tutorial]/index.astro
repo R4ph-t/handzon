@@ -111,8 +111,14 @@ const firstStepSlug = steps[0] ? parseStepId(steps[0].id).stepSlug : null;
     text-decoration: none;
   }
   .back:hover { color: var(--color-accent); }
-  h1 { font-size: clamp(2rem, 4vw, 3rem); margin: 0.5rem 0 0.75rem; letter-spacing: -0.02em; }
-  .desc { font-size: 1.125rem; color: var(--color-muted); }
+  h1 {
+    font-size: clamp(1.875rem, 3.5vw, 2.5rem);
+    font-weight: 700;
+    margin: 0.5rem 0 0.75rem;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+  }
+  .desc { font-size: 1.05rem; line-height: 1.55; color: var(--color-muted); }
   .badges { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 1rem; }
   .badge {
     display: inline-block;
