@@ -5,3 +5,6 @@
 
 /* Resets, prose typography, focus rings. */
 @import "./base.css";
+
+/* Component styles for React islands. */
+@import "./components.css";
