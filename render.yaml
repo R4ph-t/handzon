@@ -2,14 +2,21 @@
 #
 # Monorepo demo deployment.
 #
-# This Blueprint deploys the default template from the monorepo directly,
-# so visitors can see what `npx create-handzon` produces. The Blueprints
-# inside `templates/default/` (render.yaml + render.full.yaml) are the
-# ones that ship to scaffolded projects — they assume the template is at
-# the repo root and intentionally use `rootDir: .`.
+# Deploys the default template from this monorepo directly so visitors
+# can see what `npx create-handzon` produces. The Blueprints inside
+# `templates/default/` (render.yaml + render.full.yaml) are the ones
+# that ship to scaffolded projects — they use `rootDir: .` because in a
+# scaffolded project the template IS the repo root.
 #
-# Tier 2 setup: SSR Astro + Mastra AI service + Postgres for cross-device
-# progress. Migrations run as a pre-deploy hook on the site service.
+# Here the template lives at `templates/default/`, so both services use
+# `rootDir: .` (the monorepo root, where pnpm-workspace.yaml +
+# pnpm-lock.yaml live) and use pnpm's --filter to target the right
+# workspace package. This is the canonical pnpm-monorepo deploy pattern
+# — putting rootDir on a workspace member breaks --frozen-lockfile
+# because Render's checkout for that subtree can lose the root lockfile.
+#
+# Tier 2 setup: SSR Astro + Mastra AI service + Postgres for
+# cross-device progress. Migrations run as a pre-deploy hook.
 #
 # After "New → Blueprint", set the AI provider keys on the assistant
 # service (only one is required, depending on the chosen provider):
@@ -31,12 +38,10 @@ projects:
             name: handzon-demo-site
             runtime: node
             plan: starter
-            # pnpm walks up to find pnpm-workspace.yaml, so workspace
-            # deps resolve correctly even though we're inside a subdir.
-            rootDir: templates/default
-            buildCommand: pnpm install --frozen-lockfile && pnpm build
-            startCommand: node ./dist/server/entry.mjs
-            preDeployCommand: pnpm db:migrate
+            rootDir: .
+            buildCommand: pnpm install --frozen-lockfile && pnpm --filter ./templates/default build
+            startCommand: cd templates/default && node ./dist/server/entry.mjs
+            preDeployCommand: pnpm --filter ./templates/default db:migrate
             healthCheckPath: /healthz
             envVars:
               - key: NODE_VERSION
@@ -59,9 +64,9 @@ projects:
             name: handzon-demo-ai
             runtime: node
             plan: starter
-            rootDir: templates/default/services/ai
-            buildCommand: pnpm install --frozen-lockfile && pnpm build
-            startCommand: pnpm start
+            rootDir: .
+            buildCommand: pnpm install --frozen-lockfile && pnpm --filter tutorial-ai-service build
+            startCommand: cd templates/default/services/ai && pnpm start
             healthCheckPath: /healthz
             envVars:
               - key: NODE_VERSION
