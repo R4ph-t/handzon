@@ -39,6 +39,17 @@ export default defineConfig({
   ],
   vite: {
     plugins: [tailwindcss()],
+    server: {
+      // pnpm hoists deps into ../../node_modules/.pnpm — Vite's strict
+      // fs.allow defaults to the project root and blocks those paths.
+      // Walk up to the monorepo root so font + react client files load.
+      fs: { allow: ["../..", "../../.."] },
+    },
+    resolve: {
+      // Prevent duplicate React copies (pnpm symlinks can break the
+      // "single React" invariant — Invalid hook call otherwise).
+      dedupe: ["react", "react-dom"],
+    },
   },
   markdown: {
     syntaxHighlight: false,
