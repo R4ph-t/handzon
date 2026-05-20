@@ -68,13 +68,15 @@ a:hover {
 
 .prose li { margin: 0.25em 0; }
 
-.prose code:not(pre code) {
+.prose code:not(pre code),
+.tut-tab-panel code:not(pre code) {
   font-family: var(--font-mono);
-  background: color-mix(in oklab, var(--color-accent) 18%, var(--color-bg));
-  padding: 0.12em 0.42em;
+  background: var(--color-surface-2);
+  padding: 0.15em 0.45em;
   font-size: 0.875em;
-  color: var(--color-fg);
+  color: var(--color-accent);
   border-radius: 0;
+  border: var(--border-default) solid var(--color-border);
 }
 
 .prose blockquote {

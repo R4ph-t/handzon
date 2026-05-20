@@ -318,7 +318,10 @@
   border: var(--border-default) solid var(--color-border);
 }
 .tut-tabs-list {
-  display: flex;
+  /* inline-flex so the bar hugs the triggers — the card's surface bg
+   * shows in the empty space to the right. A bottom border on the card
+   * level provides separation from the content panel. */
+  display: inline-flex;
   background: var(--color-surface-2);
   padding: 0;
   border-radius: 0;
@@ -326,34 +329,39 @@
   margin: 0;
   border-bottom: var(--border-default) solid var(--color-border);
 }
+.tut-tabs > .tut-tabs-list {
+  /* Sit at the very top of the card; the right-most trigger should
+   * not show its right divider so it merges with the card edge. */
+}
+.tut-tabs-trigger:last-child { border-right: 0; }
 .tut-tabs-trigger {
-  padding: 0.45rem 0.95rem;
+  padding: 0.55rem 1.15rem;
   background: transparent;
   border: 0;
-  color: var(--color-fg);
+  border-right: var(--border-default) solid var(--color-border);
+  color: var(--color-muted);
   font: inherit;
   font-size: 0.85em;
   font-weight: 500;
   cursor: pointer;
   border-radius: 0;
-  opacity: 0.62;
-  transition: background 0.12s ease, opacity 0.12s ease, color 0.12s ease;
+  position: relative;
+  transition: background 0.12s ease, color 0.12s ease;
 }
 .tut-tabs-trigger:hover {
-  opacity: 1;
-  background: var(--color-surface-2);
-}
-.tut-tabs-trigger[data-active="true"] {
-  opacity: 1;
+  color: var(--color-fg);
+  background: color-mix(in oklab, var(--color-fg) 6%, var(--color-surface-2));
 }
 .tut-tabs-trigger[data-active="true"] {
   color: var(--color-accent-fg);
   background: var(--color-accent);
 }
 .tut-tabs-content {
-  /* No box — content sits inline with the prose */
+  padding: 1rem 1.15rem;
 }
 .tut-tab-panel[hidden] { display: none; }
+.tut-tab-panel > :first-child { margin-top: 0; }
+.tut-tab-panel > :last-child { margin-bottom: 0; }
 
 /* FileTree */
 .ft-root, .ft-list { list-style: none; margin: 0; padding: 0; }
