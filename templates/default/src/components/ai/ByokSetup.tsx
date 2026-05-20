@@ -48,8 +48,10 @@ export default function ByokSetup({
           </Dialog.Close>
           <Dialog.Title>Set up {assistantName}</Dialog.Title>
           <Dialog.Description className="byok-desc">
-            {assistantName} needs an API key to answer questions. Your key is stored only in this
-            browser.
+            {assistantName} needs an API key to answer questions. The key is stored in this browser,
+            and sent over TLS to the assistant service with each question so it can call your chosen
+            model provider on your behalf. It is never written to a database or shared with other
+            learners.
           </Dialog.Description>
 
           {info.href && (
@@ -78,8 +80,8 @@ export default function ByokSetup({
           </div>
 
           <p className="byok-disclaimer">
-            Your key never leaves your browser. Calls go from this page directly to the assistant
-            service.
+            The assistant service forwards your key to {info.label} on each request and discards it
+            after the response. It is never logged or persisted server-side.
           </p>
         </Dialog.Content>
       </Dialog.Portal>

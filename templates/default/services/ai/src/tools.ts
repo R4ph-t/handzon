@@ -21,22 +21,74 @@ export interface AssistantPayload {
   allowedDomains: string[];
 }
 
+const FETCH_TIMEOUT_MS = 5_000;
+const FETCH_MAX_BYTES = 64 * 1024;
+const CODE_FENCE = /```([a-zA-Z0-9_+-]*)\s*(?:[^\n]*\n)([\s\S]*?)```/g;
+
+/**
+ * Pull every fenced code block out of a markdown string. Single source of
+ * truth for the regex so getStepCodeBlocks and searchCodeBlocks can't
+ * drift.
+ */
+function extractCodeBlocks(source: string): Array<{ lang: string; code: string }> {
+  const blocks: Array<{ lang: string; code: string }> = [];
+  for (const m of source.matchAll(CODE_FENCE)) {
+    blocks.push({ lang: m[1] || "text", code: m[2] ?? "" });
+  }
+  return blocks;
+}
+
+/**
+ * Fetch with a timeout and a hard byte cap. Reads the response stream
+ * incrementally and aborts if the response exceeds FETCH_MAX_BYTES,
+ * rather than waiting for the full body before slicing.
+ */
+async function fetchBounded(url: string): Promise<string> {
+  const ac = new AbortController();
+  const timer = setTimeout(() => ac.abort(), FETCH_TIMEOUT_MS);
+  try {
+    const res = await fetch(url, { signal: ac.signal, redirect: "follow" });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    if (!res.body) return "";
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let received = 0;
+    let out = "";
+    while (true) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      received += value.byteLength;
+      if (received > FETCH_MAX_BYTES) {
+        ac.abort();
+        out += decoder.decode(value, { stream: false }).slice(0, FETCH_MAX_BYTES - out.length);
+        break;
+      }
+      out += decoder.decode(value, { stream: true });
+    }
+    return out;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 /**
  * Build the assistant's tool set. Each tool reads from the per-request
  * payload — tools are pure functions over the context the client sent.
  * Mastra 1.x passes the validated input directly as the first arg.
  */
 export function buildTools(payload: AssistantPayload) {
+  const findStep = (slug: string) =>
+    payload.currentStep.slug === slug
+      ? payload.currentStep
+      : payload.priorSteps.find((s) => s.slug === slug);
+
   return {
     getStep: createTool({
       id: "getStep",
       description: "Fetch the full markdown source of any step in this tutorial by its slug.",
       inputSchema: z.object({ slug: z.string() }),
       execute: async (input: { slug: string }) => {
-        const target =
-          payload.currentStep.slug === input.slug
-            ? payload.currentStep
-            : payload.priorSteps.find((s) => s.slug === input.slug);
+        const target = findStep(input.slug);
         if (!target) return { error: `No step "${input.slug}" available in context.` };
         return { slug: target.slug, title: target.title, source: target.source };
       },
@@ -47,20 +99,11 @@ export function buildTools(payload: AssistantPayload) {
       description: "Fetch just the code blocks from a step. Cheaper than getStep.",
       inputSchema: z.object({ slug: z.string(), lang: z.string().optional() }),
       execute: async (input: { slug: string; lang?: string }) => {
-        const target =
-          payload.currentStep.slug === input.slug
-            ? payload.currentStep
-            : payload.priorSteps.find((s) => s.slug === input.slug);
+        const target = findStep(input.slug);
         if (!target) return { error: `No step "${input.slug}" available.` };
-        const blocks: Array<{ lang: string; code: string }> = [];
-        const re = /```([a-zA-Z0-9_+-]*)\s*(?:[^\n]*\n)([\s\S]*?)```/g;
-        for (const m of target.source.matchAll(re)) {
-          const matchLang = m[1] ?? "text";
-          const code = m[2] ?? "";
-          if (!input.lang || matchLang === input.lang) {
-            blocks.push({ lang: matchLang || "text", code });
-          }
-        }
+        const blocks = extractCodeBlocks(target.source).filter(
+          (b) => !input.lang || b.lang === input.lang,
+        );
         return { blocks };
       },
     }),
@@ -104,15 +147,22 @@ export function buildTools(payload: AssistantPayload) {
     searchReferences: createTool({
       id: "searchReferences",
       description: "Keyword search across the author-configured reference docs.",
-      inputSchema: z.object({ query: z.string() }),
-      execute: async (input: { query: string }) => {
+      inputSchema: z.object({
+        query: z.string(),
+        limit: z.number().int().min(1).max(50).optional(),
+      }),
+      execute: async (input: { query: string; limit?: number }) => {
         const q = input.query.toLowerCase();
-        const hits = payload.references
-          .map((r) => ({
-            source: r.source,
-            line: r.content.split("\n").find((l) => l.toLowerCase().includes(q)) ?? "",
-          }))
-          .filter((h) => h.line);
+        const limit = input.limit ?? 20;
+        const hits: Array<{ source: string; line: string }> = [];
+        for (const ref of payload.references) {
+          for (const line of ref.content.split("\n")) {
+            if (line.toLowerCase().includes(q)) {
+              hits.push({ source: ref.source, line });
+              if (hits.length >= limit) return { hits };
+            }
+          }
+        }
         return { hits };
       },
     }),
@@ -122,17 +172,17 @@ export function buildTools(payload: AssistantPayload) {
       description: "Keyword search across every code block in this tutorial.",
       inputSchema: z.object({ query: z.string(), lang: z.string().optional() }),
       execute: async (input: { query: string; lang?: string }) => {
-        const allSteps = [payload.currentStep, ...payload.priorSteps];
         const q = input.query.toLowerCase();
         const hits: Array<{ stepSlug: string; lang: string; snippet: string }> = [];
-        const re = /```([a-zA-Z0-9_+-]*)\s*(?:[^\n]*\n)([\s\S]*?)```/g;
-        for (const step of allSteps) {
-          for (const m of step.source.matchAll(re)) {
-            const matchLang = m[1] ?? "text";
-            const code = m[2] ?? "";
-            if (input.lang && matchLang !== input.lang) continue;
-            if (code.toLowerCase().includes(q)) {
-              hits.push({ stepSlug: step.slug, lang: matchLang, snippet: code.slice(0, 280) });
+        for (const step of [payload.currentStep, ...payload.priorSteps]) {
+          for (const block of extractCodeBlocks(step.source)) {
+            if (input.lang && block.lang !== input.lang) continue;
+            if (block.code.toLowerCase().includes(q)) {
+              hits.push({
+                stepSlug: step.slug,
+                lang: block.lang,
+                snippet: block.code.slice(0, 280),
+              });
             }
           }
         }
@@ -156,19 +206,25 @@ export function buildTools(payload: AssistantPayload) {
         if (payload.allowedDomains.length === 0) {
           return { error: "fetchUrl is disabled (no allowedDomains configured)." };
         }
-        let host: string;
+        let parsed: URL;
         try {
-          host = new URL(input.url).hostname;
+          parsed = new URL(input.url);
         } catch {
           return { error: "Invalid URL." };
         }
+        if (parsed.protocol !== "https:" && parsed.protocol !== "http:") {
+          return { error: `Unsupported scheme "${parsed.protocol}".` };
+        }
+        const host = parsed.hostname;
         if (!payload.allowedDomains.some((d) => host === d || host.endsWith(`.${d}`))) {
           return { error: `Domain "${host}" not in allowedDomains.` };
         }
-        const res = await fetch(input.url);
-        if (!res.ok) return { error: `HTTP ${res.status}` };
-        const text = await res.text();
-        return { content: text.slice(0, 8000) };
+        try {
+          const content = await fetchBounded(input.url);
+          return { content };
+        } catch (e) {
+          return { error: e instanceof Error ? e.message : String(e) };
+        }
       },
     }),
   };
