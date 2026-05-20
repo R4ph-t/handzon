@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 import * as p from "@clack/prompts";
 import pc from "picocolors";
 import { ask } from "../shared/ask";
-import { writeDevEnv, writeDevScripts } from "../shared/dev-config";
+import { writeAiServiceEnv, writeDevEnv, writeDevScripts } from "../shared/dev-config";
 import { replaceProjectName } from "../shared/render-template";
 import { installSkillsInteractive } from "./skills";
 import { isValidSlug, slugify } from "../shared/slugify";
@@ -216,6 +216,11 @@ export type AiConfig = typeof aiDefaults;
   // first try.
   await writeDevScripts(join(targetDir, "package.json"), { aiEnabled, tier2 });
   await writeDevEnv(join(targetDir, ".env"), { aiEnabled, tier2 });
+  await writeAiServiceEnv(join(targetDir, "services/ai/.env"), {
+    aiEnabled,
+    tier2,
+    aiProvider: "anthropic",
+  });
 
   s.stop("Configured");
 

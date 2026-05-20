@@ -3,6 +3,8 @@ import { readFile, writeFile } from "node:fs/promises";
 interface Picks {
   aiEnabled: boolean;
   tier2: boolean;
+  /** Lowercased provider id, e.g. "anthropic", "openai". */
+  aiProvider?: string;
 }
 
 interface PackageJson {
@@ -88,5 +90,42 @@ export async function writeDevEnv(envPath: string, picks: Picks): Promise<void> 
   await writeFile(envPath, `${lines.join("\n")}\n`, { flag: "wx" }).catch((err) => {
     if ((err as NodeJS.ErrnoException).code !== "EEXIST") throw err;
     // .env already present — don't clobber whatever the user has.
+  });
+}
+
+/**
+ * AI provider env var names, by provider id. The AI service falls back
+ * to these when the browser hasn't sent an X-Llm-Api-Key header.
+ */
+const PROVIDER_KEY: Record<string, string> = {
+  anthropic: "ANTHROPIC_API_KEY",
+  openai: "OPENAI_API_KEY",
+  google: "GOOGLE_GENERATIVE_AI_API_KEY",
+  "openai-compatible": "OPENAI_COMPATIBLE_API_KEY",
+};
+
+/**
+ * Write `services/ai/.env` with the dev-time config the AI service
+ * needs: a CORS origin that matches the local site, plus a commented
+ * placeholder for the provider key the user picked. Same `wx`
+ * semantics as the root env writer.
+ */
+export async function writeAiServiceEnv(envPath: string, picks: Picks): Promise<void> {
+  if (!picks.aiEnabled) return;
+  const keyName = PROVIDER_KEY[picks.aiProvider ?? "anthropic"] ?? "ANTHROPIC_API_KEY";
+  const body =
+    [
+      "# Local-dev defaults for the AI service. See .env.example for the",
+      "# full list of supported vars.",
+      "",
+      "ALLOWED_ORIGIN=http://localhost:4321",
+      "",
+      `# Add your ${picks.aiProvider ?? "anthropic"} key below to enable server-side`,
+      "# fallback (used when the learner hasn't set their own BYOK key).",
+      `# ${keyName}=`,
+    ].join("\n") + "\n";
+
+  await writeFile(envPath, body, { flag: "wx" }).catch((err) => {
+    if ((err as NodeJS.ErrnoException).code !== "EEXIST") throw err;
   });
 }
