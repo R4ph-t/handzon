@@ -2,14 +2,26 @@
 interface Props {
   title?: string;
   subtitle?: string;
+  /**
+   * Brand mark shown left of the headline. Defaults to `/logo.svg`
+   * (the scaffold ships a starter at `public/logo.svg`). Pass `""`
+   * to hide the logo entirely.
+   */
+  logoUrl?: string;
 }
 const {
   title = "Handzon.",
   subtitle = "Step-by-step tutorials.",
+  logoUrl = "/logo.svg",
 } = Astro.props;
 ---
 <header class="hero">
-  <h1>{title}</h1>
+  <h1 class="hero-headline">
+    {logoUrl && (
+      <img class="hero-logo" src={logoUrl} alt="" aria-hidden="true" />
+    )}
+    <span>{title}</span>
+  </h1>
   <p>{subtitle}</p>
 </header>
 
@@ -18,12 +30,25 @@ const {
     padding: 4rem 0 2rem;
     border-bottom: var(--border-default, 2px) solid var(--color-border);
   }
-  .hero h1 {
+  .hero-headline {
+    display: flex;
+    align-items: center;
+    gap: clamp(0.6rem, 1.2vw, 1rem);
+    margin: 0 0 0.75rem;
     font-size: clamp(2.25rem, 5vw, 3.75rem);
     font-weight: 700;
     letter-spacing: -0.025em;
-    margin: 0 0 0.75rem;
     line-height: 1.05;
+  }
+  /* Logo height tracks the heading's cap-height (~0.72em of the
+   * font-size) so the brand mark visually matches the "H" glyph. The
+   * SVG's viewBox has been tightened to remove padding, so the box
+   * dimensions are the visible mark. */
+  .hero-logo {
+    height: 0.72em;
+    width: auto;
+    display: block;
+    flex-shrink: 0;
   }
   .hero p {
     font-size: 1.125rem;
