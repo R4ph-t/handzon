@@ -119,6 +119,13 @@
 .chat-setup button:hover {
   background: color-mix(in oklab, var(--color-accent) 88%, white);
 }
+/* Each message is a stack of role label + content bubble. The user/
+ * assistant roles get distinct backgrounds + alignment so the eye can
+ * parse the transcript at a glance. */
+.chat-msg { display: flex; flex-direction: column; gap: 0.25rem; max-width: 100%; }
+.chat-msg-user { align-items: flex-end; }
+.chat-msg-assistant { align-items: flex-start; }
+
 .chat-role {
   font-family: var(--font-mono);
   font-size: 0.68em;
@@ -127,17 +134,100 @@
   color: var(--color-muted);
 }
 .chat-msg-user .chat-role { color: var(--color-accent); }
+
 .chat-content {
-  white-space: pre-wrap;
   font-size: 0.95em;
   line-height: 1.55;
-}
-.chat-msg-assistant .chat-content {
-  padding: 0.6rem 0.85rem;
-  background: var(--color-surface);
+  padding: 0.55rem 0.8rem;
+  max-width: 88%;
   border-radius: 0;
 }
-.chat-typing { color: var(--color-muted); font-family: var(--font-mono); }
+.chat-msg-user .chat-content {
+  background: color-mix(in oklab, var(--color-accent) 18%, var(--color-bg));
+  color: var(--color-fg);
+  /* user-typed text isn't markdown; preserve their line breaks */
+  white-space: pre-wrap;
+}
+.chat-msg-assistant .chat-content {
+  background: var(--color-surface);
+  color: var(--color-fg);
+}
+
+/* Markdown prose inside an assistant bubble. Tight margins so a single
+ * paragraph isn't padded into a wall, and a sane inherit on code blocks
+ * so they don't overflow the panel. */
+.chat-msg-assistant .chat-content > :first-child { margin-top: 0; }
+.chat-msg-assistant .chat-content > :last-child { margin-bottom: 0; }
+.chat-msg-assistant .chat-content p { margin: 0.5em 0; }
+.chat-msg-assistant .chat-content ul,
+.chat-msg-assistant .chat-content ol { margin: 0.5em 0; padding-left: 1.25em; }
+.chat-msg-assistant .chat-content li { margin: 0.15em 0; }
+.chat-msg-assistant .chat-content h1,
+.chat-msg-assistant .chat-content h2,
+.chat-msg-assistant .chat-content h3 {
+  margin: 0.8em 0 0.35em;
+  font-size: 1em;
+  font-weight: 700;
+}
+.chat-msg-assistant .chat-content a {
+  color: var(--color-accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.chat-msg-assistant .chat-content code {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  padding: 0.05em 0.3em;
+  background: var(--color-surface-2);
+  border-radius: 0;
+}
+.chat-msg-assistant .chat-content pre {
+  margin: 0.5em 0;
+  padding: 0.6rem 0.75rem;
+  background: var(--color-surface-2);
+  overflow-x: auto;
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  line-height: 1.45;
+  border-radius: 0;
+}
+.chat-msg-assistant .chat-content pre code {
+  padding: 0;
+  background: transparent;
+}
+.chat-msg-assistant .chat-content blockquote {
+  margin: 0.5em 0;
+  padding-left: 0.7em;
+  border-left: var(--border-thick) solid var(--color-accent);
+  color: var(--color-muted);
+}
+
+/* Three-dot "thinking" indicator. Shown only between user-send and
+ * first stream chunk; once chunks land the message text replaces it. */
+.chat-thinking {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.15rem 0.2rem;
+}
+.chat-thinking span {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-muted);
+  animation: chat-thinking-bounce 1.2s infinite ease-in-out both;
+}
+.chat-thinking span:nth-child(1) { animation-delay: -0.32s; }
+.chat-thinking span:nth-child(2) { animation-delay: -0.16s; }
+@keyframes chat-thinking-bounce {
+  0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+  40% { transform: scale(1); opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .chat-thinking span { animation: none; opacity: 0.7; }
+}
+
 .chat-error {
   padding: 0.5rem 0.75rem;
   background: color-mix(in oklab, var(--color-danger) 18%, var(--color-bg));

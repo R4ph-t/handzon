@@ -1,6 +1,8 @@
 import * as Dialog from "@radix-ui/react-dialog";
 import { KeyRound, Send, Settings, Sparkles, Trash2, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import type { AiConfig } from "~/config/ai";
 import { type ChatMessage, clearLearnerKey, loadLearnerKey, streamChat } from "~/lib/ai/client";
 import type { AssistantContext } from "~/lib/ai/context";
@@ -41,9 +43,11 @@ export default function ChatPanel({ open, onOpenChange, config, context }: Props
   const abortRef = useRef<AbortController | null>(null);
   const listRef = useRef<HTMLDivElement>(null);
 
+  // Keep the latest message in view as chunks stream in (and on every
+  // send / clear). Without this, long responses scroll out of frame.
   useEffect(() => {
     listRef.current?.scrollTo({ top: listRef.current.scrollHeight });
-  }, []);
+  }, [messages, streaming]);
 
   async function send() {
     const trimmed = input.trim();
@@ -160,10 +164,35 @@ export default function ChatPanel({ open, onOpenChange, config, context }: Props
                 {messages.map((m, i) => (
                   <div key={i} className={`chat-msg chat-msg-${m.role}`}>
                     <span className="chat-role">{m.role === "user" ? "You" : config.name}</span>
-                    <div className="chat-content">{m.content}</div>
+                    <div className="chat-content">
+                      {m.role === "assistant" ? (
+                        // react-markdown sanitizes by default (no raw HTML),
+                        // which matters because the assistant output is
+                        // untrusted. remark-gfm adds tables + strikethrough.
+                        <ReactMarkdown remarkPlugins={[remarkGfm]}>{m.content}</ReactMarkdown>
+                      ) : (
+                        m.content
+                      )}
+                    </div>
                   </div>
                 ))}
-                {streaming && <div className="chat-typing">…</div>}
+                {/*
+                  Show the thinking indicator while we're streaming AND the
+                  last message isn't yet from the assistant (i.e. we haven't
+                  received the first chunk that adds an empty assistant
+                  message to the array). Once chunks start landing, the
+                  message itself updates and the dots disappear.
+                */}
+                {streaming && messages[messages.length - 1]?.role !== "assistant" && (
+                  <div className="chat-msg chat-msg-assistant">
+                    <span className="chat-role">{config.name}</span>
+                    <div className="chat-content">
+                      <span className="chat-thinking" aria-label="Thinking">
+                        <span /> <span /> <span />
+                      </span>
+                    </div>
+                  </div>
+                )}
                 {error && <div className="chat-error">⚠ {error}</div>}
               </div>
             )}
