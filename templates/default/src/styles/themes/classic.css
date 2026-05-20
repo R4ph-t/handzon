@@ -1,0 +1,30 @@
+@theme {
+  --color-bg:          oklch(98% 0.01 240);
+  --color-fg:          oklch(20% 0.02 240);
+  --color-muted:       oklch(50% 0.02 240);
+  --color-border:      oklch(85% 0.02 240);
+  --color-surface:     oklch(96% 0.01 240);
+
+  --color-accent:      oklch(55% 0.18 220);
+  --color-accent-fg:   oklch(98% 0 0);
+  --color-info:        oklch(58% 0.18 220);
+  --color-tip:         oklch(60% 0.20 170);
+  --color-warn:        oklch(65% 0.17 75);
+  --color-danger:      oklch(58% 0.22 25);
+  --color-success:     oklch(55% 0.18 145);
+
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --border-default: 1px;
+  --border-thick:   2px;
+
+  --shadow-raised: 0 4px 12px oklch(0% 0 0 / 0.08);
+  --shadow-press:  0 1px 3px oklch(0% 0 0 / 0.06);
+
+  --font-sans: "Geist Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Geist Mono Variable", ui-monospace, "JetBrains Mono", monospace;
+
+  --ec-bg:     var(--color-surface);
+  --ec-border: var(--color-border);
+}
