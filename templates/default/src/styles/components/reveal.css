@@ -1,0 +1,25 @@
+/* Reveal */
+.reveal { margin: 1rem 0; }
+.reveal-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: var(--color-accent);
+  color: var(--color-accent-fg);
+  border: 0;
+  font: inherit;
+  font-size: 0.9em;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: 0;
+}
+.reveal-btn:hover {
+  background: color-mix(in oklab, var(--color-accent) 88%, white);
+}
+.reveal-content {
+  margin-top: 0.75rem;
+  padding: 0.95rem 1.1rem;
+  background: var(--color-surface);
+  border-left: var(--border-thick) solid var(--color-accent);
+}

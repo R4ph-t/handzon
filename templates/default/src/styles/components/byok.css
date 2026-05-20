@@ -1,0 +1,50 @@
+/* BYOK setup */
+.byok-panel {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(440px, 92vw);
+  background: var(--color-surface);
+  border: var(--border-default) solid var(--color-border);
+  padding: 1.5rem;
+  z-index: 70;
+  border-radius: 0;
+}
+.byok-panel h2 { margin: 0 0 0.5rem; font-size: 1.25rem; }
+.byok-desc { color: var(--color-muted); font-size: 0.9em; margin: 0.25rem 0 1rem; }
+.byok-link { font-size: 0.85em; margin: 0 0 1rem; }
+.byok-field { display: grid; gap: 0.35rem; margin-bottom: 1rem; }
+.byok-field span {
+  font-family: var(--font-mono);
+  font-size: 0.72em;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-muted);
+}
+.byok-field input {
+  background: var(--color-bg);
+  border: var(--border-default) solid var(--color-border);
+  color: var(--color-fg);
+  padding: 0.55rem 0.75rem;
+  font: inherit;
+  border-radius: 0;
+}
+.byok-actions { display: flex; justify-content: flex-end; }
+.byok-actions button {
+  background: var(--color-accent);
+  color: var(--color-accent-fg);
+  border: 0;
+  padding: 0.55rem 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 0;
+}
+.byok-actions button:disabled { opacity: 0.4; cursor: not-allowed; }
+.byok-disclaimer {
+  margin: 0;
+  padding-top: 1rem;
+  border-top: var(--border-default) solid var(--color-border);
+  color: var(--color-muted);
+  font-size: 0.8em;
+}

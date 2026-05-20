@@ -1,0 +1,55 @@
+/* Terminal */
+.term {
+  margin: 1.25rem 0;
+  background: var(--color-surface);
+  overflow: hidden;
+  position: relative;
+  border-radius: 0;
+  border: var(--border-default) solid var(--color-border);
+}
+.term-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 0.75rem;
+  background: var(--color-surface-2);
+  font-family: var(--font-mono);
+  font-size: 0.72em;
+  color: var(--color-muted);
+}
+.term-dots { display: inline-flex; gap: 0.3rem; }
+.term-dots span {
+  width: 10px; height: 10px; border-radius: 50%;
+  background: var(--color-border-strong);
+  display: inline-block;
+}
+.term-dots span:nth-child(1) { background: oklch(60% 0.22 25); }
+.term-dots span:nth-child(2) { background: oklch(75% 0.16 75); }
+.term-dots span:nth-child(3) { background: oklch(70% 0.18 145); }
+.term-body {
+  margin: 0;
+  padding: 0.85rem 1rem;
+  color: var(--color-fg);
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  line-height: 1.55;
+  background: transparent;
+  border: 0;
+  overflow-x: auto;
+}
+.term-line { display: flex; gap: 0.5rem; }
+.term-prompt { color: var(--color-accent); user-select: none; }
+.term-out { color: var(--color-muted); white-space: pre-wrap; }
+.term-run {
+  position: absolute;
+  top: 0.4rem;
+  right: 0.5rem;
+  background: var(--color-accent);
+  color: var(--color-accent-fg);
+  border: 0;
+  padding: 0.25rem 0.6rem;
+  font-family: var(--font-mono);
+  font-size: 0.72em;
+  cursor: pointer;
+  border-radius: 0;
+}

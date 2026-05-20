@@ -1,0 +1,19 @@
+/* Mermaid */
+.mermaid-wrap {
+  margin: 1.25rem 0;
+  padding: 1rem;
+  background: var(--color-surface);
+  display: grid;
+  place-items: center;
+  border-radius: 0;
+}
+.mermaid-wrap :global(svg) { max-width: 100%; height: auto; }
+.mermaid-error {
+  padding: 0.75rem;
+  background: color-mix(in oklab, var(--color-danger) 14%, var(--color-bg));
+  color: var(--color-danger);
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  white-space: pre-wrap;
+  border-radius: 0;
+}

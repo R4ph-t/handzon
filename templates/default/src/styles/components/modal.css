@@ -1,0 +1,23 @@
+/* Modal overlay + close button (shared by AI chat + BYOK dialogs) */
+.ms-overlay {
+  position: fixed;
+  inset: 0;
+  background: oklch(0% 0 0 / 0.5);
+  backdrop-filter: blur(2px);
+}
+.ms-close {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: transparent;
+  border: 0;
+  color: var(--color-muted);
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  z-index: 1;
+  border-radius: 0;
+}
+.ms-close:hover { color: var(--color-fg); background: var(--color-surface); }

@@ -1,0 +1,61 @@
+/* Expressive Code bridge — pull every frame surface onto the page's
+ * palette so code blocks read as part of the page rather than a competing
+ * dark-blue island. EC's own selector
+ * `:root:not([data-theme='github-dark']) .expressive-code[data-theme='github-dark']`
+ * has specificity 0,4,0; rather than out-specifying the theme everywhere,
+ * we mark these bridge values !important since they're deliberate
+ * cross-cutting overrides.
+ */
+
+/* Render EC's auto-detected terminal frames (bash/sh/zsh fences) as
+ * regular file-titled code blocks. The <Terminal> MDX component is the
+ * only place that gets the traffic-light dots look. */
+.expressive-code .frame.is-terminal {
+  --code-background: var(--color-surface);
+}
+.expressive-code .frame.is-terminal pre {
+  background: var(--color-surface);
+}
+.expressive-code .frame.is-terminal .header {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  background: var(--color-surface-2);
+  color: var(--color-fg);
+  border: 0;
+  border-top: 2px solid var(--color-accent);
+  border-bottom: var(--border-default) solid var(--color-border);
+  font-family: var(--font-mono);
+  font-size: 0.78em;
+  font-weight: 500;
+  text-transform: lowercase;
+  letter-spacing: 0;
+  padding: 0.45rem 0.9rem;
+}
+.expressive-code .frame.is-terminal .header::before,
+.expressive-code .frame.is-terminal .header::after {
+  display: none;
+}
+
+:root {
+  --ec-codeBg: var(--color-surface) !important;
+  --ec-codeFg: var(--color-fg) !important;
+  --ec-frm-edBg: var(--color-surface) !important;
+  /* Active tab: lifted (brighter than the code body), accent on top,
+   * no bottom indicator — mirrors our Tabs.astro active state. */
+  --ec-frm-edActTabBg: var(--color-surface-2) !important;
+  --ec-frm-edActTabFg: var(--color-fg) !important;
+  --ec-frm-edActTabIndTopCol: var(--color-accent) !important;
+  --ec-frm-edActTabIndBtmCol: transparent !important;
+  --ec-frm-edActTabIndHt: 2px !important;
+  --ec-frm-edTabBarBg: transparent !important;
+  --ec-frm-edTabBarBrdBtmCol: var(--color-border) !important;
+  --ec-frm-edTabBarBrdCol: transparent !important;
+  --ec-frm-trmBg: var(--color-surface) !important;
+  --ec-frm-trmTtbBg: var(--color-surface-2) !important;
+  --ec-frm-frameBoxShdCssVal: none !important;
+  /* Keep a thin 1px outline so code blocks have a perceptible shape on
+   * the pure-black page bg. */
+  --ec-brdCol: var(--color-border) !important;
+  --ec-brdWd: 1px !important;
+}

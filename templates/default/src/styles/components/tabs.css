@@ -1,0 +1,60 @@
+/* Tabs — browser-tab look. Triggers at top, content directly below.
+ * No outer container. Active trigger shares the content's surface bg
+ * so the underline appears to extend under the inactive triggers and
+ * the active one visually attaches to the content area below it.
+ */
+.tut-tabs {
+  margin: 1.25rem 0;
+}
+.tut-tabs-list {
+  display: flex;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  border-bottom: var(--border-default) solid var(--color-border);
+}
+.tut-tabs-trigger {
+  padding: 0.55rem 1.1rem;
+  /* Inactive tab: clearly visible chip in the secondary surface tier. */
+  background: color-mix(in oklab, var(--color-surface) 75%, var(--color-bg));
+  border: 0;
+  color: var(--color-muted);
+  font: inherit;
+  font-size: 0.85em;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: 0;
+  margin-bottom: -1px;
+  /* Tabs share edges — every trigger draws top/right/bottom; the first
+   * one also gets a left border. Adjacent edges collapse to one line. */
+  border-top: var(--border-default) solid var(--color-border);
+  border-right: var(--border-default) solid var(--color-border);
+  border-bottom: var(--border-default) solid var(--color-border);
+  transition: color 0.12s ease, background 0.12s ease, border-color 0.12s ease;
+}
+.tut-tabs-trigger:first-child {
+  border-left: var(--border-default) solid var(--color-border);
+}
+.tut-tabs-trigger:hover {
+  color: var(--color-fg);
+  background: var(--color-surface);
+}
+.tut-tabs-trigger[data-active="true"] {
+  color: var(--color-fg);
+  font-weight: 600;
+  /* Lifted bg — distinct from the content panel below. */
+  background: var(--color-surface-2);
+  border-top: var(--border-thick) solid var(--color-accent);
+  /* Drop the bottom border so the active tab opens into the panel. */
+  border-bottom-color: transparent;
+}
+.tut-tabs-content {
+  background: var(--color-surface);
+  padding: 0.95rem 1.1rem;
+  border-left: var(--border-default) solid var(--color-border);
+  border-right: var(--border-default) solid var(--color-border);
+  border-bottom: var(--border-default) solid var(--color-border);
+}
+.tut-tab-panel[hidden] { display: none; }
+.tut-tab-panel > :first-child { margin-top: 0; }
+.tut-tab-panel > :last-child { margin-bottom: 0; }
