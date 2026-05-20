@@ -6,7 +6,8 @@
   "main": "dist/server.js",
   "scripts": {
     "dev": "tsx watch src/server.ts",
-    "build": "tsc -p tsconfig.json",
+    "build": "tsup && tsc --noEmit",
+    "typecheck": "tsc --noEmit",
     "start": "node dist/server.js"
   },
   "dependencies": {
@@ -22,7 +23,11 @@
   },
   "devDependencies": {
     "@types/node": "^25.9.1",
+    "tsup": "^8.5.1",
     "tsx": "^4.22.3",
     "typescript": "^6.0.3"
+  },
+  "engines": {
+    "node": ">=22.0.0"
   }
 }

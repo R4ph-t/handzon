@@ -1,13 +1,15 @@
 {
   "extends": "../../../../tsconfig.base.json",
   "compilerOptions": {
+    // tsup bundles for production (one file in dist/), so Bundler
+    // resolution is correct here. `tsc --noEmit` is used for typecheck only.
     "outDir": "./dist",
     "rootDir": "./src",
     "module": "ESNext",
     "moduleResolution": "Bundler",
     "types": ["node"],
     "declaration": false,
-    "noEmit": false
+    "noEmit": true
   },
   "include": ["src/**/*"]
 }

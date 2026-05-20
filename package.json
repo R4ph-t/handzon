@@ -11,13 +11,13 @@
     "template:dev": "pnpm --filter ./templates/default dev",
     "template:build": "pnpm --filter ./templates/default build",
     "test": "pnpm -r test",
-    "check": "biome check .",
+    "check": "biome check . && pnpm --filter ./templates/default check",
     "fix": "biome check --write ."
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.15"
   },
   "engines": {
-    "node": ">=20.10.0"
+    "node": ">=22.0.0"
   }
 }
