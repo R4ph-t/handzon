@@ -51,6 +51,24 @@ function resolveAllowedOrigins(raw: string | undefined): string[] | "*" {
 }
 
 const allowedOrigins = resolveAllowedOrigins(process.env.ALLOWED_ORIGIN);
+const IS_DEV = process.env.NODE_ENV !== "production";
+const LOCALHOST_ORIGIN_RE = /^https?:\/\/(?:localhost|127\.0\.0\.1|\[::1\])(?::\d+)?$/i;
+
+/**
+ * Origin allow-list with a dev-only relaxation: outside production,
+ * any localhost port matches. The .env file pins one specific port,
+ * but Astro auto-bumps (4321 → 4322 → 4323 …) when the default is
+ * busy, and dotenv only loads at boot — so without this relaxation
+ * the AI service would 403 on every preflight after a port bump
+ * until the learner manually restarts both processes.
+ */
+function originAllowed(origin: string): string | null {
+  if (allowedOrigins === "*") return origin || "*";
+  if (!origin) return null;
+  if (allowedOrigins.includes(origin)) return origin;
+  if (IS_DEV && LOCALHOST_ORIGIN_RE.test(origin)) return origin;
+  return null;
+}
 
 /**
  * Minimal in-memory token-bucket rate limiter, keyed by client IP. This
@@ -90,7 +108,7 @@ app.use(
 app.use(
   "*",
   cors({
-    origin: allowedOrigins,
+    origin: originAllowed,
     allowHeaders: ["Content-Type", "X-Llm-Api-Key"],
     allowMethods: ["GET", "POST", "OPTIONS"],
   }),
