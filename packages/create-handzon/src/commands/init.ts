@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 import * as p from "@clack/prompts";
 import pc from "picocolors";
 import { ask } from "../shared/ask";
+import { writeDevEnv, writeDevScripts } from "../shared/dev-config";
 import { replaceProjectName } from "../shared/render-template";
 import { installSkillsInteractive } from "./skills";
 import { isValidSlug, slugify } from "../shared/slugify";
@@ -201,11 +202,21 @@ export type AiConfig = typeof aiDefaults;
   // Tier 1 vs Tier 2: prune the file the user didn't pick.
   if (!tier2) {
     await rm(join(targetDir, "render.full.yaml"), { force: true });
+    // Tier 1 has no DB, so docker-compose is dead weight.
+    await rm(join(targetDir, "docker-compose.yml"), { force: true });
   } else {
     // Promote render.full.yaml to render.yaml (Tier 2 default).
     await rm(join(targetDir, "render.yaml"), { force: true });
     await rename(join(targetDir, "render.full.yaml"), join(targetDir, "render.yaml"));
   }
+
+  // Tailor the package.json `dev` script to what the user actually
+  // wants running locally (site + AI + Postgres in any combination),
+  // and write a `.env` with localhost defaults so `pnpm dev` works on
+  // first try.
+  await writeDevScripts(join(targetDir, "package.json"), { aiEnabled, tier2 });
+  await writeDevEnv(join(targetDir, ".env"), { aiEnabled, tier2 });
+
   s.stop("Configured");
 
   if (install) {
@@ -237,11 +248,23 @@ export type AiConfig = typeof aiDefaults;
     await installSkillsInteractive(targetDir);
   }
 
+  const devProcs = describeDevProcs({ aiEnabled, tier2 });
+  const tier2Notice = tier2
+    ? `\n\n  Tier 2 needs Docker for the local Postgres. If you don't have it,\n  install OrbStack / Docker Desktop / Colima, or set DATABASE_URL\n  to your own Postgres in .env and skip \`pnpm dev:db\`.`
+    : "";
+  const skillsHint = installSkills
+    ? ""
+    : "\n\n  Want the authoring skills later? Run `pnpm handzon:skills`.";
+
   p.outro(
     pc.green("Done!") +
-      `\n\n  cd ${slug}\n  ${packageManager} dev\n\n  Then open http://localhost:4321` +
-      (installSkills
-        ? ""
-        : "\n\n  Want the authoring skills later? Run `pnpm handzon:skills`."),
+      `\n\n  cd ${slug}\n  ${packageManager} dev   ${pc.dim(`# ${devProcs}`)}\n\n  Then open http://localhost:4321` +
+      tier2Notice +
+      skillsHint,
   );
+}
+
+function describeDevProcs({ aiEnabled, tier2 }: { aiEnabled: boolean; tier2: boolean }): string {
+  const procs = [tier2 && "db", "site", aiEnabled && "ai"].filter(Boolean);
+  return procs.length > 1 ? `runs ${procs.join(" + ")} in parallel` : "runs astro dev";
 }
