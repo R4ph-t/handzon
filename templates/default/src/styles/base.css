@@ -76,7 +76,6 @@ a:hover {
   font-size: 0.875em;
   color: var(--color-accent);
   border-radius: 0;
-  border: var(--border-default) solid var(--color-border);
 }
 
 .prose blockquote {

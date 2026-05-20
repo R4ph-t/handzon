@@ -311,53 +311,44 @@
   .ms-trigger { display: inline-flex; }
 }
 
-/* Tabs — segmented control sits on top of a panel container */
+/* Tabs — browser-tab look. Triggers at top, content directly below.
+ * No outer container. Active trigger shares the content's surface bg
+ * so the underline appears to extend under the inactive triggers and
+ * the active one visually attaches to the content area below it.
+ */
 .tut-tabs {
   margin: 1.25rem 0;
-  background: var(--color-surface);
-  border: var(--border-default) solid var(--color-border);
 }
 .tut-tabs-list {
-  /* inline-flex so the bar hugs the triggers — the card's surface bg
-   * shows in the empty space to the right. A bottom border on the card
-   * level provides separation from the content panel. */
-  display: inline-flex;
-  background: var(--color-surface-2);
-  padding: 0;
-  border-radius: 0;
-  gap: 0;
+  display: flex;
+  gap: 2px;
   margin: 0;
+  padding: 0;
   border-bottom: var(--border-default) solid var(--color-border);
 }
-.tut-tabs > .tut-tabs-list {
-  /* Sit at the very top of the card; the right-most trigger should
-   * not show its right divider so it merges with the card edge. */
-}
-.tut-tabs-trigger:last-child { border-right: 0; }
 .tut-tabs-trigger {
-  padding: 0.55rem 1.15rem;
+  padding: 0.5rem 1rem;
   background: transparent;
   border: 0;
-  border-right: var(--border-default) solid var(--color-border);
   color: var(--color-muted);
   font: inherit;
   font-size: 0.85em;
   font-weight: 500;
   cursor: pointer;
   border-radius: 0;
-  position: relative;
-  transition: background 0.12s ease, color 0.12s ease;
+  margin-bottom: -1px;
+  border-bottom: var(--border-default) solid transparent;
+  transition: color 0.12s ease, background 0.12s ease, border-color 0.12s ease;
 }
-.tut-tabs-trigger:hover {
-  color: var(--color-fg);
-  background: color-mix(in oklab, var(--color-fg) 6%, var(--color-surface-2));
-}
+.tut-tabs-trigger:hover { color: var(--color-fg); }
 .tut-tabs-trigger[data-active="true"] {
-  color: var(--color-accent-fg);
-  background: var(--color-accent);
+  color: var(--color-fg);
+  background: var(--color-surface);
+  border-bottom-color: var(--color-accent);
 }
 .tut-tabs-content {
-  padding: 1rem 1.15rem;
+  background: var(--color-surface);
+  padding: 0.95rem 1.1rem;
 }
 .tut-tab-panel[hidden] { display: none; }
 .tut-tab-panel > :first-child { margin-top: 0; }

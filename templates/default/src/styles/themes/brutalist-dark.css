@@ -2,11 +2,11 @@
   /* Surfaces */
   --color-bg:          oklch(0% 0 0);
   --color-fg:          oklch(96% 0 0);
-  --color-muted:       oklch(66% 0 0);
-  --color-border:      oklch(38% 0 0);
-  --color-border-strong: oklch(58% 0 0);
-  --color-surface:     oklch(22% 0 0);   /* clearly visible card bg on black */
-  --color-surface-2:   oklch(32% 0 0);   /* row / inline code / tab bar */
+  --color-muted:       oklch(64% 0 0);
+  --color-border:      oklch(32% 0 0);
+  --color-border-strong: oklch(52% 0 0);
+  --color-surface:     oklch(16% 0 0);
+  --color-surface-2:   oklch(24% 0 0);
 
   /* Accent + intent */
   --color-accent:      oklch(64% 0.22 292.7);

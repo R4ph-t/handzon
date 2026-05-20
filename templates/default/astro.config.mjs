@@ -28,7 +28,8 @@ export default defineConfig({
         borderRadius: "0",
         frames: {
           shadowColor: "transparent",
-          editorActiveTabBorderColor: "var(--color-accent)",
+          // No outline around the file-title tab; just an accent underline.
+          editorActiveTabBorderColor: "transparent",
         },
       },
     }),
