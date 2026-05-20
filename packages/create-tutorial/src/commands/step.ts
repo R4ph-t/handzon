@@ -1,10 +1,10 @@
-import * as p from "@clack/prompts";
-import pc from "picocolors";
 import { writeFile } from "node:fs/promises";
 import { join } from "node:path";
+import * as p from "@clack/prompts";
+import pc from "picocolors";
 import { findProjectRoot } from "../shared/find-root";
 import { listTutorials, nextStepPrefix, pad2 } from "../shared/scan-tutorials";
-import { slugify, isValidSlug } from "../shared/slugify";
+import { isValidSlug, slugify } from "../shared/slugify";
 
 interface StepOptions {
   tutorial?: string;
@@ -92,7 +92,7 @@ Replace this with the first sentence the learner reads.
 `;
 
   await writeFile(join(folderPath, filename), body, "utf8");
-  p.outro(pc.green("Created!") + `\n  src/content/tutorials/${targetFolder}/${filename}`);
+  p.outro(`${pc.green("Created!")}\n  src/content/tutorials/${targetFolder}/${filename}`);
 }
 
 function cancel() {

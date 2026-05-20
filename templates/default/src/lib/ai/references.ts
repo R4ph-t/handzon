@@ -33,7 +33,8 @@ export async function loadReferences({
         content = await readFile(path, "utf8");
       }
       const remaining = budgetChars - used;
-      const trimmed = content.length > remaining ? `${content.slice(0, remaining)}\n…[truncated]` : content;
+      const trimmed =
+        content.length > remaining ? `${content.slice(0, remaining)}\n…[truncated]` : content;
       loaded.push({ source: ref, content: trimmed });
       used += trimmed.length;
     } catch {

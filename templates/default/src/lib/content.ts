@@ -1,4 +1,4 @@
-import { getCollection, type CollectionEntry } from "astro:content";
+import { type CollectionEntry, getCollection } from "astro:content";
 
 export type TutorialEntry = CollectionEntry<"tutorials">;
 export type StepEntry = CollectionEntry<"steps">;
@@ -44,7 +44,10 @@ export async function getStepsForTutorial(slug: string): Promise<StepEntry[]> {
     .sort((a, b) => parseStepId(a.id).order - parseStepId(b.id).order);
 }
 
-export async function getStep(tutorialSlug: string, stepSlug: string): Promise<StepEntry | undefined> {
+export async function getStep(
+  tutorialSlug: string,
+  stepSlug: string,
+): Promise<StepEntry | undefined> {
   const steps = await getStepsForTutorial(tutorialSlug);
   return steps.find((s) => parseStepId(s.id).stepSlug === stepSlug);
 }

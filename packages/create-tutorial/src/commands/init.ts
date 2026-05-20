@@ -1,12 +1,12 @@
+import { spawn } from "node:child_process";
+import { existsSync } from "node:fs";
+import { cp, rm, writeFile } from "node:fs/promises";
+import { dirname, join, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import * as p from "@clack/prompts";
 import pc from "picocolors";
-import { cp, rm, writeFile } from "node:fs/promises";
-import { existsSync } from "node:fs";
-import { resolve, join, dirname } from "node:path";
-import { fileURLToPath } from "node:url";
-import { spawn } from "node:child_process";
-import { slugify, isValidSlug } from "../shared/slugify";
 import { replaceProjectName } from "../shared/render-template";
+import { isValidSlug, slugify } from "../shared/slugify";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -33,7 +33,10 @@ export async function runInit(opts: InitOptions = {}): Promise<void> {
         message: "Project name",
         placeholder: defaultName,
         defaultValue: defaultName,
-        validate: (v) => (isValidSlug(slugify(v || defaultName)) ? undefined : "Use lowercase letters, numbers, and dashes."),
+        validate: (v) =>
+          isValidSlug(slugify(v || defaultName))
+            ? undefined
+            : "Use lowercase letters, numbers, and dashes.",
       })) as string);
   if (p.isCancel(projectName)) return cancel();
 
@@ -180,7 +183,9 @@ export type AiConfig = typeof aiDefaults;
     await new Promise<void>((resolveInstall, rejectInstall) => {
       const child = spawn(packageManager, ["install"], { cwd: targetDir, stdio: "inherit" });
       child.on("exit", (code) =>
-        code === 0 ? resolveInstall() : rejectInstall(new Error(`${packageManager} install exited ${code}`)),
+        code === 0
+          ? resolveInstall()
+          : rejectInstall(new Error(`${packageManager} install exited ${code}`)),
       );
     }).catch((e) => {
       s.stop("Install failed");

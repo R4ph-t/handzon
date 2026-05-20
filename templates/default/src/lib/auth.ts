@@ -1,7 +1,7 @@
 import type { AstroCookies } from "astro";
+import { eq } from "drizzle-orm";
 import { getDb } from "~/db/client";
 import { learners } from "~/db/schema";
-import { eq } from "drizzle-orm";
 
 const COOKIE = "tt-device";
 const ONE_YEAR = 60 * 60 * 24 * 365;
@@ -15,7 +15,9 @@ function randomDeviceId(): string {
     .join("");
 }
 
-export async function getOrCreateLearner(cookies: AstroCookies): Promise<{ id: string; deviceId: string }> {
+export async function getOrCreateLearner(
+  cookies: AstroCookies,
+): Promise<{ id: string; deviceId: string }> {
   const db = getDb();
   let deviceId = cookies.get(COOKIE)?.value;
   if (deviceId) {

@@ -1,7 +1,7 @@
 import type { APIRoute } from "astro";
+import { eq } from "drizzle-orm";
 import { getDb } from "~/db/client";
 import { progressEntries } from "~/db/schema";
-import { eq } from "drizzle-orm";
 import { getOrCreateLearner } from "~/lib/auth";
 
 export const prerender = false;
@@ -44,7 +44,12 @@ export const POST: APIRoute = async ({ cookies, request }) => {
     .insert(progressEntries)
     .values(rows)
     .onConflictDoUpdate({
-      target: [progressEntries.learnerId, progressEntries.kind, progressEntries.scope, progressEntries.key],
+      target: [
+        progressEntries.learnerId,
+        progressEntries.kind,
+        progressEntries.scope,
+        progressEntries.key,
+      ],
       set: { value: progressEntries.value, updatedAt: new Date() },
     });
   return new Response(JSON.stringify({ written: rows.length }), {

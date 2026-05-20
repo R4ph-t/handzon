@@ -1,6 +1,6 @@
 import * as Dialog from "@radix-ui/react-dialog";
-import { useState } from "react";
 import { X } from "lucide-react";
+import { useState } from "react";
 import { saveLearnerKey } from "~/lib/ai/client";
 
 interface Props {
@@ -18,7 +18,13 @@ const PROVIDER_INFO: Record<string, { label: string; href: string }> = {
   "openai-compatible": { label: "OpenAI-compatible", href: "" },
 };
 
-export default function ByokSetup({ open, onOpenChange, provider, assistantName, onKeySaved }: Props) {
+export default function ByokSetup({
+  open,
+  onOpenChange,
+  provider,
+  assistantName,
+  onKeySaved,
+}: Props) {
   const [key, setKey] = useState("");
   const info = PROVIDER_INFO[provider] ?? { label: provider, href: "" };
 
@@ -42,7 +48,8 @@ export default function ByokSetup({ open, onOpenChange, provider, assistantName,
           </Dialog.Close>
           <Dialog.Title>Set up {assistantName}</Dialog.Title>
           <Dialog.Description className="byok-desc">
-            {assistantName} needs an API key to answer questions. Your key is stored only in this browser.
+            {assistantName} needs an API key to answer questions. Your key is stored only in this
+            browser.
           </Dialog.Description>
 
           {info.href && (
@@ -61,7 +68,6 @@ export default function ByokSetup({ open, onOpenChange, provider, assistantName,
               value={key}
               onChange={(e) => setKey(e.target.value)}
               placeholder="sk-..."
-              autoFocus
             />
           </label>
 
@@ -72,7 +78,8 @@ export default function ByokSetup({ open, onOpenChange, provider, assistantName,
           </div>
 
           <p className="byok-disclaimer">
-            Your key never leaves your browser. Calls go from this page directly to the assistant service.
+            Your key never leaves your browser. Calls go from this page directly to the assistant
+            service.
           </p>
         </Dialog.Content>
       </Dialog.Portal>

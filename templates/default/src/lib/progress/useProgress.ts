@@ -8,7 +8,10 @@ export function useProgress(): {
   markStepIncomplete: (tutorial: string, step: string) => void;
   recordQuiz: (questionId: string, chosen: number[], correct: boolean) => void;
   recordCheckpoint: (checkpointId: string) => void;
-  setPref: <K extends keyof ProgressState["prefs"]>(key: K, value: ProgressState["prefs"][K]) => void;
+  setPref: <K extends keyof ProgressState["prefs"]>(
+    key: K,
+    value: ProgressState["prefs"][K],
+  ) => void;
   setLastVisited: (tutorial: string, step: string) => void;
   isStepComplete: (tutorial: string, step: string) => boolean;
 } {
@@ -37,8 +40,7 @@ export function useProgress(): {
         ...s,
         checkpoints: { ...s.checkpoints, [checkpointId]: { ts: Date.now() } },
       })),
-    setPref: (key, value) =>
-      store.set((s) => ({ ...s, prefs: { ...s.prefs, [key]: value } })),
+    setPref: (key, value) => store.set((s) => ({ ...s, prefs: { ...s.prefs, [key]: value } })),
     setLastVisited: (tutorial, step) =>
       store.set((s) => ({ ...s, lastVisited: { ...s.lastVisited, [tutorial]: step } })),
     isStepComplete: (tutorial, step) => state.steps[stepKey(tutorial, step)] === "complete",

@@ -1,20 +1,21 @@
+import type { ComponentProps } from "react";
 import Callout from "~/components/mdx/Callout.astro";
-import Hint from "~/components/mdx/Hint.astro";
-import StepsCmp from "~/components/mdx/Steps.astro";
-import StepCmp from "~/components/mdx/Step.astro";
-import File from "~/components/mdx/File.astro";
-import Recap from "~/components/mdx/Recap.astro";
-import Embed from "~/components/mdx/Embed.astro";
-import Download from "~/components/mdx/Download.astro";
-import Tabs, { Tab } from "~/components/mdx/Tabs";
-import FileTree from "~/components/mdx/FileTree";
-import Reveal from "~/components/mdx/Reveal";
-import Terminal from "~/components/mdx/Terminal";
-import Mermaid from "~/components/mdx/Mermaid";
-import Diff from "~/components/mdx/Diff";
-import Quiz from "~/components/mdx/Quiz";
 import Checkpoint from "~/components/mdx/Checkpoint";
+import Diff from "~/components/mdx/Diff";
+import Download from "~/components/mdx/Download.astro";
+import Embed from "~/components/mdx/Embed.astro";
+import File from "~/components/mdx/File.astro";
+import FileTree from "~/components/mdx/FileTree";
+import Hint from "~/components/mdx/Hint.astro";
+import Mermaid from "~/components/mdx/Mermaid";
 import Playground from "~/components/mdx/Playground";
+import Quiz from "~/components/mdx/Quiz";
+import Recap from "~/components/mdx/Recap.astro";
+import Reveal from "~/components/mdx/Reveal";
+import StepCmp from "~/components/mdx/Step.astro";
+import StepsCmp from "~/components/mdx/Steps.astro";
+import Tabs, { Tab } from "~/components/mdx/Tabs";
+import Terminal from "~/components/mdx/Terminal";
 
 interface CheckpointContext {
   tutorialSlug: string;
@@ -43,7 +44,8 @@ export function mdxComponents(ctx: CheckpointContext) {
     Mermaid,
     Diff,
     Quiz,
-    Checkpoint: (props: any) => Checkpoint({ ...props, tutorial: ctx.tutorialSlug, step: ctx.stepSlug }),
+    Checkpoint: (props: ComponentProps<typeof Checkpoint>) =>
+      Checkpoint({ ...props, tutorial: ctx.tutorialSlug, step: ctx.stepSlug }),
     Playground,
   };
 }

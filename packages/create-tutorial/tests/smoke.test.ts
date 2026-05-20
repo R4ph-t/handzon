@@ -1,9 +1,8 @@
-import { test } from "node:test";
 import assert from "node:assert/strict";
-import { mkdtemp, rm, mkdir, writeFile, readFile, stat } from "node:fs/promises";
+import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { existsSync } from "node:fs";
+import { test } from "node:test";
 import { findProjectRoot } from "../src/shared/find-root";
 import { listTutorials, nextStepPrefix, pad2 } from "../src/shared/scan-tutorials";
 

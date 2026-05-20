@@ -1,5 +1,5 @@
-import type { AssistantContext } from "./context";
 import type { AiConfig } from "~/config/ai";
+import type { AssistantContext } from "./context";
 
 export interface ChatMessage {
   role: "user" | "assistant";

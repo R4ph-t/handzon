@@ -1,5 +1,5 @@
-import { useId, useState } from "react";
 import { Check, X } from "lucide-react";
+import { useId, useState } from "react";
 import { useProgress } from "~/lib/progress/useProgress";
 
 interface Props {
@@ -34,8 +34,7 @@ export default function Quiz({ question, options, answer, explanation, id, multi
 
   function submit() {
     const sorted = [...chosen].sort((a, b) => a - b);
-    const correct =
-      sorted.length === correctSet.size && sorted.every((v) => correctSet.has(v));
+    const correct = sorted.length === correctSet.size && sorted.every((v) => correctSet.has(v));
     recordQuiz(questionId, sorted, correct);
     setSubmitted(true);
   }

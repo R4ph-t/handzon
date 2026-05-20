@@ -1,5 +1,5 @@
-import { useState, type ReactNode } from "react";
 import { Eye, EyeOff } from "lucide-react";
+import { type ReactNode, useState } from "react";
 
 interface Props {
   label?: string;

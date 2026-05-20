@@ -1,8 +1,8 @@
 import { defineCollection, z } from "astro:content";
-import { glob } from "astro/loaders";
 import { readdir, readFile } from "node:fs/promises";
-import { join, resolve, relative } from "node:path";
+import { join, relative, resolve } from "node:path";
 import type { Loader } from "astro/loaders";
+import { glob } from "astro/loaders";
 
 const TUTORIALS_REL = "src/content/tutorials";
 const TUTORIALS_DIR = resolve(TUTORIALS_REL);
@@ -21,7 +21,9 @@ function tutorialsLoader(): Loader {
       let folders: string[] = [];
       try {
         const dirents = await readdir(TUTORIALS_DIR, { withFileTypes: true });
-        folders = dirents.filter((d) => d.isDirectory() && STEP_FOLDER.test(d.name)).map((d) => d.name);
+        folders = dirents
+          .filter((d) => d.isDirectory() && STEP_FOLDER.test(d.name))
+          .map((d) => d.name);
       } catch {
         return;
       }

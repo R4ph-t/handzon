@@ -1,5 +1,5 @@
 import type { APIRoute } from "astro";
-import { getTutorials, getStepsForTutorial, parseStepId } from "~/lib/content";
+import { getStepsForTutorial, getTutorials, parseStepId } from "~/lib/content";
 
 export const GET: APIRoute = async () => {
   const tutorials = await getTutorials();

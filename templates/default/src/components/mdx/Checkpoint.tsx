@@ -1,5 +1,5 @@
-import { useEffect, useId } from "react";
 import { Check } from "lucide-react";
+import { useEffect, useId } from "react";
 import { useProgress } from "~/lib/progress/useProgress";
 
 interface Props {

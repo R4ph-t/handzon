@@ -24,7 +24,9 @@ export default function Diff({
     return (
       <div className="diff">
         <div className="diff-bar">
-          <button type="button" onClick={() => setLayout("side-by-side")}>Side-by-side</button>
+          <button type="button" onClick={() => setLayout("side-by-side")}>
+            Side-by-side
+          </button>
         </div>
         <pre className="diff-body">
           {parts.map((part, i) => (
@@ -67,7 +69,9 @@ export default function Diff({
   return (
     <div className="diff">
       <div className="diff-bar">
-        <button type="button" onClick={() => setLayout("unified")}>Unified</button>
+        <button type="button" onClick={() => setLayout("unified")}>
+          Unified
+        </button>
       </div>
       <div className="diff-grid">
         <div className="diff-col">

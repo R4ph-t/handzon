@@ -1,4 +1,10 @@
-import { CHANNEL_NAME, STORAGE_KEY, emptyState, type ProgressState, type ProgressStore } from "./types";
+import {
+  CHANNEL_NAME,
+  emptyState,
+  type ProgressState,
+  type ProgressStore,
+  STORAGE_KEY,
+} from "./types";
 
 const isBrowser = typeof window !== "undefined";
 
@@ -33,7 +39,7 @@ export function createLocalStore(): ProgressStore {
     channel.addEventListener("message", (event: MessageEvent) => {
       if (event.data?.type === "set") {
         state = event.data.state as ProgressState;
-        subscribers.forEach((fn) => fn(state));
+        for (const fn of subscribers) fn(state);
       }
     });
   }
@@ -42,7 +48,7 @@ export function createLocalStore(): ProgressStore {
     window.addEventListener("storage", (e) => {
       if (e.key !== STORAGE_KEY) return;
       state = readStorage();
-      subscribers.forEach((fn) => fn(state));
+      for (const fn of subscribers) fn(state);
     });
   }
 
@@ -51,7 +57,7 @@ export function createLocalStore(): ProgressStore {
     set: (updater) => {
       state = updater(state);
       writeStorage(state);
-      subscribers.forEach((fn) => fn(state));
+      for (const fn of subscribers) fn(state);
       channel?.postMessage({ type: "set", state });
     },
     subscribe: (fn) => {

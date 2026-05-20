@@ -1,7 +1,7 @@
 import type { APIRoute } from "astro";
-import { getDb } from "~/db/client";
-import { transferCodes, learners } from "~/db/schema";
 import { eq, lt } from "drizzle-orm";
+import { getDb } from "~/db/client";
+import { learners, transferCodes } from "~/db/schema";
 import { getOrCreateLearner, rebindLearner } from "~/lib/auth";
 
 export const prerender = false;
@@ -44,9 +44,15 @@ export const POST: APIRoute = async ({ cookies, request }) => {
       .from(transferCodes)
       .where(eq(transferCodes.code, body.code.toUpperCase()))
       .limit(1);
-    if (!row) return new Response(JSON.stringify({ error: "Invalid or expired code." }), { status: 404 });
-    const [learner] = await db.select().from(learners).where(eq(learners.id, row.learnerId)).limit(1);
-    if (!learner) return new Response(JSON.stringify({ error: "Learner not found." }), { status: 404 });
+    if (!row)
+      return new Response(JSON.stringify({ error: "Invalid or expired code." }), { status: 404 });
+    const [learner] = await db
+      .select()
+      .from(learners)
+      .where(eq(learners.id, row.learnerId))
+      .limit(1);
+    if (!learner)
+      return new Response(JSON.stringify({ error: "Learner not found." }), { status: 404 });
     rebindLearner(cookies, learner.deviceId);
     // One-shot — drop the code on use.
     await db.delete(transferCodes).where(eq(transferCodes.code, row.code));

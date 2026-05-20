@@ -17,7 +17,14 @@ export default function Progress({ tutorialSlug, totalSteps }: Props) {
   const pct = totalSteps > 0 ? Math.round((completed / totalSteps) * 100) : 0;
 
   return (
-    <div className="progress" aria-label={`${completed} of ${totalSteps} steps complete`}>
+    <div
+      className="progress"
+      role="progressbar"
+      aria-label={`${completed} of ${totalSteps} steps complete`}
+      aria-valuenow={completed}
+      aria-valuemin={0}
+      aria-valuemax={totalSteps}
+    >
       <div className="progress-bar">
         <div className="progress-fill" style={{ width: `${pct}%` }} />
       </div>

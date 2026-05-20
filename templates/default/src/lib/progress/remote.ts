@@ -1,8 +1,20 @@
-import { CHANNEL_NAME, STORAGE_KEY, emptyState, type ProgressState, type ProgressStore } from "./types";
+import {
+  CHANNEL_NAME,
+  emptyState,
+  type ProgressState,
+  type ProgressStore,
+  STORAGE_KEY,
+} from "./types";
 
 const isBrowser = typeof window !== "undefined";
 
-type ProgressEntry = { kind: string; scope: string; key: string; value: unknown; updatedAt?: string };
+type ProgressEntry = {
+  kind: string;
+  scope: string;
+  key: string;
+  value: unknown;
+  updatedAt?: string;
+};
 
 const PENDING_KEY = "tutorial-tool:pending";
 
@@ -81,7 +93,7 @@ export function createRemoteStore(): ProgressStore {
     channel.addEventListener("message", (event: MessageEvent) => {
       if (event.data?.type === "set") {
         state = event.data.state as ProgressState;
-        subscribers.forEach((fn) => fn(state));
+        for (const fn of subscribers) fn(state);
       }
     });
   }
@@ -116,11 +128,15 @@ export function createRemoteStore(): ProgressStore {
       try {
         const res = await fetch("/api/progress", { credentials: "same-origin" });
         if (!res.ok) return;
-        const { entries } = (await res.json()) as { entries: Array<{ kind: string; scope: string; key: string; value: unknown }> };
+        const { entries } = (await res.json()) as {
+          entries: Array<{ kind: string; scope: string; key: string; value: unknown }>;
+        };
         const merged: ProgressState = { ...emptyState(), ...state };
         for (const e of entries) {
           if (e.kind === "step") {
-            merged.steps[`${e.scope}/${e.key}` as `${string}/${string}`] = e.value as "incomplete" | "complete";
+            merged.steps[`${e.scope}/${e.key}` as `${string}/${string}`] = e.value as
+              | "incomplete"
+              | "complete";
           } else if (e.kind === "quiz") {
             merged.quizzes[e.key] = e.value as ProgressState["quizzes"][string];
           } else if (e.kind === "checkpoint") {
@@ -133,7 +149,7 @@ export function createRemoteStore(): ProgressStore {
         }
         state = merged;
         writeStorage(state);
-        subscribers.forEach((fn) => fn(state));
+        for (const fn of subscribers) fn(state);
       } catch {
         // ignore — local data still drives the UI
       }
@@ -151,7 +167,7 @@ export function createRemoteStore(): ProgressStore {
         writePending([...readPending(), ...entries]);
         scheduleFlush();
       }
-      subscribers.forEach((fn) => fn(state));
+      for (const fn of subscribers) fn(state);
       channel?.postMessage({ type: "set", state });
     },
     subscribe: (fn) => {

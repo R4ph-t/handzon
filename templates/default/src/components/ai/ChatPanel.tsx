@@ -1,10 +1,10 @@
 import * as Dialog from "@radix-ui/react-dialog";
+import { Send, Settings, Trash2, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { X, Send, Settings, Trash2 } from "lucide-react";
-import ByokSetup from "./ByokSetup";
-import { streamChat, loadLearnerKey, clearLearnerKey, type ChatMessage } from "~/lib/ai/client";
-import type { AssistantContext } from "~/lib/ai/context";
 import type { AiConfig } from "~/config/ai";
+import { type ChatMessage, clearLearnerKey, loadLearnerKey, streamChat } from "~/lib/ai/client";
+import type { AssistantContext } from "~/lib/ai/context";
+import ByokSetup from "./ByokSetup";
 
 interface Props {
   open: boolean;
@@ -34,7 +34,7 @@ export default function ChatPanel({ open, onOpenChange, config, context }: Props
 
   useEffect(() => {
     listRef.current?.scrollTo({ top: listRef.current.scrollHeight });
-  }, [messages, streaming]);
+  }, []);
 
   async function send() {
     const trimmed = input.trim();

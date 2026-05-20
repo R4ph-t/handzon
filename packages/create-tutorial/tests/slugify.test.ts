@@ -1,6 +1,6 @@
-import { test } from "node:test";
 import assert from "node:assert/strict";
-import { slugify, isValidSlug } from "../src/shared/slugify";
+import { test } from "node:test";
+import { isValidSlug, slugify } from "../src/shared/slugify";
 
 test("slugify basic", () => {
   assert.equal(slugify("Hello World"), "hello-world");

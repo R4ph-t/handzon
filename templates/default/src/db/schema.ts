@@ -1,4 +1,4 @@
-import { pgTable, uuid, text, jsonb, timestamp, primaryKey, index } from "drizzle-orm/pg-core";
+import { index, jsonb, pgTable, primaryKey, text, timestamp, uuid } from "drizzle-orm/pg-core";
 
 export const learners = pgTable("learners", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -9,7 +9,9 @@ export const learners = pgTable("learners", {
 export const progressEntries = pgTable(
   "progress_entries",
   {
-    learnerId: uuid("learner_id").notNull().references(() => learners.id, { onDelete: "cascade" }),
+    learnerId: uuid("learner_id")
+      .notNull()
+      .references(() => learners.id, { onDelete: "cascade" }),
     kind: text("kind").notNull(), // 'step' | 'checkpoint' | 'quiz' | 'pref' | 'lastVisited'
     scope: text("scope").notNull(), // tutorial slug or 'global'
     key: text("key").notNull(),
@@ -24,6 +26,8 @@ export const progressEntries = pgTable(
 
 export const transferCodes = pgTable("transfer_codes", {
   code: text("code").primaryKey(),
-  learnerId: uuid("learner_id").notNull().references(() => learners.id, { onDelete: "cascade" }),
+  learnerId: uuid("learner_id")
+    .notNull()
+    .references(() => learners.id, { onDelete: "cascade" }),
   expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
 });

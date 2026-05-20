@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
 import { Moon, Sun } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useProgress } from "~/lib/progress/useProgress";
 
 export default function ThemeToggle() {
@@ -8,7 +8,9 @@ export default function ThemeToggle() {
 
   useEffect(() => {
     setMounted(true);
-    const preferred = state.prefs.theme ?? (window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
+    const preferred =
+      state.prefs.theme ??
+      (window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
     document.documentElement.setAttribute("data-theme", preferred);
   }, [state.prefs.theme]);
 
@@ -22,7 +24,12 @@ export default function ThemeToggle() {
 
   const current = state.prefs.theme ?? "dark";
   return (
-    <button type="button" className="theme-toggle" onClick={toggle} aria-label={`Switch to ${current === "dark" ? "light" : "dark"} mode`}>
+    <button
+      type="button"
+      className="theme-toggle"
+      onClick={toggle}
+      aria-label={`Switch to ${current === "dark" ? "light" : "dark"} mode`}
+    >
       {current === "dark" ? <Sun size={14} /> : <Moon size={14} />}
     </button>
   );

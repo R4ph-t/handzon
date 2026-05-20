@@ -1,4 +1,4 @@
-import type { TutorialEntry, StepEntry } from "~/lib/content";
+import type { StepEntry, TutorialEntry } from "~/lib/content";
 import { parseStepId } from "~/lib/content";
 import type { ProgressState } from "~/lib/progress/types";
 

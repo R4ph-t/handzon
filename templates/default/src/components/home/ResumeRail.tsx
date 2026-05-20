@@ -12,7 +12,11 @@ interface Props {
 
 export default function ResumeRail({ tutorials }: Props) {
   const state = useProgressAfterMount();
-  const [mostRecent, setMostRecent] = useState<{ slug: string; title: string; step: string } | null>(null);
+  const [mostRecent, setMostRecent] = useState<{
+    slug: string;
+    title: string;
+    step: string;
+  } | null>(null);
 
   useEffect(() => {
     if (!state) return;

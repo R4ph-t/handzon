@@ -1,4 +1,4 @@
-import { Folder, File as FileIcon, FolderOpen } from "lucide-react";
+import { File as FileIcon, Folder, FolderOpen } from "lucide-react";
 import { useState } from "react";
 
 type Node = { name: string; children?: Node[] };
@@ -41,11 +41,7 @@ function NodeRow({ node, depth }: { node: Node; depth: number }) {
         onClick={() => folder && setOpen((o) => !o)}
         aria-expanded={folder ? open : undefined}
       >
-        {folder ? (
-          open ? <FolderOpen size={14} /> : <Folder size={14} />
-        ) : (
-          <FileIcon size={14} />
-        )}
+        {folder ? open ? <FolderOpen size={14} /> : <Folder size={14} /> : <FileIcon size={14} />}
         <span className="ft-name">{node.name}</span>
       </button>
       {folder && open && node.children && (

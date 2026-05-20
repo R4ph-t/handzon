@@ -1,9 +1,9 @@
 import { Agent } from "@mastra/core/agent";
 import { createTool } from "@mastra/core/tools";
 import { z } from "zod";
-import { pickModel, type ProviderName } from "./providers";
-import { buildTools, type AssistantPayload } from "./tools";
+import { type ProviderName, pickModel } from "./providers";
 import { ASSISTANT_SKILLS } from "./skills";
+import { type AssistantPayload, buildTools } from "./tools";
 
 const TONE_RULES: Record<string, string> = {
   socratic:
@@ -50,9 +50,7 @@ export function createAssistant({ payload, config, learnerKey }: AgentOptions): 
     .map((s) => `${s.current ? "→" : s.completed ? "✓" : " "} ${s.slug}: ${s.title}`)
     .join("\n");
 
-  const skillsHeader = enabledSkills
-    .map((s) => `- ${s.name}: ${s.description}`)
-    .join("\n");
+  const skillsHeader = enabledSkills.map((s) => `- ${s.name}: ${s.description}`).join("\n");
 
   const systemPrompt =
     config.customSystemPrompt ??
@@ -84,7 +82,11 @@ ${skillsHeader}
 `;
 
   return new Agent({
-    id: name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "helper",
+    id:
+      name
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-|-$/g, "") || "helper",
     name,
     instructions: systemPrompt,
     model: pickModel(config.provider, config.model, learnerKey),

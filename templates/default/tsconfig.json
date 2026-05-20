@@ -8,6 +8,12 @@
       "~/*": ["./src/*"]
     }
   },
-  "include": [".astro/types.d.ts", "src/**/*", "drizzle.config.ts", "astro.config.mjs", "src/env.d.ts"],
+  "include": [
+    ".astro/types.d.ts",
+    "src/**/*",
+    "drizzle.config.ts",
+    "astro.config.mjs",
+    "src/env.d.ts"
+  ],
   "exclude": ["dist", "node_modules", "services"]
 }

@@ -1,8 +1,8 @@
-import { useState } from "react";
 import { MessageCircle } from "lucide-react";
-import ChatPanel from "./ChatPanel";
-import type { AssistantContext } from "~/lib/ai/context";
+import { useState } from "react";
 import type { AiConfig } from "~/config/ai";
+import type { AssistantContext } from "~/lib/ai/context";
+import ChatPanel from "./ChatPanel";
 
 interface Props {
   config: AiConfig & { disabledSkills?: string[]; allowedDomains?: string[] };

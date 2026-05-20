@@ -20,7 +20,10 @@ export default function Mermaid({ chart, id }: Props) {
       try {
         const mermaid = (await import("mermaid")).default;
         mermaid.initialize({ startOnLoad: false, theme: "dark", securityLevel: "strict" });
-        const { svg } = await mermaid.render(id ?? `mermaid-${Math.random().toString(36).slice(2)}`, chart);
+        const { svg } = await mermaid.render(
+          id ?? `mermaid-${Math.random().toString(36).slice(2)}`,
+          chart,
+        );
         if (!cancelled && ref.current) ref.current.innerHTML = svg;
       } catch (e) {
         if (!cancelled) setError(e instanceof Error ? e.message : String(e));

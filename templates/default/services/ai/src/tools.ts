@@ -2,7 +2,13 @@ import { createTool } from "@mastra/core/tools";
 import { z } from "zod";
 
 export interface AssistantPayload {
-  tutorial: { slug: string; title: string; description: string; difficulty: string; tags: string[] };
+  tutorial: {
+    slug: string;
+    title: string;
+    description: string;
+    difficulty: string;
+    tags: string[];
+  };
   outline: Array<{ slug: string; title: string; completed: boolean; current: boolean }>;
   currentStep: { slug: string; title: string; source: string };
   priorSteps: Array<{ slug: string; title: string; source: string }>;
@@ -48,8 +54,7 @@ export function buildTools(payload: AssistantPayload) {
         if (!target) return { error: `No step "${input.slug}" available.` };
         const blocks: Array<{ lang: string; code: string }> = [];
         const re = /```([a-zA-Z0-9_+-]*)\s*(?:[^\n]*\n)([\s\S]*?)```/g;
-        let m: RegExpExecArray | null;
-        while ((m = re.exec(target.source))) {
+        for (const m of target.source.matchAll(re)) {
           const matchLang = m[1] ?? "text";
           const code = m[2] ?? "";
           if (!input.lang || matchLang === input.lang) {
@@ -122,8 +127,7 @@ export function buildTools(payload: AssistantPayload) {
         const hits: Array<{ stepSlug: string; lang: string; snippet: string }> = [];
         const re = /```([a-zA-Z0-9_+-]*)\s*(?:[^\n]*\n)([\s\S]*?)```/g;
         for (const step of allSteps) {
-          let m: RegExpExecArray | null;
-          while ((m = re.exec(step.source))) {
+          for (const m of step.source.matchAll(re)) {
             const matchLang = m[1] ?? "text";
             const code = m[2] ?? "";
             if (input.lang && matchLang !== input.lang) continue;
@@ -138,7 +142,8 @@ export function buildTools(payload: AssistantPayload) {
 
     getProgress: createTool({
       id: "getProgress",
-      description: "The learner's current progress snapshot (completed steps, quizzes, checkpoints).",
+      description:
+        "The learner's current progress snapshot (completed steps, quizzes, checkpoints).",
       inputSchema: z.object({}),
       execute: async () => ({ progress: payload.progress }),
     }),

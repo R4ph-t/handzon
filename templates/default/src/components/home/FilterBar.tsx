@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
 import { Search, X } from "lucide-react";
+import { useEffect, useState } from "react";
 
 interface Props {
   difficulties: string[];
@@ -18,9 +18,12 @@ function readUrlState() {
 
 function writeUrlState(state: { q: string; difficulty: string; tag: string }) {
   const url = new URL(window.location.href);
-  if (state.q) url.searchParams.set("q", state.q); else url.searchParams.delete("q");
-  if (state.difficulty) url.searchParams.set("difficulty", state.difficulty); else url.searchParams.delete("difficulty");
-  if (state.tag) url.searchParams.set("tag", state.tag); else url.searchParams.delete("tag");
+  if (state.q) url.searchParams.set("q", state.q);
+  else url.searchParams.delete("q");
+  if (state.difficulty) url.searchParams.set("difficulty", state.difficulty);
+  else url.searchParams.delete("difficulty");
+  if (state.tag) url.searchParams.set("tag", state.tag);
+  else url.searchParams.delete("tag");
   window.history.replaceState({}, "", url.toString());
 }
 
