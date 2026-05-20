@@ -1,14 +1,20 @@
 # yaml-language-server: $schema=https://render.com/schema/render.yaml.json
 #
-# Tier 2 Blueprint — Render Web Service (Astro SSR) + Mastra AI service +
-# Render Postgres for cross-device progress sync. Grouped under a Render
-# Project + production environment.
+# Tier 2 Blueprint — Astro SSR site + Mastra AI service + Render Postgres
+# for cross-device progress sync. Grouped under a Render Project +
+# production environment.
 #
 # To use: rename this file to render.yaml, push, and run
 # "New → Blueprint" in the Render Dashboard.
 #
-# After first deploy, set the AI provider keys on the ai service:
-#   ANTHROPIC_API_KEY (or OPENAI_API_KEY / GOOGLE_GENERATIVE_AI_API_KEY)
+# After first deploy, set the AI provider keys on the ai service
+# (only one is required, depending on the chosen provider):
+#   ANTHROPIC_API_KEY
+#   OPENAI_API_KEY
+#   GOOGLE_GENERATIVE_AI_API_KEY
+#   OPENAI_COMPATIBLE_API_KEY (+ OPENAI_COMPATIBLE_BASE_URL)
+#
+# Migrations run automatically via `preDeployCommand` on the site service.
 
 previews:
   generation: automatic
@@ -24,8 +30,9 @@ projects:
             runtime: node
             plan: starter
             rootDir: .
-            buildCommand: pnpm install --frozen-lockfile && pnpm db:migrate && pnpm build
+            buildCommand: pnpm install --frozen-lockfile && pnpm build
             startCommand: node ./dist/server/entry.mjs
+            preDeployCommand: pnpm db:migrate
             healthCheckPath: /healthz
             envVars:
               - key: NODE_VERSION
@@ -33,6 +40,9 @@ projects:
               - key: PUBLIC_PROGRESS_BACKEND
                 value: remote
               - key: PUBLIC_AI_SERVICE_URL
+                # Render ships the bare private-network hostname here.
+                # The browser-side fetch expands it to
+                # `https://<host>.onrender.com` automatically.
                 fromService:
                   type: web
                   name: __PROJECT_NAME__-ai
@@ -54,6 +64,8 @@ projects:
               - key: NODE_VERSION
                 value: "22"
               - key: ALLOWED_ORIGIN
+                # Same hostname-expansion convention — the CORS middleware
+                # turns this into `https://<host>.onrender.com`.
                 fromService:
                   type: web
                   name: __PROJECT_NAME__-site

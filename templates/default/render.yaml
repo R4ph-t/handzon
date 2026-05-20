@@ -1,11 +1,15 @@
 # yaml-language-server: $schema=https://render.com/schema/render.yaml.json
 #
-# Tier 1 Blueprint — Render Static Site for the tutorial app + a Mastra-powered
-# AI assistant Web Service, grouped under a Render Project + production
-# environment. Learner progress lives in localStorage (no DB).
+# Tier 1 Blueprint — Astro SSR site (no Postgres) + Mastra-powered AI
+# assistant. Learner progress lives in localStorage. Grouped under a
+# Render Project + production environment.
 #
-# After "New → Blueprint", set the AI provider keys on the assistant service:
-#   ANTHROPIC_API_KEY (or OPENAI_API_KEY / GOOGLE_GENERATIVE_AI_API_KEY)
+# After "New → Blueprint", set the AI provider keys on the assistant
+# service (only one is required, depending on the chosen provider):
+#   ANTHROPIC_API_KEY
+#   OPENAI_API_KEY
+#   GOOGLE_GENERATIVE_AI_API_KEY
+#   OPENAI_COMPATIBLE_API_KEY (+ OPENAI_COMPATIBLE_BASE_URL)
 
 previews:
   generation: automatic
@@ -18,14 +22,19 @@ projects:
         services:
           - type: web
             name: __PROJECT_NAME__-site
-            runtime: static
+            runtime: node
+            plan: starter
             rootDir: .
             buildCommand: pnpm install --frozen-lockfile && pnpm build
-            staticPublishPath: ./dist
+            startCommand: node ./dist/server/entry.mjs
+            healthCheckPath: /healthz
             envVars:
               - key: NODE_VERSION
                 value: "22"
               - key: PUBLIC_AI_SERVICE_URL
+                # Render ships the bare private-network hostname here.
+                # The browser-side fetch expands it to
+                # `https://<host>.onrender.com` automatically.
                 fromService:
                   type: web
                   name: __PROJECT_NAME__-ai
@@ -43,6 +52,8 @@ projects:
               - key: NODE_VERSION
                 value: "22"
               - key: ALLOWED_ORIGIN
+                # Same hostname-expansion convention — the CORS middleware
+                # turns this into `https://<host>.onrender.com`.
                 fromService:
                   type: web
                   name: __PROJECT_NAME__-site

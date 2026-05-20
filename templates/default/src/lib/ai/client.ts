@@ -15,13 +15,26 @@ interface ChatRequestOptions {
 }
 
 /**
+ * Render's `fromService.property: host` returns a bare private-network
+ * hostname (e.g. "myproject-ai-abc"). The browser needs a public URL.
+ * Treat the env value as a hostname unless it already includes a scheme
+ * — that lets local dev pass `http://localhost:4111` directly.
+ */
+function resolveServiceUrl(raw: string): string {
+  const trimmed = raw.replace(/\/$/, "");
+  if (/^https?:\/\//i.test(trimmed)) return trimmed;
+  return `https://${trimmed}.onrender.com`;
+}
+
+/**
  * POST to the Mastra service. Reads the service URL from
  * import.meta.env.PUBLIC_AI_SERVICE_URL at build time. Streams plain text
  * chunks via fetch's streaming response body.
  */
 export async function streamChat(opts: ChatRequestOptions): Promise<ReadableStream<string>> {
-  const serviceUrl = import.meta.env.PUBLIC_AI_SERVICE_URL;
-  if (!serviceUrl) throw new Error("PUBLIC_AI_SERVICE_URL is not set.");
+  const rawServiceUrl = import.meta.env.PUBLIC_AI_SERVICE_URL;
+  if (!rawServiceUrl) throw new Error("PUBLIC_AI_SERVICE_URL is not set.");
+  const serviceUrl = resolveServiceUrl(rawServiceUrl);
 
   const headers: Record<string, string> = { "Content-Type": "application/json" };
   if (opts.learnerKey) headers["X-Llm-Api-Key"] = opts.learnerKey;
@@ -36,7 +49,7 @@ export async function streamChat(opts: ChatRequestOptions): Promise<ReadableStre
     allowedDomains: opts.config.allowedDomains ?? [],
   };
 
-  const res = await fetch(`${serviceUrl.replace(/\/$/, "")}/chat`, {
+  const res = await fetch(`${serviceUrl}/chat`, {
     method: "POST",
     headers,
     signal: opts.signal,
