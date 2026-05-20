@@ -1,0 +1,22 @@
+---
+interface Props {
+  value: string;
+}
+const { value } = Astro.props;
+// The Tabs script toggles hidden based on data-tab-panel === active value.
+// First panel renders visible by default (matches Tabs.astro's initial state).
+---
+<div class="tut-tab-panel" data-tab-panel={value} hidden={false}>
+  <slot />
+</div>
+
+<script define:vars={{ value }}>
+  // First-load: hide non-initial panels. Tabs' script flips hidden on activation.
+  const panels = document.querySelectorAll(`[data-tab-panel="${value}"]`);
+  panels.forEach((panel) => {
+    const root = panel.closest("[data-tabs]");
+    if (root && root.dataset.active !== value) {
+      panel.hidden = true;
+    }
+  });
+</script>

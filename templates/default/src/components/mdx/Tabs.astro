@@ -1,0 +1,67 @@
+---
+interface TabItem {
+  label: string;
+  value: string;
+}
+
+interface Props {
+  items: TabItem[];
+  group?: string;
+}
+
+const { items, group } = Astro.props;
+const groupAttr = group ?? `tabs-${Math.random().toString(36).slice(2, 8)}`;
+const initial = items[0]?.value ?? "";
+---
+
+<div class="tut-tabs" data-tabs data-tab-group={groupAttr} data-active={initial}>
+  <div class="tut-tabs-list" role="tablist">
+    {
+      items.map((item, i) => (
+        <button
+          type="button"
+          role="tab"
+          class="tut-tabs-trigger"
+          data-tab-value={item.value}
+          data-active={i === 0 ? "true" : "false"}
+          aria-selected={i === 0}
+        >
+          {item.label}
+        </button>
+      ))
+    }
+  </div>
+  <div class="tut-tabs-content">
+    <slot />
+  </div>
+</div>
+
+<script>
+  const STORAGE_PREFIX = "tutorial-tool:tabs:";
+
+  function activate(root: HTMLElement, value: string) {
+    root.dataset.active = value;
+    root.querySelectorAll<HTMLElement>("[data-tab-value]").forEach((btn) => {
+      const isActive = btn.dataset.tabValue === value;
+      btn.dataset.active = isActive ? "true" : "false";
+      btn.setAttribute("aria-selected", String(isActive));
+    });
+    root.querySelectorAll<HTMLElement>("[data-tab-panel]").forEach((panel) => {
+      panel.hidden = panel.dataset.tabPanel !== value;
+    });
+  }
+
+  document.querySelectorAll<HTMLElement>("[data-tabs]").forEach((root) => {
+    const group = root.dataset.tabGroup ?? "";
+    const storageKey = group ? `${STORAGE_PREFIX}${group}` : null;
+    const saved = storageKey ? window.localStorage.getItem(storageKey) : null;
+    if (saved) activate(root, saved);
+    root.querySelectorAll<HTMLButtonElement>("[data-tab-value]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const v = btn.dataset.tabValue!;
+        activate(root, v);
+        if (storageKey) window.localStorage.setItem(storageKey, v);
+      });
+    });
+  });
+</script>

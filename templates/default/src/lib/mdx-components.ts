@@ -14,7 +14,8 @@ import Recap from "~/components/mdx/Recap.astro";
 import Reveal from "~/components/mdx/Reveal";
 import StepCmp from "~/components/mdx/Step.astro";
 import StepsCmp from "~/components/mdx/Steps.astro";
-import Tabs, { Tab } from "~/components/mdx/Tabs";
+import Tab from "~/components/mdx/Tab.astro";
+import Tabs from "~/components/mdx/Tabs.astro";
 import Terminal from "~/components/mdx/Terminal";
 
 interface CheckpointContext {

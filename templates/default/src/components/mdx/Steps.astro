@@ -3,32 +3,38 @@
 ---
 <ol class="steps"><slot /></ol>
 
-<style>
+<style is:global>
   .steps {
     counter-reset: step;
     list-style: none;
     padding: 0;
-    margin: 1rem 0;
-    border-left: var(--border-thick, 3px) solid var(--color-accent);
-  }
-  .steps :global(li.step) {
-    counter-increment: step;
-    padding: 0.5rem 0 0.5rem 2.5rem;
-    position: relative;
-    margin-left: 0.5rem;
-  }
-  .steps :global(li.step::before) {
-    content: counter(step);
-    position: absolute;
-    left: -1rem;
-    top: 0.5rem;
-    width: 1.75rem;
-    height: 1.75rem;
-    background: var(--color-accent);
-    color: var(--color-accent-fg);
-    font-weight: 700;
+    margin: 1.5rem 0;
     display: grid;
-    place-items: center;
+    gap: 0.6rem;
+  }
+  .steps li.step {
+    counter-increment: step;
+    display: grid;
+    grid-template-columns: 2.25rem 1fr;
+    gap: 0.85rem;
+    align-items: baseline;
+    padding: 0.6rem 0.85rem;
+    border: var(--border-default, 2px) solid var(--color-border);
+    background: var(--color-surface);
+  }
+  .steps li.step::before {
+    content: counter(step, decimal-leading-zero);
     font-family: var(--font-mono);
+    font-size: 0.85em;
+    font-weight: 700;
+    color: var(--color-accent);
+    letter-spacing: 0.04em;
+  }
+  .steps li.step > * {
+    margin: 0;
+  }
+  .steps li.step strong {
+    display: block;
+    margin-bottom: 0.15rem;
   }
 </style>

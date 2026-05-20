@@ -20,12 +20,10 @@ export default defineConfig({
   integrations: [
     expressiveCode({
       themes: ["github-dark"],
+      // Keep overrides minimal so the theme's token colors aren't clobbered.
       styleOverrides: {
-        borderColor: "var(--ec-border)",
+        borderColor: "var(--color-border)",
         borderRadius: "0",
-        borderWidth: "var(--border-default, 2px)",
-        codeBackground: "var(--ec-bg)",
-        codeFontFamily: "var(--font-mono)",
         frames: {
           shadowColor: "transparent",
           editorActiveTabBorderColor: "var(--color-accent)",

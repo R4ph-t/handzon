@@ -5,6 +5,8 @@ interface Props {
 const { title } = Astro.props;
 ---
 <li class="step">
-  {title && <strong>{title}</strong>}
-  <slot />
+  <div>
+    {title && <strong>{title}</strong>}
+    <slot />
+  </div>
 </li>
