@@ -137,9 +137,11 @@ export default function ChatPanel({ open, onOpenChange, config, context }: Props
                 </div>
               </div>
               <div className="chat-head-actions">
-                <button type="button" title="Reset key" onClick={resetKey}>
-                  <Settings size={16} />
-                </button>
+                {config.byok !== "disabled" && (
+                  <button type="button" title="Reset key" onClick={resetKey}>
+                    <Settings size={16} />
+                  </button>
+                )}
                 <button type="button" title="Clear chat" onClick={clear}>
                   <Trash2 size={16} />
                 </button>
