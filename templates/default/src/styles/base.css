@@ -35,7 +35,10 @@ a:hover {
   outline-offset: 2px;
 }
 
-/* Tutorial prose */
+/* Tutorial prose — consistent type scale, single weight family.
+ * Same weight (700) across every heading; size + tracking handles the
+ * hierarchy so it doesn't look "h1 thin / h2 super heavy".
+ */
 .prose {
   font-family: var(--font-sans);
   line-height: 1.65;
@@ -46,17 +49,25 @@ a:hover {
 .prose h1,
 .prose h2,
 .prose h3,
-.prose h4 {
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  line-height: 1.15;
+.prose h4,
+.prose h5,
+.prose h6 {
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  line-height: 1.2;
   margin-top: 2rem;
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.6rem;
+  color: var(--color-fg);
 }
 
-.prose h1 { font-size: 2.25rem; }
-.prose h2 { font-size: 1.6rem; border-top: var(--border-default, 2px) solid var(--color-border); padding-top: 1.5rem; }
-.prose h3 { font-size: 1.25rem; }
+.prose h1 { font-size: 1.875rem; letter-spacing: -0.02em; }
+.prose h2 {
+  font-size: 1.4rem;
+  padding-top: 1.25rem;
+  border-top: var(--border-default) solid var(--color-border);
+}
+.prose h3 { font-size: 1.15rem; }
+.prose h4 { font-size: 1rem; }
 
 .prose p { margin: 0.75em 0; }
 

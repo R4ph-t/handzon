@@ -89,9 +89,10 @@ const slug = tutorial.id;
     list-style: none;
     padding: 0;
     margin: 1rem 0 0;
+    border-top: var(--border-default) solid var(--color-border);
   }
-  .sb-steps li {
-    /* no row borders — color-fill the active row, hover lifts inactive rows */
+  .sb-steps li + li {
+    border-top: var(--border-default) solid var(--color-border);
   }
   .sb-steps a {
     display: grid;

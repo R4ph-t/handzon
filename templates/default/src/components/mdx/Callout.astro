@@ -21,12 +21,25 @@ const label = {
   warn: "Warning",
   danger: "Heads up",
 }[type];
+
+// Single-element SVG per type (Astro templates don't support React-style
+// fragments inside expressions). Each is a Lucide-style outline icon.
+const iconPaths = {
+  info: '<circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>',
+  tip: '<path d="M15 14c.2-1 .7-1.7 1.5-2.5C17.7 10.2 18 9 18 8a6 6 0 0 0-12 0c0 1 .3 2.2 1.5 3.5.8.8 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/>',
+  warn: '<path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>',
+  danger:
+    '<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>',
+}[type];
 ---
 
 <aside class="callout" data-type={type} style={`--callout-color: ${colorVar};`}>
   <div class="callout-bar"></div>
   <div class="callout-body">
-    <div class="callout-label">{title ?? label}</div>
+    <div class="callout-label">
+      <svg class="callout-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" set:html={iconPaths} />
+      <span>{title ?? label}</span>
+    </div>
     <div class="callout-content"><slot /></div>
   </div>
 </aside>
