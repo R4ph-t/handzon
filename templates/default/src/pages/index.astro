@@ -1,0 +1,190 @@
+---
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import Hero from "~/components/home/Hero.astro";
+import TutorialCard from "~/components/home/TutorialCard.astro";
+import FilterBar from "~/components/home/FilterBar.tsx";
+import ResumeRail from "~/components/home/ResumeRail.tsx";
+import { site } from "~/config/site";
+import { getTutorials, getStepsForTutorial, sumDurations } from "~/lib/content";
+
+const tutorials = await getTutorials();
+const stepsByTutorial = new Map(
+  await Promise.all(
+    tutorials.map(async (t) => [t.id, await getStepsForTutorial(t.id)] as const),
+  ),
+);
+const difficulties = ["beginner", "intermediate", "advanced"];
+const tags = Array.from(new Set(tutorials.flatMap((t) => t.data.tags))).sort();
+const compactTutorials = tutorials.map((t) => ({ slug: t.id, title: t.data.title }));
+---
+<BaseLayout>
+  <div class="home">
+    <Hero />
+
+    {site.showResumeRail && (
+      <ResumeRail client:load tutorials={compactTutorials} />
+    )}
+
+    <FilterBar client:load difficulties={difficulties} tags={tags} />
+
+    <section class="grid">
+      {tutorials.map((tut) => {
+        const steps = stepsByTutorial.get(tut.id) ?? [];
+        const dur = tut.data.estimatedDuration ?? sumDurations(steps);
+        return <TutorialCard tutorial={tut} duration={dur} />;
+      })}
+    </section>
+
+    <div class="empty" data-empty-state hidden>
+      <p>No tutorials match the current filters.</p>
+    </div>
+
+    {tutorials.length === 0 && (
+      <div class="empty">
+        <p>
+          No tutorials yet. Run <code>pnpm tutorial:new</code> to create your first one.
+        </p>
+      </div>
+    )}
+  </div>
+
+  <script>
+    // Hydrate per-card progress mini-bars from localStorage.
+    import { getStore } from "~/lib/progress/local";
+    function refresh() {
+      const state = getStore().get();
+      const totals = new Map<string, number>();
+      const completed = new Map<string, number>();
+      for (const [key, value] of Object.entries(state.steps)) {
+        const [slug] = key.split("/");
+        totals.set(slug, (totals.get(slug) ?? 0) + 1);
+        if (value === "complete") completed.set(slug, (completed.get(slug) ?? 0) + 1);
+      }
+      document.querySelectorAll<HTMLElement>("[data-tutorial-slug]").forEach((el) => {
+        const slug = el.dataset.tutorialSlug!;
+        const done = completed.get(slug) ?? 0;
+        const total = totals.get(slug) ?? 0;
+        if (total === 0) return;
+        const pct = Math.round((done / total) * 100);
+        el.innerHTML = `<div class="mini-bar"><div style="width:${pct}%"></div></div><span>${done}/${total} steps</span>`;
+      });
+    }
+    refresh();
+    getStore().subscribe(refresh);
+  </script>
+</BaseLayout>
+
+<style>
+  .home {
+    max-width: 80rem;
+    margin: 0 auto;
+    padding: 0 clamp(1rem, 4vw, 2rem) 4rem;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+  .empty {
+    margin: 2rem 0;
+    padding: 2rem;
+    border: var(--border-default, 2px) solid var(--color-border);
+    text-align: center;
+    color: var(--color-muted);
+  }
+</style>
+
+<style is:global>
+  .filterbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: center;
+    margin-top: 1.5rem;
+    padding: 0.5rem 0;
+    border-bottom: var(--border-default, 2px) solid var(--color-border);
+  }
+  .filterbar .search {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    border: var(--border-default, 2px) solid var(--color-border);
+    padding: 0.3rem 0.6rem;
+    background: var(--color-bg);
+    min-width: 240px;
+  }
+  .filterbar input {
+    background: transparent;
+    border: 0;
+    color: var(--color-fg);
+    font: inherit;
+    outline: none;
+    width: 100%;
+  }
+  .pills { display: inline-flex; gap: 0.3rem; align-items: center; flex-wrap: wrap; }
+  .pill-label { color: var(--color-muted); font-family: var(--font-mono); font-size: 0.7em; text-transform: uppercase; letter-spacing: 0.06em; }
+  .pill {
+    padding: 0.25rem 0.6rem;
+    border: var(--border-default, 2px) solid var(--color-border);
+    background: transparent;
+    color: var(--color-muted);
+    font-family: var(--font-mono);
+    font-size: 0.75em;
+    cursor: pointer;
+    text-transform: lowercase;
+  }
+  .pill.is-active {
+    background: var(--color-accent);
+    color: var(--color-accent-fg);
+    border-color: var(--color-accent);
+  }
+  .clear {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    background: transparent;
+    border: var(--border-default, 2px) solid var(--color-border);
+    padding: 0.25rem 0.5rem;
+    color: var(--color-muted);
+    font-family: var(--font-mono);
+    font-size: 0.75em;
+    cursor: pointer;
+  }
+
+  .mini-bar {
+    height: 4px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    margin-bottom: 0.25rem;
+  }
+  .mini-bar div { background: var(--color-accent); height: 100%; }
+  [data-tutorial-slug] span {
+    font-family: var(--font-mono);
+    font-size: 0.7em;
+    color: var(--color-muted);
+  }
+
+  .resume-rail {
+    margin-top: 1.5rem;
+    padding: 0.75rem 1rem;
+    border: var(--border-default, 2px) solid var(--color-fg);
+    background: var(--color-bg);
+    box-shadow: var(--shadow-press);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem;
+  }
+  .rr-label {
+    font-family: var(--font-mono);
+    font-size: 0.7em;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-accent);
+  }
+  .rr-link { display: inline-flex; gap: 0.6rem; align-items: baseline; color: var(--color-fg); text-decoration: none; }
+  .rr-link:hover { color: var(--color-accent); }
+  .rr-title { font-weight: 700; }
+  .rr-step { font-family: var(--font-mono); font-size: 0.85em; color: var(--color-muted); }
+</style>
