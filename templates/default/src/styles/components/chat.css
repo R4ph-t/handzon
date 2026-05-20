@@ -73,6 +73,46 @@
   display: grid;
   gap: 0.85rem;
 }
+
+/* Shown in place of .chat-list when BYOK is required but the learner
+ * hasn't set a key yet. Same visual weight as a message so it doesn't
+ * feel like an error — just a prompt to set things up first. */
+.chat-setup {
+  flex: 1;
+  display: grid;
+  place-content: center;
+  gap: 0.6rem;
+  padding: 2rem 1.25rem;
+  text-align: center;
+  color: var(--color-muted);
+}
+.chat-setup h3 {
+  margin: 0;
+  font-size: 1rem;
+  color: var(--color-fg);
+}
+.chat-setup p {
+  margin: 0;
+  font-size: 0.9em;
+  line-height: 1.5;
+  max-width: 30ch;
+  justify-self: center;
+}
+.chat-setup button {
+  justify-self: center;
+  margin-top: 0.5rem;
+  background: var(--color-accent);
+  color: var(--color-accent-fg);
+  border: 0;
+  padding: 0.55rem 1.1rem;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 0;
+}
+.chat-setup button:hover {
+  background: color-mix(in oklab, var(--color-accent) 88%, white);
+}
 .chat-role {
   font-family: var(--font-mono);
   font-size: 0.68em;

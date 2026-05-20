@@ -1,9 +1,11 @@
 /* Modal overlay + close button (shared by AI chat + BYOK dialogs) */
+/* Used only by BYOK (chat is non-modal). Soft dim, no blur — the
+ * blur made the tutorial text behind unreadable and gave the
+ * impression the assistant was hijacking the page. */
 .ms-overlay {
   position: fixed;
   inset: 0;
-  background: oklch(0% 0 0 / 0.5);
-  backdrop-filter: blur(2px);
+  background: oklch(0% 0 0 / 0.35);
 }
 .ms-close {
   position: absolute;

@@ -1,5 +1,5 @@
 import * as Dialog from "@radix-ui/react-dialog";
-import { Send, Settings, Trash2, X } from "lucide-react";
+import { KeyRound, Send, Settings, Trash2, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import type { AiConfig } from "~/config/ai";
 import { type ChatMessage, clearLearnerKey, loadLearnerKey, streamChat } from "~/lib/ai/client";
@@ -29,6 +29,15 @@ export default function ChatPanel({ open, onOpenChange, config, context }: Props
   const [streaming, setStreaming] = useState(false);
   const [byokOpen, setByokOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Reactive copy of the stored BYOK key so the chat can show / hide its
+  // "set up your key" card without waiting for the learner to try to
+  // send a message. localStorage isn't readable on the server, hence
+  // the mount-time read instead of useState initialiser.
+  const [learnerKey, setLearnerKey] = useState<string | null>(null);
+  useEffect(() => {
+    setLearnerKey(loadLearnerKey(config.provider));
+  }, [config.provider]);
+  const needsKey = config.byok === "required" && !learnerKey;
   const abortRef = useRef<AbortController | null>(null);
   const listRef = useRef<HTMLDivElement>(null);
 
@@ -40,8 +49,7 @@ export default function ChatPanel({ open, onOpenChange, config, context }: Props
     const trimmed = input.trim();
     if (!trimmed || streaming) return;
 
-    const learnerKey = loadLearnerKey(config.provider);
-    if (config.byok === "required" && !learnerKey) {
+    if (needsKey) {
       setByokOpen(true);
       return;
     }
@@ -89,15 +97,25 @@ export default function ChatPanel({ open, onOpenChange, config, context }: Props
 
   function resetKey() {
     clearLearnerKey(config.provider);
+    setLearnerKey(null);
     setByokOpen(true);
   }
 
   return (
     <>
-      <Dialog.Root open={open} onOpenChange={onOpenChange}>
+      {/*
+        modal={false}: the chat is a co-pilot, not a takeover. Removing
+        the overlay + focus trap lets the learner keep scrolling the
+        tutorial, clicking code blocks, and editing the playground
+        while the assistant is open. ESC still closes via Radix.
+      */}
+      <Dialog.Root open={open} onOpenChange={onOpenChange} modal={false}>
         <Dialog.Portal>
-          <Dialog.Overlay className="ms-overlay" />
-          <Dialog.Content className="chat-panel" aria-describedby={undefined}>
+          <Dialog.Content
+            className="chat-panel"
+            aria-describedby={undefined}
+            onInteractOutside={(e) => e.preventDefault()}
+          >
             <header className="chat-head">
               <div>
                 <Dialog.Title className="chat-title">{config.name}</Dialog.Title>
@@ -122,16 +140,30 @@ export default function ChatPanel({ open, onOpenChange, config, context }: Props
               On: <strong>{context.currentStep.title}</strong>
             </div>
 
-            <div className="chat-list" ref={listRef}>
-              {messages.map((m, i) => (
-                <div key={i} className={`chat-msg chat-msg-${m.role}`}>
-                  <span className="chat-role">{m.role === "user" ? "You" : config.name}</span>
-                  <div className="chat-content">{m.content}</div>
-                </div>
-              ))}
-              {streaming && <div className="chat-typing">…</div>}
-              {error && <div className="chat-error">⚠ {error}</div>}
-            </div>
+            {needsKey ? (
+              <div className="chat-setup" role="status">
+                <KeyRound size={22} aria-hidden="true" />
+                <h3>API key required</h3>
+                <p>
+                  {config.name} needs an API key to answer questions. Add one to get started —
+                  it's stored in this browser only.
+                </p>
+                <button type="button" onClick={() => setByokOpen(true)}>
+                  Set up key
+                </button>
+              </div>
+            ) : (
+              <div className="chat-list" ref={listRef}>
+                {messages.map((m, i) => (
+                  <div key={i} className={`chat-msg chat-msg-${m.role}`}>
+                    <span className="chat-role">{m.role === "user" ? "You" : config.name}</span>
+                    <div className="chat-content">{m.content}</div>
+                  </div>
+                ))}
+                {streaming && <div className="chat-typing">…</div>}
+                {error && <div className="chat-error">⚠ {error}</div>}
+              </div>
+            )}
 
             <form
               className="chat-input"
@@ -143,10 +175,14 @@ export default function ChatPanel({ open, onOpenChange, config, context }: Props
               <input
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder={`Ask ${config.name}…`}
-                disabled={streaming}
+                placeholder={needsKey ? "Add an API key to start chatting" : `Ask ${config.name}…`}
+                disabled={streaming || needsKey}
               />
-              <button type="submit" disabled={streaming || !input.trim()} aria-label="Send">
+              <button
+                type="submit"
+                disabled={streaming || needsKey || !input.trim()}
+                aria-label="Send"
+              >
                 <Send size={16} />
               </button>
             </form>
@@ -159,7 +195,7 @@ export default function ChatPanel({ open, onOpenChange, config, context }: Props
         onOpenChange={setByokOpen}
         provider={config.provider}
         assistantName={config.name}
-        onKeySaved={() => {}}
+        onKeySaved={() => setLearnerKey(loadLearnerKey(config.provider))}
       />
     </>
   );
