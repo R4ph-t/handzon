@@ -237,5 +237,5 @@ app.post(
 );
 
 serve({ fetch: app.fetch, port: PORT, hostname: HOST }, (info) => {
-  log.info("handzon-ai-service listening", { address: info.address, port: info.port });
+  log.info("@handzon/ai listening", { address: info.address, port: info.port });
 });

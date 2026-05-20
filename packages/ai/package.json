@@ -1,7 +1,10 @@
 {
-  "name": "handzon-ai-service",
+  "name": "@handzon/ai",
   "version": "0.2.0",
   "description": "Standalone AI backend for Handzon (Hono + Mastra). Exposes /chat and /healthz.",
+  "publishConfig": {
+    "access": "public"
+  },
   "license": "MIT",
   "author": "r4ph_t",
   "homepage": "https://github.com/R4ph-t/handzon#readme",
@@ -11,7 +14,7 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/R4ph-t/handzon.git",
-    "directory": "packages/handzon-ai-service"
+    "directory": "packages/ai"
   },
   "type": "module",
   "main": "dist/server.js",

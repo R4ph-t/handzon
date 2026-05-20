@@ -11,14 +11,14 @@ reached existing users — they were frozen at whichever version they ran
 
 0.2.0 splits that into two npm packages the scaffold depends on:
 
-- `handzon` — UI: layouts, components, lib helpers, content schemas,
+- `@handzon/ui` — UI: layouts, components, lib helpers, content schemas,
   page templates, server handlers, styles.
-- `handzon-ai-service` — the Hono + Mastra backend, installable as a
+- `@handzon/ai` — the Hono + Mastra backend, installable as a
   `handzon-ai` bin.
 
 The scaffolded project drops from ~60 framework files to ~10 user-owned
 files (content, theme, config, env, render.yaml). Updates now flow via
-`pnpm update handzon handzon-ai-service`.
+`pnpm update @handzon/ui @handzon/ai`.
 
 ### Breaking
 
@@ -28,4 +28,4 @@ delete the obsolete `src/components`, `src/layouts`, `src/lib`,
 `services/ai/`, and `src/db/{client,schema}.ts`. Replace pages, content
 config, API routes, and `db/migrate.ts` with the new thin re-export
 forms. The structure of `src/config/site.ts` and `src/config/ai.ts`
-stays the same, but `AiConfig` is now imported from `handzon`.
+stays the same, but `AiConfig` is now imported from `@handzon/ui`.

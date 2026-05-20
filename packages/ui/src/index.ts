@@ -2,7 +2,7 @@
  * Handzon framework — public API surface.
  *
  * .astro and .tsx components are NOT re-exported here; consumers import
- * them by subpath (e.g. `import BaseLayout from "handzon/layouts/BaseLayout.astro"`).
+ * them by subpath (e.g. `import BaseLayout from "@handzon/ui/layouts/BaseLayout.astro"`).
  * Astro can only resolve `.astro` files through the package's `exports`
  * map, not through a barrel re-export, so this file ships only TS values
  * and types.
@@ -26,7 +26,7 @@ export { mdxComponents } from "./lib/mdx-components.ts";
 // Rehype plugin that lets Mermaid code fences round-trip as <pre class="mermaid">.
 export { default as rehypeMermaidPassthrough } from "./lib/rehype-mermaid-passthrough.ts";
 
-// AI client (browser-side BYOK + streaming chat to handzon-ai-service).
+// AI client (browser-side BYOK + streaming chat to @handzon/ai).
 export {
   streamChat,
   loadLearnerKey,

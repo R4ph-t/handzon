@@ -1,1 +1,1 @@
-export { GET, POST } from "handzon/server/handlers/progress.ts";
+export { GET, POST } from "@handzon/ui/server/handlers/progress.ts";

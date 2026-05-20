@@ -4,7 +4,7 @@ import {
   stepsSchema,
   tutorialsLoader,
   tutorialsSchema,
-} from "handzon/collections.ts";
+} from "@handzon/ui/collections.ts";
 
 const tutorials = defineCollection({
   loader: tutorialsLoader(),

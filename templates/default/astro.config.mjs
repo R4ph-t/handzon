@@ -3,7 +3,7 @@ import react from "@astrojs/react";
 import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "astro/config";
 import expressiveCode from "astro-expressive-code";
-import rehypeMermaidPassthrough from "handzon/lib/rehype-mermaid-passthrough.ts";
+import rehypeMermaidPassthrough from "@handzon/ui/lib/rehype-mermaid-passthrough.ts";
 
 // Markdown-level config (shared by .md and .mdx); EC auto-extends it.
 
