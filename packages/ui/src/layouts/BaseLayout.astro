@@ -6,12 +6,20 @@ interface Props {
   description?: string;
   siteName?: string;
   tagline?: string;
+  /**
+   * URL of the brand logo shown top-left. Defaults to `/logo.svg` —
+   * the scaffold ships a starter at `public/logo.svg` which users
+   * can replace to rebrand without touching framework code. Pass an
+   * empty string to hide the brand mark.
+   */
+  logoUrl?: string;
 }
 const {
   title,
   description,
   siteName = "Handzon",
   tagline = "Hands-on tutorials",
+  logoUrl = "/logo.svg",
 } = Astro.props;
 const pageTitle = title ? `${title} — ${siteName}` : siteName;
 const desc = description ?? tagline;
@@ -29,6 +37,13 @@ const desc = description ?? tagline;
     <meta property="og:type" content="website" />
   </head>
   <body>
+    {logoUrl && (
+      <div class="hz-brand">
+        <a href="/" aria-label={`${siteName} home`}>
+          <img src={logoUrl} alt={siteName} width="28" height="28" />
+        </a>
+      </div>
+    )}
     <div class="hz-topbar">
       <UserMenu />
     </div>
@@ -44,6 +59,24 @@ const desc = description ?? tagline;
     </script>
 
     <style is:global>
+      .hz-brand {
+        position: fixed;
+        top: 0.75rem;
+        left: 0.9rem;
+        z-index: 50;
+      }
+      .hz-brand a {
+        display: block;
+        line-height: 0;
+        opacity: 0.9;
+        transition: opacity 0.15s ease;
+      }
+      .hz-brand a:hover {
+        opacity: 1;
+      }
+      .hz-brand img {
+        display: block;
+      }
       .hz-topbar {
         position: fixed;
         top: 0.75rem;
