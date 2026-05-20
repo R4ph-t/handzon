@@ -1,5 +1,49 @@
 import { defineCollection, z } from "astro:content";
-import { glob, file } from "astro/loaders";
+import { glob } from "astro/loaders";
+import { readdir, readFile } from "node:fs/promises";
+import { join, resolve } from "node:path";
+import type { Loader } from "astro/loaders";
+
+const TUTORIALS_DIR = resolve("./src/content/tutorials");
+const STEP_FOLDER = /^\d+-/;
+
+/**
+ * Custom loader that scans tutorials/<slug>/_meta.json for each tutorial.
+ * Returns entries keyed by the slug-portion of the folder name (everything
+ * after the leading numeric prefix).
+ */
+function tutorialsLoader(): Loader {
+  return {
+    name: "tutorials-meta",
+    load: async ({ store, parseData, watcher }) => {
+      store.clear();
+      let folders: string[] = [];
+      try {
+        const dirents = await readdir(TUTORIALS_DIR, { withFileTypes: true });
+        folders = dirents.filter((d) => d.isDirectory() && STEP_FOLDER.test(d.name)).map((d) => d.name);
+      } catch {
+        return;
+      }
+      for (const folder of folders) {
+        const metaPath = join(TUTORIALS_DIR, folder, "_meta.json");
+        let raw: string;
+        try {
+          raw = await readFile(metaPath, "utf8");
+        } catch {
+          continue;
+        }
+        const parsed = JSON.parse(raw);
+        const slug = folder.replace(STEP_FOLDER, "");
+        const order = parsed.order ?? Number.parseInt(folder.match(/^(\d+)-/)?.[1] ?? "0", 10);
+        const data = await parseData({ id: slug, data: { ...parsed, order } });
+        store.set({ id: slug, data, filePath: metaPath });
+      }
+      if (watcher) {
+        watcher.add(`${TUTORIALS_DIR}/**/_meta.json`);
+      }
+    },
+  };
+}
 
 const steps = defineCollection({
   loader: glob({
@@ -15,7 +59,7 @@ const steps = defineCollection({
 });
 
 const tutorials = defineCollection({
-  loader: file("./src/content/tutorials/_index.json"),
+  loader: tutorialsLoader(),
   schema: ({ image }) =>
     z.object({
       title: z.string(),
