@@ -1,0 +1,34 @@
+---
+// Wraps an ordered list of <Step> items.
+---
+<ol class="steps"><slot /></ol>
+
+<style>
+  .steps {
+    counter-reset: step;
+    list-style: none;
+    padding: 0;
+    margin: 1rem 0;
+    border-left: var(--border-thick, 3px) solid var(--color-accent);
+  }
+  .steps :global(li.step) {
+    counter-increment: step;
+    padding: 0.5rem 0 0.5rem 2.5rem;
+    position: relative;
+    margin-left: 0.5rem;
+  }
+  .steps :global(li.step::before) {
+    content: counter(step);
+    position: absolute;
+    left: -1rem;
+    top: 0.5rem;
+    width: 1.75rem;
+    height: 1.75rem;
+    background: var(--color-accent);
+    color: var(--color-accent-fg);
+    font-weight: 700;
+    display: grid;
+    place-items: center;
+    font-family: var(--font-mono);
+  }
+</style>

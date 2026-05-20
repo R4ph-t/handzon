@@ -1,0 +1,40 @@
+---
+interface Props {
+  title?: string;
+}
+const { title = "Show hint" } = Astro.props;
+---
+
+<details class="hint">
+  <summary>{title}</summary>
+  <div class="hint-body"><slot /></div>
+</details>
+
+<style>
+  .hint {
+    margin: 1rem 0;
+    border: var(--border-default, 2px) solid var(--color-border);
+    background: var(--color-surface);
+  }
+  .hint > summary {
+    padding: 0.5rem 0.75rem;
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--color-accent);
+    list-style: none;
+    user-select: none;
+  }
+  .hint > summary::-webkit-details-marker { display: none; }
+  .hint > summary::before {
+    content: "▶";
+    display: inline-block;
+    margin-right: 0.5em;
+    transition: transform 0.15s ease;
+    color: var(--color-muted);
+  }
+  .hint[open] > summary::before { transform: rotate(90deg); }
+  .hint-body {
+    padding: 0.5rem 0.75rem 0.75rem;
+    border-top: var(--border-default, 2px) solid var(--color-border);
+  }
+</style>

@@ -1,0 +1,37 @@
+---
+interface Props {
+  href: string;
+  label?: string;
+  size?: string;
+}
+const { href, label, size } = Astro.props;
+const filename = label ?? href.split("/").pop() ?? "download";
+---
+<a class="download" href={href} download>
+  <span class="download-icon" aria-hidden="true">⬇</span>
+  <span class="download-name">{filename}</span>
+  {size && <span class="download-size">{size}</span>}
+</a>
+
+<style>
+  .download {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.9rem;
+    border: var(--border-default, 2px) solid var(--color-fg);
+    background: var(--color-bg);
+    color: var(--color-fg);
+    font-family: var(--font-mono);
+    font-size: 0.9em;
+    text-decoration: none;
+    transition: transform 0.08s ease, box-shadow 0.08s ease;
+  }
+  .download:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: var(--shadow-raised);
+    color: var(--color-fg);
+  }
+  .download-icon { color: var(--color-accent); }
+  .download-size { color: var(--color-muted); font-size: 0.85em; margin-left: 0.5rem; }
+</style>

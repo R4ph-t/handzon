@@ -1,0 +1,61 @@
+---
+type CalloutType = "info" | "tip" | "warn" | "danger";
+
+interface Props {
+  type?: CalloutType;
+  title?: string;
+}
+
+const { type = "info", title } = Astro.props;
+
+const colorVar = {
+  info: "var(--color-info)",
+  tip: "var(--color-tip)",
+  warn: "var(--color-warn)",
+  danger: "var(--color-danger)",
+}[type];
+
+const label = {
+  info: "Note",
+  tip: "Tip",
+  warn: "Warning",
+  danger: "Heads up",
+}[type];
+---
+
+<aside class="callout" data-type={type} style={`--callout-color: ${colorVar};`}>
+  <div class="callout-bar"></div>
+  <div class="callout-body">
+    <div class="callout-label">{title ?? label}</div>
+    <div class="callout-content"><slot /></div>
+  </div>
+</aside>
+
+<style>
+  .callout {
+    display: flex;
+    gap: 0;
+    margin: 1.25rem 0;
+    background: var(--color-bg);
+    border: var(--border-default, 2px) solid var(--color-border);
+  }
+  .callout-bar {
+    width: 4px;
+    background: var(--callout-color);
+    flex-shrink: 0;
+  }
+  .callout-body {
+    padding: 0.75rem 1rem;
+    flex: 1;
+  }
+  .callout-label {
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    color: var(--callout-color);
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+  }
+  .callout-content :global(p:first-child) { margin-top: 0; }
+  .callout-content :global(p:last-child) { margin-bottom: 0; }
+</style>

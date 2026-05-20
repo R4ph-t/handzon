@@ -1,0 +1,28 @@
+---
+interface Props {
+  name: string;
+}
+const { name } = Astro.props;
+---
+<div class="file-label">
+  <span class="file-icon" aria-hidden="true">▸</span>
+  <span class="file-name">{name}</span>
+</div>
+<div class="file-body"><slot /></div>
+
+<style>
+  .file-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: var(--color-surface);
+    border: var(--border-default, 2px) solid var(--color-border);
+    border-bottom: none;
+    padding: 0.3rem 0.6rem;
+    font-family: var(--font-mono);
+    font-size: 0.85em;
+    color: var(--color-muted);
+  }
+  .file-icon { color: var(--color-accent); }
+  .file-body :global(pre) { margin-top: 0 !important; }
+</style>

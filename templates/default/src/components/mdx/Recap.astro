@@ -1,0 +1,41 @@
+---
+interface Props {
+  title?: string;
+  items: string[];
+}
+const { title = "What you learned", items } = Astro.props;
+---
+<section class="recap">
+  <h3 class="recap-title">{title}</h3>
+  <ul class="recap-items">
+    {items.map((item) => <li>{item}</li>)}
+  </ul>
+</section>
+
+<style>
+  .recap {
+    margin: 2rem 0;
+    padding: 1rem 1.25rem;
+    background: var(--color-surface);
+    border: var(--border-default, 2px) solid var(--color-fg);
+    box-shadow: var(--shadow-press);
+  }
+  .recap-title {
+    margin: 0 0 0.5rem;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-accent);
+  }
+  .recap-items {
+    margin: 0;
+    padding-left: 1.25rem;
+  }
+  .recap-items li {
+    margin: 0.25rem 0;
+  }
+  .recap-items li::marker {
+    color: var(--color-accent);
+    content: "■ ";
+  }
+</style>
