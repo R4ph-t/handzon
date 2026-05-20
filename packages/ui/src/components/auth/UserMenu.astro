@@ -1,13 +1,19 @@
 ---
 /**
- * Server-rendered auth menu. Renders nothing when Auth.js isn't wired
- * (no AUTH_SECRET in env, or `auth-astro` integration not registered).
+ * Server-rendered auth menu. Renders nothing unless the `auth-astro`
+ * integration is registered in the consumer's astro.config.
  *
- * All auth-astro and session imports are deferred via dynamic import
- * so scaffolds that haven't opted into GitHub auth never trigger the
- * `auth:config` virtual module — which only exists when the
- * `auth-astro` integration has set it up. Without this dance, BaseLayout
- * crashes any consumer that upgrades handzon-ui without wiring auth.
+ * The dynamic imports of `auth-astro/components` + the session helper
+ * succeed only when auth-astro's integration has set up the
+ * `auth:config` virtual module. When the consumer hasn't opted in,
+ * both imports throw — the catch swallows the error and the menu
+ * renders nothing instead of crashing BaseLayout.
+ *
+ * We deliberately don't gate on `process.env.AUTH_SECRET`: Astro/Vite
+ * only auto-load .env into `import.meta.env` (and only `PUBLIC_*` are
+ * exposed there), so the env check returned false on scaffolds where
+ * auth IS wired but AUTH_SECRET isn't visible to process.env at SSR
+ * time. The integration-registration check is the right signal.
  */
 type AuthedUser = {
   userId: string;
@@ -16,30 +22,23 @@ type AuthedUser = {
   image: string | null;
 };
 
-const authEnabled = Boolean(process.env.AUTH_SECRET);
-
 let authed: AuthedUser | null = null;
 let SignIn: unknown = null;
 let SignOut: unknown = null;
 
-if (authEnabled) {
-  try {
-    const [components, session] = await Promise.all([
-      import("auth-astro/components"),
-      import("../../server/auth/session.ts"),
-    ]);
-    SignIn = components.SignIn;
-    SignOut = components.SignOut;
-    authed = await session.getAuthedUser(Astro.request);
-  } catch {
-    // auth-astro isn't wired in this scaffold — degrade to "hidden"
-    // rather than crashing every page that uses BaseLayout.
-    SignIn = null;
-    SignOut = null;
-  }
+try {
+  const [components, session] = await Promise.all([
+    import("auth-astro/components"),
+    import("../../server/auth/session.ts"),
+  ]);
+  SignIn = components.SignIn;
+  SignOut = components.SignOut;
+  authed = await session.getAuthedUser(Astro.request);
+} catch {
+  // auth-astro isn't wired in this scaffold — render nothing.
 }
 
-const ready = authEnabled && SignIn && SignOut;
+const ready = SignIn && SignOut;
 const SignInTag = SignIn as never;
 const SignOutTag = SignOut as never;
 ---
