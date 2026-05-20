@@ -173,15 +173,21 @@
   max-width: 88%;
   border-radius: 0;
 }
+/* Distinct enough on both light and dark themes:
+ *   - user:      bold accent tint + thin accent border
+ *   - assistant: surface-2 (one tier brighter than page bg) + muted border
+ * 18% accent on a near-black page bg was effectively invisible. */
 .chat-msg-user .chat-content {
-  background: color-mix(in oklab, var(--color-accent) 18%, var(--color-bg));
+  background: color-mix(in oklab, var(--color-accent) 35%, var(--color-bg));
   color: var(--color-fg);
+  border: 1px solid color-mix(in oklab, var(--color-accent) 55%, var(--color-bg));
   /* user-typed text isn't markdown; preserve their line breaks */
   white-space: pre-wrap;
 }
 .chat-msg-assistant .chat-content {
-  background: var(--color-surface);
+  background: var(--color-surface-2);
   color: var(--color-fg);
+  border: 1px solid var(--color-border);
 }
 
 /* Markdown prose inside an assistant bubble. Tight margins so a single

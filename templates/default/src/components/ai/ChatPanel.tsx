@@ -73,18 +73,26 @@ export default function ChatPanel({ open, onOpenChange, config, context }: Props
         learnerKey: learnerKey ?? undefined,
         signal: abortRef.current.signal,
       });
+      // Delay adding the assistant message until the first chunk
+      // arrives so the thinking indicator (shown when the last
+      // message is from the user) stays visible during the wait.
       let acc = "";
-      setMessages((m) => [...m, { role: "assistant", content: "" }]);
+      let assistantAdded = false;
       const reader = stream.getReader();
       while (true) {
         const { value, done } = await reader.read();
         if (done) break;
         acc += value;
-        setMessages((m) => {
-          const copy = m.slice();
-          copy[copy.length - 1] = { role: "assistant", content: acc };
-          return copy;
-        });
+        if (!assistantAdded) {
+          setMessages((m) => [...m, { role: "assistant", content: acc }]);
+          assistantAdded = true;
+        } else {
+          setMessages((m) => {
+            const copy = m.slice();
+            copy[copy.length - 1] = { role: "assistant", content: acc };
+            return copy;
+          });
+        }
       }
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);

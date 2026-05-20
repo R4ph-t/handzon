@@ -230,8 +230,41 @@ const firstStepSlug = steps[0] ? parseStepId(steps[0].id).stepSlug : null;
     margin: 0 0 1rem;
     font-weight: 700;
   }
-  .prereqs { padding-left: 1.25rem; line-height: 1.65; color: var(--color-fg); }
-  .prereqs li { margin: 0.25rem 0; }
+  /* Prereqs as a "tick the boxes" checklist — visually says "make
+   * sure you have these before starting". Faux-checkbox via ::before
+   * keeps it dependency-free (no lucide React just for an icon). */
+  .prereqs {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 0.4rem;
+  }
+  .prereqs li {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    padding: 0.55rem 0.85rem;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    color: var(--color-fg);
+    font-size: 0.95em;
+    line-height: 1.4;
+  }
+  .prereqs li::before {
+    content: "✓";
+    display: inline-grid;
+    place-items: center;
+    width: 1.1rem;
+    height: 1.1rem;
+    border: 1px solid color-mix(in oklab, var(--color-accent) 40%, var(--color-border));
+    background: color-mix(in oklab, var(--color-accent) 12%, var(--color-bg));
+    color: var(--color-accent);
+    font-family: var(--font-mono);
+    font-size: 0.7em;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
 
   /* Steps: each row reads like a card. Numbered chip, title +
    * summary, duration, chevron that nudges on hover. */
