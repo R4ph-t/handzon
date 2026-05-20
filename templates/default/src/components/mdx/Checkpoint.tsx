@@ -31,10 +31,6 @@ export default function Checkpoint({ label, id }: Props) {
   const route = useRoute();
   const done = !!state.checkpoints[checkpointId];
 
-  useEffect(() => {
-    if (done && route) markStepComplete(route.tutorial, route.step);
-  }, [done, route, markStepComplete]);
-
   function onToggle() {
     if (done) return;
     recordCheckpoint(checkpointId);
