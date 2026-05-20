@@ -1,7 +1,7 @@
 import { spawn } from "node:child_process";
 import { existsSync } from "node:fs";
 import { cp, readFile, rename, rm, writeFile } from "node:fs/promises";
-import { dirname, join, resolve } from "node:path";
+import { dirname, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import * as p from "@clack/prompts";
 import pc from "picocolors";
@@ -113,13 +113,22 @@ export async function runInit(opts: InitOptions = {}): Promise<void> {
   const s = p.spinner();
   s.start("Copying template");
   const templateDir = resolveTemplateDir();
+  // Filter on path SEGMENTS relative to templateDir — not on the full
+  // absolute path. The npx cache lives under `node_modules/`, so a
+  // substring check on the absolute source path matches every file and
+  // silently excludes the whole template (the spinner still says
+  // "Template copied" but the target is empty).
+  const EXCLUDED_SEGMENTS = new Set(["node_modules", ".astro"]);
   await cp(templateDir, targetDir, {
     recursive: true,
     // Preserve .cursor/skills + .claude/skills symlinks rather than
     // dereferencing them and copying their target into themselves.
     verbatimSymlinks: true,
-    filter: (src) =>
-      !src.includes("node_modules") && !src.endsWith("/.astro") && !src.includes("/.astro/"),
+    filter: (src) => {
+      const rel = relative(templateDir, src);
+      if (!rel || rel.startsWith("..")) return true;
+      return !rel.split(sep).some((seg) => EXCLUDED_SEGMENTS.has(seg));
+    },
   });
   s.stop("Template copied");
 

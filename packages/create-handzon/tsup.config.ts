@@ -1,6 +1,8 @@
 import { cp } from "node:fs/promises";
-import { resolve } from "node:path";
+import { relative, resolve, sep } from "node:path";
 import { defineConfig } from "tsup";
+
+const EXCLUDED_SEGMENTS = new Set(["node_modules", ".astro", "dist"]);
 
 export default defineConfig({
   entry: ["src/index.ts"],
@@ -24,11 +26,14 @@ export default defineConfig({
       // dereferencing them (which would try to copy templates/default/skills
       // into a subpath of itself and fail with ERR_FS_CP_EINVAL).
       verbatimSymlinks: true,
-      filter: (path) =>
-        !path.includes("node_modules") &&
-        !path.includes("/.astro") &&
-        !path.endsWith("/dist") &&
-        !path.includes("/dist/"),
+      // Filter on path SEGMENTS relative to src — substring matches on
+      // the absolute path break when the parent tree happens to contain
+      // a "node_modules" or "dist" directory (e.g. an npx install).
+      filter: (path) => {
+        const rel = relative(src, path);
+        if (!rel || rel.startsWith("..")) return true;
+        return !rel.split(sep).some((seg) => EXCLUDED_SEGMENTS.has(seg));
+      },
     });
   },
 });
