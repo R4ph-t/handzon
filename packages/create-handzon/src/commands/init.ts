@@ -130,6 +130,15 @@ export async function runInit(opts: InitOptions = {}): Promise<void> {
       return !rel.split(sep).some((seg) => EXCLUDED_SEGMENTS.has(seg));
     },
   });
+
+  // npm strips `.gitignore` from the published tarball (it treats the
+  // name as a filtering directive, not a file to ship). The template
+  // stores it as `gitignore` (no dot); restore the dot in the scaffold.
+  const gitignoreSrc = join(targetDir, "gitignore");
+  if (existsSync(gitignoreSrc)) {
+    await rename(gitignoreSrc, join(targetDir, ".gitignore"));
+  }
+
   s.stop("Template copied");
 
   s.start("Applying answers");
