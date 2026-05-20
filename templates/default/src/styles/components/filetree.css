@@ -1,14 +1,43 @@
-/* FileTree */
-.ft-root, .ft-list { list-style: none; margin: 0; padding: 0; }
+/* FileTree
+ *
+ * Inside the MDX `prose` wrapper, ul/li get article-sized vertical
+ * margins — that's what was producing the huge gaps between rows.
+ * Reset everything inside .ft-root explicitly so prose can't leak in,
+ * and use CSS-only indentation with a guide line per nesting level.
+ */
+/* Reset list defaults. .ft-list (nested ul) gets margin: 0 here too —
+ * leaving it out lets the browser-default `margin: 1em 0` add a fat
+ * gap between folders. Padding stays separate so .ft-list can use
+ * padding-left for the indent below. */
+.ft-root,
+.ft-root li,
+.ft-list {
+  list-style: none;
+  margin: 0;
+}
+.ft-root,
+.ft-root li {
+  padding: 0;
+}
 .ft-root {
-  margin: 1rem 0;
-  padding: 0.75rem;
+  /* prose margin override for the outer block */
+  margin: 1.25rem 0;
+  padding: 0.65rem 0.85rem;
   background: var(--color-surface);
   font-family: var(--font-mono);
   font-size: 0.85em;
+  /* one consistent rhythm for every row */
+  line-height: 1.65;
+  border: 1px solid var(--color-border);
   border-radius: 0;
 }
-.ft-row { padding: 0; }
+/* Nested lists step in ~0.7rem per level with a faint guide line. */
+.ft-list {
+  padding-left: 0.7rem;
+  margin-left: 0.25rem;
+  border-left: 1px solid color-mix(in oklab, var(--color-border) 70%, transparent);
+}
+.ft-row { display: block; }
 .ft-btn {
   display: inline-flex;
   align-items: center;
@@ -17,9 +46,23 @@
   border: 0;
   color: var(--color-fg);
   font: inherit;
-  padding: 0.15rem 0.3rem;
+  padding: 0.05rem 0.35rem;
   cursor: pointer;
   border-radius: 0;
+  text-align: left;
 }
-.ft-btn:hover { background: var(--color-surface-2); color: var(--color-accent); }
+.ft-btn:hover {
+  background: var(--color-surface-2);
+  color: var(--color-accent);
+}
+/* Keyboard nav shows the focus ring; mouse clicks don't leave it
+ * stuck after the click finishes. */
+.ft-btn:focus-visible {
+  outline: 1px solid var(--color-accent);
+  outline-offset: 1px;
+}
+.ft-btn:focus:not(:focus-visible) {
+  outline: none;
+}
+.ft-btn svg { flex-shrink: 0; }
 .ft-name { user-select: text; }

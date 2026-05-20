@@ -1,4 +1,9 @@
-/* Chat assistant — pill FAB, soft slide-out panel */
+/* Chat assistant — pill FAB, soft slide-out panel.
+ *
+ * Subtle diagonal gradient + accent-tinted glow so the assistant feels
+ * like a "smart" affordance without breaking the brutalist flat
+ * aesthetic everywhere else. Keep the hard edges (no border-radius).
+ */
 .chat-fab {
   position: fixed;
   bottom: 1.25rem;
@@ -8,14 +13,40 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.65rem 1rem;
-  background: var(--color-accent);
+  background: linear-gradient(
+    135deg,
+    color-mix(in oklab, var(--color-accent) 92%, white),
+    var(--color-accent) 50%,
+    color-mix(in oklab, var(--color-accent) 80%, var(--color-fg))
+  );
   color: var(--color-accent-fg);
   border: 0;
   font-weight: 600;
   cursor: pointer;
+  /* Inset top-light for depth + a soft accent glow that lifts the
+   * button off the page bg without rounding the corners. */
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, white 25%, transparent),
+    0 0 0 1px color-mix(in oklab, var(--color-accent) 60%, var(--color-fg)),
+    0 6px 20px color-mix(in oklab, var(--color-accent) 35%, transparent);
+  transition: transform 0.12s ease, box-shadow 0.12s ease, background-position 0.3s ease;
+  background-size: 140% 140%;
+  background-position: 0% 0%;
 }
 .chat-fab:hover {
-  background: color-mix(in oklab, var(--color-accent) 85%, white);
+  transform: translateY(-1px);
+  background-position: 100% 100%;
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, white 30%, transparent),
+    0 0 0 1px color-mix(in oklab, var(--color-accent) 70%, var(--color-fg)),
+    0 10px 26px color-mix(in oklab, var(--color-accent) 50%, transparent);
+}
+.chat-fab:active {
+  transform: translateY(0);
+}
+.chat-fab :is(svg) {
+  /* Tiny shadow under the Sparkles so it reads as an icon, not paint. */
+  filter: drop-shadow(0 1px 0 color-mix(in srgb, black 30%, transparent));
 }
 
 .chat-panel {

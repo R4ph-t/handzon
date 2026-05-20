@@ -30,24 +30,28 @@ function isFolder(node: Node): boolean {
   return Array.isArray(node.children) && node.children.length > 0;
 }
 
-function NodeRow({ node, depth }: { node: Node; depth: number }) {
+function NodeRow({ node }: { node: Node }) {
   const [open, setOpen] = useState(true);
   const folder = isFolder(node);
   return (
-    <li style={{ marginLeft: depth * 16 }} className="ft-row">
+    <li className="ft-row">
       <button
         type="button"
         className="ft-btn"
         onClick={() => folder && setOpen((o) => !o)}
         aria-expanded={folder ? open : undefined}
       >
-        {folder ? open ? <FolderOpen size={14} /> : <Folder size={14} /> : <FileIcon size={14} />}
+        {folder ? open ? <FolderOpen size={13} /> : <Folder size={13} /> : <FileIcon size={13} />}
         <span className="ft-name">{node.name}</span>
       </button>
       {folder && open && node.children && (
         <ul className="ft-list">
           {node.children.map((child) => (
-            <NodeRow key={child.name} node={child} depth={depth + 1} />
+            // Indentation comes from .ft-list CSS (padding-left + guide
+            // line), not an inline marginLeft. Compounding the inline
+            // offset with the browser-default UL padding produced the
+            // huge stair-step in the screenshot.
+            <NodeRow key={child.name} node={child} />
           ))}
         </ul>
       )}
@@ -60,7 +64,7 @@ export default function FileTree({ paths, tree }: Props) {
   return (
     <ul className="ft-root">
       {resolved.map((node) => (
-        <NodeRow key={node.name} node={node} depth={0} />
+        <NodeRow key={node.name} node={node} />
       ))}
     </ul>
   );
