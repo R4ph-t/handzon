@@ -12,11 +12,14 @@
   --ec-codeBg: var(--color-surface) !important;
   --ec-codeFg: var(--color-fg) !important;
   --ec-frm-edBg: var(--color-surface) !important;
-  --ec-frm-edActTabBg: var(--color-bg) !important;
+  /* Active tab: lifted (brighter than the code body), accent on top,
+   * no bottom indicator — mirrors our Tabs.astro active state. */
+  --ec-frm-edActTabBg: var(--color-surface-2) !important;
   --ec-frm-edActTabFg: var(--color-fg) !important;
-  --ec-frm-edActTabIndBtmCol: var(--color-accent) !important;
-  --ec-frm-edActTabIndTopCol: transparent !important;
-  --ec-frm-edTabBarBg: var(--color-surface-2) !important;
+  --ec-frm-edActTabIndTopCol: var(--color-accent) !important;
+  --ec-frm-edActTabIndBtmCol: transparent !important;
+  --ec-frm-edActTabIndHt: 2px !important;
+  --ec-frm-edTabBarBg: transparent !important;
   --ec-frm-edTabBarBrdBtmCol: var(--color-border) !important;
   --ec-frm-edTabBarBrdCol: transparent !important;
   --ec-frm-trmBg: var(--color-surface) !important;
@@ -358,9 +361,8 @@
   /* Lifted bg — distinct from the content panel below. */
   background: var(--color-surface-2);
   border-top: var(--border-thick) solid var(--color-accent);
-  /* Match the list underline so the active tab visually sits ON the
-   * top edge of the panel rather than merging into it. */
-  border-bottom-color: var(--color-border);
+  /* Drop the bottom border so the active tab opens into the panel. */
+  border-bottom-color: transparent;
 }
 .tut-tabs-content {
   background: var(--color-surface);

@@ -28,8 +28,13 @@ export default defineConfig({
         borderRadius: "0",
         frames: {
           shadowColor: "transparent",
-          // No outline around the file-title tab; just an accent underline.
           editorActiveTabBorderColor: "transparent",
+          // Match our Tabs.astro look: accent at the TOP, no bottom
+          // indicator. The active tab sits lifted (surface-2) over the
+          // code body (surface) and attaches to it directly.
+          editorActiveTabIndicatorTopColor: "var(--color-accent)",
+          editorActiveTabIndicatorBottomColor: "transparent",
+          editorActiveTabIndicatorHeight: "2px",
         },
       },
     }),
