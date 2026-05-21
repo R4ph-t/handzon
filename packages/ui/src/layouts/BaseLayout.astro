@@ -1,4 +1,5 @@
 ---
+import Footer from "../components/Footer.astro";
 import Navbar from "../components/Navbar.astro";
 import UserMenu from "../components/auth/UserMenu.astro";
 
@@ -17,6 +18,10 @@ interface Props {
   nav?: "full" | "userMenu" | "none";
   /** Logo URL passed to Navbar (when nav === "full"). */
   logoUrl?: string;
+  /** Show the site footer ("Built with Handzon" + repo link). */
+  showFooter?: boolean;
+  /** Footer link URL; defaults to the Handzon repo. */
+  repoUrl?: string;
 }
 const {
   title,
@@ -25,6 +30,8 @@ const {
   tagline = "Hands-on tutorials",
   nav = "full",
   logoUrl = "/logo.svg",
+  showFooter = true,
+  repoUrl,
 } = Astro.props;
 const pageTitle = title ? `${title} — ${siteName}` : siteName;
 const desc = description ?? tagline;
@@ -51,6 +58,7 @@ const desc = description ?? tagline;
       </div>
     )}
     <slot />
+    {showFooter && <Footer repoUrl={repoUrl} />}
     <script>
       // Render any <pre class="mermaid"> blocks emitted by rehype-mermaid.
       if (document.querySelector("pre.mermaid")) {

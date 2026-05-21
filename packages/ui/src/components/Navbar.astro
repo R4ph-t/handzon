@@ -20,7 +20,7 @@ const { logoUrl = "/logo.svg", siteName = "Handzon" } = Astro.props;
   <div class="hz-nav-inner">
     {logoUrl && (
       <a href="/" class="hz-nav-brand" aria-label={`${siteName} home`}>
-        <img src={logoUrl} alt={siteName} height="22" width="auto" />
+        <img src={logoUrl} alt={siteName} class="hz-nav-logo" />
       </a>
     )}
     <div class="hz-nav-actions">
@@ -56,7 +56,11 @@ const { logoUrl = "/logo.svg", siteName = "Handzon" } = Astro.props;
     transition: opacity 0.12s ease;
   }
   .hz-nav-brand:hover { opacity: 1; }
-  .hz-nav-brand img { display: block; }
+  .hz-nav-logo {
+    display: block;
+    height: 1.4rem;
+    width: auto;
+  }
   .hz-nav-actions {
     display: flex;
     align-items: center;

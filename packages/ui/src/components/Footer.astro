@@ -1,0 +1,78 @@
+---
+/**
+ * Site footer. A single quiet line at the bottom of every page,
+ * crediting the framework + linking to the Handzon repo. Sized to
+ * match the rest of the brutalist surface treatment.
+ */
+interface Props {
+  /** Public URL to the framework repo. Override to point elsewhere. */
+  repoUrl?: string;
+  /** Year displayed in the credit line; defaults to the current year. */
+  year?: number;
+}
+
+const {
+  repoUrl = "https://github.com/R4ph-t/handzon",
+  year = new Date().getFullYear(),
+} = Astro.props;
+---
+<footer class="hz-footer">
+  <div class="hz-footer-inner">
+    <span class="hz-footer-credit">
+      © {year} · Built with
+      <a class="hz-footer-link" href={repoUrl} target="_blank" rel="noopener">
+        Handzon
+        <svg
+          viewBox="0 0 24 24"
+          width="11"
+          height="11"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M7 17 17 7" />
+          <path d="M7 7h10v10" />
+        </svg>
+      </a>
+    </span>
+  </div>
+</footer>
+
+<style is:global>
+  .hz-footer {
+    margin-top: 4rem;
+    border-top: 1px solid var(--color-border);
+  }
+  .hz-footer-inner {
+    max-width: 80rem;
+    margin: 0 auto;
+    padding: 1.25rem clamp(1rem, 4vw, 2rem);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-muted);
+    font-family: var(--font-mono);
+    font-size: 0.75em;
+  }
+  .hz-footer-credit {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+  }
+  .hz-footer-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    color: var(--color-fg);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: color 0.12s ease, border-color 0.12s ease;
+  }
+  .hz-footer-link:hover {
+    color: var(--color-accent);
+    border-bottom-color: var(--color-accent);
+  }
+</style>
