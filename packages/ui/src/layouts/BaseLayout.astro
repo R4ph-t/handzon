@@ -27,9 +27,17 @@ interface Props {
    * alignment via the --hz-page-max-width CSS custom property so the
    * top/bottom bars sit flush with whatever the page renders. Default
    * "80rem" matches the home grid; reader-style pages can pass a
-   * narrower value (e.g. "56rem").
+   * narrower value (e.g. "56rem"). Pass "none" for full-width layouts
+   * like the tutorial step (sidebar + main, no centered column).
    */
   pageMaxWidth?: string;
+  /**
+   * Horizontal padding inside the navbar + footer. Defaults to
+   * clamp(1rem, 4vw, 2rem). Use a smaller value (e.g. "1rem") when
+   * the page itself sits flush against the viewport edge — tutorial
+   * step pages do this to line up with the sidebar.
+   */
+  pagePaddingX?: string;
 }
 const {
   title,
@@ -41,7 +49,11 @@ const {
   showFooter = true,
   repoUrl,
   pageMaxWidth = "80rem",
+  pagePaddingX = "clamp(1rem, 4vw, 2rem)",
 } = Astro.props;
+// pageMaxWidth: "none" means no constraint — bars span the full
+// viewport width with just the padding.
+const resolvedMaxWidth = pageMaxWidth === "none" ? "none" : pageMaxWidth;
 const pageTitle = title ? `${title} — ${siteName}` : siteName;
 const desc = description ?? tagline;
 ---
@@ -57,7 +69,7 @@ const desc = description ?? tagline;
     <meta property="og:description" content={desc} />
     <meta property="og:type" content="website" />
   </head>
-  <body style={`--hz-page-max-width: ${pageMaxWidth}`}>
+  <body style={`--hz-page-max-width: ${resolvedMaxWidth}; --hz-page-padding-x: ${pagePaddingX};`}>
     {nav === "full" && (
       <Navbar logoUrl={logoUrl} siteName={siteName} />
     )}

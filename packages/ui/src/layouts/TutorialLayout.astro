@@ -14,7 +14,12 @@ interface Props {
 
 const { tutorial, steps, currentStep, currentStepSlug, hasCheckpoint = false } = Astro.props;
 ---
-<BaseLayout title={`${currentStep.data.title} — ${tutorial.data.title}`} description={currentStep.data.summary}>
+<BaseLayout
+  title={`${currentStep.data.title} — ${tutorial.data.title}`}
+  description={currentStep.data.summary}
+  pageMaxWidth="none"
+  pagePaddingX="1rem"
+>
   <div class="layout">
     <div class="sidebar-wrap">
       <Sidebar tutorial={tutorial} steps={steps} currentStepSlug={currentStepSlug} />

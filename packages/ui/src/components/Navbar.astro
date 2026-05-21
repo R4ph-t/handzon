@@ -40,13 +40,14 @@ const { logoUrl = "/logo.svg", siteName = "Handzon" } = Astro.props;
     border-bottom: 1px solid var(--color-border);
   }
   .hz-nav-inner {
-    /* Align navbar's inner edges with the current page's content
-     * column. Each page sets --hz-page-max-width via BaseLayout (home
-     * 80rem, tutorial landing 56rem, …) so the logo lines up with the
-     * left edge of whatever's directly below it. */
+    /* Align with the current page's content column. Each page sets
+     * --hz-page-max-width + --hz-page-padding-x via BaseLayout so the
+     * logo lines up with whatever's directly below it: home grid
+     * (80rem, 2rem), tutorial landing (56rem, 3rem), tutorial step
+     * (full width, 1rem to match the sidebar). */
     max-width: var(--hz-page-max-width, 80rem);
     margin: 0 auto;
-    padding: 0.75rem clamp(1rem, 4vw, 2rem);
+    padding: 0.75rem var(--hz-page-padding-x, clamp(1rem, 4vw, 2rem));
     display: flex;
     align-items: center;
     justify-content: space-between;
