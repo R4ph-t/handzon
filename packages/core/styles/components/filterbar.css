@@ -1,0 +1,157 @@
+/* Home-page filter bar.
+ *
+ * One toolbar row with search + Level dropdown + Topics dropdown + a
+ * vertical divider + Sort dropdown. Beneath it: optional "popular
+ * topics" pill row (top tags by count) and an "active filters" chip
+ * row that only appears when at least one filter is set.
+ *
+ * The dropdowns themselves (their trigger chrome and popover content)
+ * are styled in dropdown.css and multiselect.css respectively — this
+ * file only handles the toolbar layout + the inline pill + chip rows.
+ */
+
+.filterbar {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+/* ---------- Toolbar (search + facets + sort) ---------- */
+
+.fb-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 0.75rem;
+}
+
+.fb-toolbar .search {
+  flex: 1 1 16rem;
+  min-width: 12rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 0.7rem;
+  border: 1px solid var(--color-border);
+  color: var(--color-muted);
+  transition: border-color 0.12s ease, color 0.12s ease;
+}
+.fb-toolbar .search:focus-within {
+  border-color: var(--color-accent);
+  color: var(--color-fg);
+}
+.fb-toolbar .search input {
+  background: transparent;
+  border: 0;
+  color: var(--color-fg);
+  font: inherit;
+  outline: none;
+  width: 100%;
+}
+
+/* Visual separator marking "sort isn't a filter". The sort cluster
+ * pushes itself to the right edge so the divider falls in a natural
+ * spot. */
+.fb-divider {
+  width: 0;
+  border-left: 1px solid var(--color-border);
+  align-self: stretch;
+  margin: 0 0.25rem;
+}
+.fb-sort-slot {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+/* On narrow viewports the toolbar wraps; sort drops to its own line.
+ * Keep the divider visible only when the row hasn't wrapped — when it
+ * has, the layout already reads as distinct rows. Cheap heuristic:
+ * hide the divider below ~640px viewport. */
+@media (max-width: 640px) {
+  .fb-divider { display: none; }
+}
+
+/* ---------- Popular topics (inline pills) ---------- */
+
+.fb-popular-tags {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.pill {
+  padding: 0.3rem 0.65rem;
+  border: 1px solid var(--color-border);
+  background: transparent;
+  color: var(--color-muted);
+  font-family: var(--font-mono);
+  font-size: 0.75em;
+  cursor: pointer;
+  text-transform: lowercase;
+  transition: border-color 0.12s ease, color 0.12s ease, background 0.12s ease;
+}
+.pill:hover {
+  border-color: var(--color-accent);
+  color: var(--color-fg);
+}
+.pill.is-active {
+  background: var(--color-accent);
+  color: var(--color-accent-fg);
+  border-color: var(--color-accent);
+}
+
+/* ---------- Active filter chips ---------- */
+
+.active-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.active-filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.55rem;
+  background: transparent;
+  border: 1px solid var(--color-border);
+  color: var(--color-muted);
+  font-family: var(--font-mono);
+  font-size: 0.72em;
+  cursor: pointer;
+  transition: color 0.12s ease, border-color 0.12s ease;
+}
+.active-filter-chip:hover,
+.active-filter-chip:focus-visible {
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+  outline: none;
+}
+.active-filter-chip .afc-label { text-transform: lowercase; }
+
+.active-filter-clear {
+  margin-left: 0.25rem;
+  padding: 0.25rem 0.55rem;
+  background: transparent;
+  border: 0;
+  color: var(--color-muted);
+  font-family: var(--font-mono);
+  font-size: 0.72em;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: 3px;
+  transition: color 0.12s ease, text-decoration-color 0.12s ease;
+}
+.active-filter-clear:hover,
+.active-filter-clear:focus-visible {
+  color: var(--color-fg);
+  text-decoration-color: currentColor;
+  outline: none;
+}

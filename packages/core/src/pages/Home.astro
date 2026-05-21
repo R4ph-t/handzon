@@ -5,7 +5,6 @@ import TutorialCard from "../components/home/TutorialCard.astro";
 import FilterBar from "../components/home/FilterBar.tsx";
 import Pagination from "../components/home/Pagination.tsx";
 import ResumeRail from "../components/home/ResumeRail.tsx";
-import SortBar from "../components/home/SortBar.tsx";
 import { getTutorials, getStepsForTutorial, sumDurations } from "../lib/content.ts";
 
 interface Props {
@@ -42,6 +41,22 @@ const stepsByTutorial = new Map(
 const difficulties = ["beginner", "intermediate", "advanced"];
 const tags = Array.from(new Set(tutorials.flatMap((t) => t.data.tags))).sort();
 const compactTutorials = tutorials.map((t) => ({ slug: t.id, title: t.data.title }));
+
+// Hit counts per facet. Computed server-side over the already-loaded
+// tutorials list (no extra IO). Passed to FilterBar as plain Records;
+// Maps don't serialize across the SSR/island boundary.
+const difficultyCounts: Record<string, number> = {};
+const tagCounts: Record<string, number> = {};
+for (const t of tutorials) {
+  difficultyCounts[t.data.difficulty] = (difficultyCounts[t.data.difficulty] ?? 0) + 1;
+  for (const tag of t.data.tags) tagCounts[tag] = (tagCounts[tag] ?? 0) + 1;
+}
+// Top tags by count rendered inline below the toolbar so the at-a-glance
+// topic map survives the move to a dropdown.
+const popularTags = Object.entries(tagCounts)
+  .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+  .slice(0, 6)
+  .map(([t]) => t);
 ---
 <BaseLayout
   siteName={siteName}
@@ -58,11 +73,16 @@ const compactTutorials = tutorials.map((t) => ({ slug: t.id, title: t.data.title
       <ResumeRail client:load tutorials={compactTutorials} />
     )}
 
-    <FilterBar client:load difficulties={difficulties} tags={tags} />
+    <FilterBar
+      client:load
+      difficulties={difficulties}
+      tags={tags}
+      difficultyCounts={difficultyCounts}
+      tagCounts={tagCounts}
+      popularTags={popularTags}
+    />
 
-    <div class="grid-controls">
-      <SortBar client:load />
-    </div>
+    <div class="results-status" data-results-status aria-live="polite"></div>
 
     <section class="grid">
       {tutorials.map((tut) => {
@@ -213,14 +233,15 @@ const compactTutorials = tutorials.map((t) => ({ slug: t.id, title: t.data.title
 
 <style>
   .home {
+    /* width: 100% defeats the auto-margin space-absorption that
+     * BaseLayout's flex-column body would otherwise apply, so the
+     * page actually reaches its max-width at wide viewports. Without
+     * this, auto margins eat all the slack and the column collapses
+     * to its content width. */
+    width: 100%;
     max-width: 80rem;
     margin: 0 auto;
     padding: 0 clamp(1rem, 4vw, 2rem) 4rem;
-  }
-  .grid-controls {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 1.5rem;
   }
   .grid {
     display: grid;
@@ -228,6 +249,14 @@ const compactTutorials = tutorials.map((t) => ({ slug: t.id, title: t.data.title
     gap: 1rem;
     margin-top: 0.75rem;
   }
+  .results-status {
+    margin-top: 1rem;
+    font-family: var(--font-mono);
+    font-size: 0.78em;
+    color: var(--color-muted);
+    min-height: 1em;
+  }
+  .results-status:empty { display: none; }
   .empty {
     margin: 2rem 0;
     padding: 2rem;
@@ -280,107 +309,10 @@ const compactTutorials = tutorials.map((t) => ({ slug: t.id, title: t.data.title
   }
   .resume-rail:hover .rr-arrow { transform: translateX(3px); }
 
-  /* ---------- Filter bar ---------- */
-  /* Two rows: search + level + clear on top, tag pills on a wrapping
-   * second row. Replaces the previous one-line flex-wrap that crammed
-   * 20+ pills into the same row as the input. */
-  /* Consistent vertical rhythm on the home page:
-   *   - Every block (resume rail, filterbar, grid) gets 1.5rem above.
-   *   - Inside the filterbar, the search row → tags row gap is 1rem.
-   * The previous design also had padding-bottom + border-bottom on
-   * the filterbar, which doubled the spacing below the tags
-   * relative to the 1.5rem above the search bar — that visible
-   * imbalance is gone now. */
-  .filterbar {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-    margin-top: 1.5rem;
-  }
-  .fb-row-primary {
-    display: flex;
-    gap: 0.75rem;
-    align-items: stretch;
-    flex-wrap: wrap;
-  }
-  /* Stretch the pills group itself so each pill can flex to row height */
-  .fb-row-primary .pills {
-    align-items: stretch;
-  }
-  .filterbar .search {
-    flex: 1 1 22rem;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.45rem 0.7rem;
-    border: 1px solid var(--color-border);
-    color: var(--color-muted);
-    transition: border-color 0.12s ease, color 0.12s ease;
-  }
-  .filterbar .search:focus-within {
-    border-color: var(--color-accent);
-    color: var(--color-fg);
-  }
-  .filterbar input {
-    background: transparent;
-    border: 0;
-    color: var(--color-fg);
-    font: inherit;
-    outline: none;
-    width: 100%;
-  }
-  .pills {
-    display: inline-flex;
-    flex-wrap: wrap;
-    gap: 0.3rem;
-    align-items: center;
-  }
-  .pill {
-    padding: 0.3rem 0.65rem;
-    border: 1px solid var(--color-border);
-    background: transparent;
-    color: var(--color-muted);
-    font-family: var(--font-mono);
-    font-size: 0.75em;
-    cursor: pointer;
-    text-transform: lowercase;
-    transition: border-color 0.12s ease, color 0.12s ease, background 0.12s ease;
-  }
-  /* Pills in the primary row stretch to match the search input's
-   * height so the whole row reads as one strip. align-items on the
-   * inner flex re-centers the text within each grown pill. Tag pills
-   * stay compact on the secondary row. */
-  .fb-row-primary .pill,
-  .fb-row-primary .clear {
-    padding: 0 0.85rem;
-    align-items: center;
-  }
-  .pill:hover {
-    border-color: var(--color-accent);
-    color: var(--color-fg);
-  }
-  .pill.is-active {
-    background: var(--color-accent);
-    color: var(--color-accent-fg);
-    border-color: var(--color-accent);
-  }
-  .clear {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.3rem;
-    padding: 0.3rem 0.6rem;
-    background: transparent;
-    border: 1px solid var(--color-border);
-    color: var(--color-muted);
-    font-family: var(--font-mono);
-    font-size: 0.75em;
-    cursor: pointer;
-    transition: color 0.12s ease, border-color 0.12s ease;
-  }
-  .clear:hover { color: var(--color-fg); border-color: var(--color-fg); }
-
-  /* Cards hidden by filter and/or pagination. Both layers set their
-   * own data-attribute so they compose without stomping each other. */
+  /* Filterbar + multi-select popover + pill styles live in
+   * packages/core/styles/components/filterbar.css and multiselect.css.
+   * Cards hidden by filter and/or pagination — both layers compose
+   * via their own data-attribute. */
   [data-filter-hidden],
   [data-page-hidden] {
     display: none !important;

@@ -1,24 +1,46 @@
-import { Search, X } from "lucide-react";
+import { GraduationCap, Hash, Search } from "lucide-react";
 import { useEffect, useState } from "react";
+import MultiSelect, { type MultiSelectOption } from "../ui/MultiSelect.tsx";
+import ActiveFilterChips from "./ActiveFilterChips.tsx";
+import SortBar from "./SortBar.tsx";
 
 interface Props {
   difficulties: string[];
   tags: string[];
+  /** Hit counts per difficulty value, server-computed. */
+  difficultyCounts: Record<string, number>;
+  /** Hit counts per tag, server-computed. */
+  tagCounts: Record<string, number>;
+  /** Top tags by count (server-curated) shown inline below the toolbar
+   *  so the at-a-glance topic map survives the move to a dropdown. */
+  popularTags: string[];
 }
 
 interface FilterState {
   q: string;
-  difficulty: string;
-  tag: string;
+  levels: Set<string>;
+  tags: Set<string>;
+}
+
+function parseCsv(value: string | null): Set<string> {
+  if (!value) return new Set();
+  return new Set(value.split(",").map((s) => s.trim()).filter(Boolean));
 }
 
 function readUrlState(): FilterState {
-  if (typeof window === "undefined") return { q: "", difficulty: "", tag: "" };
+  if (typeof window === "undefined") {
+    return { q: "", levels: new Set(), tags: new Set() };
+  }
   const url = new URL(window.location.href);
+  const levels = url.searchParams.get("level")
+    ? parseCsv(url.searchParams.get("level"))
+    : // Legacy single-value shape; honor on read so shared links keep
+      // working. The next interaction rewrites to ?level=.
+      parseCsv(url.searchParams.get("difficulty"));
   return {
     q: url.searchParams.get("q") ?? "",
-    difficulty: url.searchParams.get("difficulty") ?? "",
-    tag: url.searchParams.get("tag") ?? "",
+    levels,
+    tags: parseCsv(url.searchParams.get("tag")),
   };
 }
 
@@ -26,10 +48,13 @@ function writeUrlState(state: FilterState) {
   const url = new URL(window.location.href);
   if (state.q) url.searchParams.set("q", state.q);
   else url.searchParams.delete("q");
-  if (state.difficulty) url.searchParams.set("difficulty", state.difficulty);
-  else url.searchParams.delete("difficulty");
-  if (state.tag) url.searchParams.set("tag", state.tag);
+  if (state.levels.size > 0) url.searchParams.set("level", [...state.levels].join(","));
+  else url.searchParams.delete("level");
+  if (state.tags.size > 0) url.searchParams.set("tag", [...state.tags].join(","));
   else url.searchParams.delete("tag");
+  // Always strip the legacy key so an upgraded URL doesn't carry both
+  // shapes. First user interaction "migrates" the link.
+  url.searchParams.delete("difficulty");
   window.history.replaceState({}, "", url.toString());
 }
 
@@ -39,9 +64,12 @@ function applyFilters(state: FilterState) {
   let visible = 0;
   cards.forEach((card) => {
     const matchesQ = !q || card.dataset.search!.includes(q);
-    const matchesDiff = !state.difficulty || card.dataset.difficulty === state.difficulty;
-    const matchesTag = !state.tag || (card.dataset.tags ?? "").split(",").includes(state.tag);
-    const show = matchesQ && matchesDiff && matchesTag;
+    const matchesLevel =
+      state.levels.size === 0 || state.levels.has(card.dataset.difficulty ?? "");
+    const cardTags = (card.dataset.tags ?? "").split(",");
+    const matchesTag =
+      state.tags.size === 0 || cardTags.some((t) => state.tags.has(t));
+    const show = matchesQ && matchesLevel && matchesTag;
     if (show) {
       card.removeAttribute("data-filter-hidden");
       visible += 1;
@@ -49,14 +77,34 @@ function applyFilters(state: FilterState) {
       card.setAttribute("data-filter-hidden", "");
     }
   });
+  // Empty state element controls its own visibility; we just set it.
+  // The Home.astro inline empty-state is shown when visible === 0.
   const empty = document.querySelector<HTMLElement>("[data-empty-state]");
   if (empty) empty.style.display = visible === 0 ? "" : "none";
-  // Notify Pagination (and any other listeners) that the filtered set
-  // changed so they can reset their slice.
+  // Results status line. Read total from rendered card count (server
+  // SSR'd them; localStorage / pagination don't change cards.length).
+  const status = document.querySelector<HTMLElement>("[data-results-status]");
+  if (status) {
+    const total = cards.length;
+    if (total === 0) {
+      status.textContent = "";
+    } else if (visible === total) {
+      status.textContent = `Showing all ${total} tutorial${total === 1 ? "" : "s"}`;
+    } else {
+      status.textContent = `Showing ${visible} of ${total} tutorial${total === 1 ? "" : "s"}`;
+    }
+  }
+  // Fire once per state transition so Pagination resets to page 1.
   window.dispatchEvent(new CustomEvent("hz:filter-changed"));
 }
 
-export default function FilterBar({ difficulties, tags }: Props) {
+export default function FilterBar({
+  difficulties,
+  tags,
+  difficultyCounts,
+  tagCounts,
+  popularTags,
+}: Props) {
   const [state, setState] = useState<FilterState>(readUrlState);
 
   useEffect(() => {
@@ -64,65 +112,119 @@ export default function FilterBar({ difficulties, tags }: Props) {
     writeUrlState(state);
   }, [state]);
 
-  function set<K extends keyof FilterState>(key: K, value: FilterState[K]) {
-    setState((prev) => ({ ...prev, [key]: value }));
+  function setQ(q: string) {
+    setState((prev) => ({ ...prev, q }));
+  }
+  function setLevels(levels: Set<string>) {
+    setState((prev) => ({ ...prev, levels }));
+  }
+  function setTags(next: Set<string>) {
+    setState((prev) => ({ ...prev, tags: next }));
+  }
+  function toggleTag(tag: string) {
+    setState((prev) => {
+      const next = new Set(prev.tags);
+      if (next.has(tag)) next.delete(tag);
+      else next.add(tag);
+      return { ...prev, tags: next };
+    });
+  }
+  function removeLevel(level: string) {
+    setState((prev) => {
+      const next = new Set(prev.levels);
+      next.delete(level);
+      return { ...prev, levels: next };
+    });
+  }
+  function removeTag(tag: string) {
+    setState((prev) => {
+      const next = new Set(prev.tags);
+      next.delete(tag);
+      return { ...prev, tags: next };
+    });
+  }
+  function clearAll() {
+    setState({ q: "", levels: new Set(), tags: new Set() });
   }
 
-  function clear() {
-    setState({ q: "", difficulty: "", tag: "" });
-  }
+  const levelOpts: MultiSelectOption[] = difficulties.map((d) => ({
+    value: d,
+    label: d,
+    count: difficultyCounts[d] ?? 0,
+  }));
+  const tagOpts: MultiSelectOption[] = tags.map((t) => ({
+    value: t,
+    label: `#${t}`,
+    count: tagCounts[t] ?? 0,
+  }));
 
-  const hasFilters = state.q || state.difficulty || state.tag;
+  const hasActive = state.q.length > 0 || state.levels.size > 0 || state.tags.size > 0;
 
   return (
     <div className="filterbar">
-      {/* Row 1: search takes the lion's share + level + clear */}
-      <div className="fb-row fb-row-primary">
+      <div className="fb-toolbar">
         <label className="search">
           <Search size={16} aria-hidden="true" />
           <input
             type="search"
             placeholder="Search tutorials…"
             value={state.q}
-            onChange={(e) => set("q", e.target.value)}
+            onChange={(e) => setQ(e.target.value)}
             aria-label="Search tutorials"
           />
         </label>
 
-        <div className="pills" role="group" aria-label="Difficulty">
-          {difficulties.map((d) => (
-            <button
-              key={d}
-              type="button"
-              className={`pill ${state.difficulty === d ? "is-active" : ""}`}
-              onClick={() => set("difficulty", state.difficulty === d ? "" : d)}
-            >
-              {d}
-            </button>
-          ))}
-        </div>
+        <MultiSelect
+          id="hz-level"
+          label="Level"
+          values={state.levels}
+          onChange={setLevels}
+          options={levelOpts}
+          triggerIcon={<GraduationCap size={14} aria-hidden="true" />}
+        />
 
-        {hasFilters && (
-          <button type="button" className="clear" onClick={clear}>
-            <X size={14} aria-hidden="true" /> Clear
-          </button>
-        )}
+        <MultiSelect
+          id="hz-topics"
+          label="Topics"
+          values={state.tags}
+          onChange={setTags}
+          options={tagOpts}
+          searchable
+          triggerIcon={<Hash size={14} aria-hidden="true" />}
+        />
+
+        <span className="fb-divider" aria-hidden="true" />
+        <div className="fb-sort-slot">
+          <SortBar />
+        </div>
       </div>
 
-      {/* Row 2: tags wrap freely under the primary row */}
-      {tags.length > 0 && (
-        <div className="pills pills-tags" role="group" aria-label="Tags">
-          {tags.map((t) => (
+      {popularTags.length > 0 && (
+        <div className="fb-popular-tags" role="group" aria-label="Popular topics">
+          {popularTags.map((t) => (
             <button
               key={t}
               type="button"
-              className={`pill ${state.tag === t ? "is-active" : ""}`}
-              onClick={() => set("tag", state.tag === t ? "" : t)}
+              className={`pill ${state.tags.has(t) ? "is-active" : ""}`}
+              onClick={() => toggleTag(t)}
+              aria-pressed={state.tags.has(t)}
             >
               #{t}
             </button>
           ))}
         </div>
+      )}
+
+      {hasActive && (
+        <ActiveFilterChips
+          q={state.q}
+          levels={state.levels}
+          tags={state.tags}
+          onClearQ={() => setQ("")}
+          onRemoveLevel={removeLevel}
+          onRemoveTag={removeTag}
+          onClearAll={clearAll}
+        />
       )}
     </div>
   );

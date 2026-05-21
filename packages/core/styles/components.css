@@ -10,6 +10,8 @@
 @import "./components/a11y.css";
 @import "./components/modal.css";
 @import "./components/dropdown.css";
+@import "./components/multiselect.css";
+@import "./components/filterbar.css";
 
 /* Site chrome */
 @import "./components/progress.css";
