@@ -48,8 +48,12 @@ const {
   logoUrl = "/logo.svg",
   showFooter = true,
   repoUrl,
-  pageMaxWidth = "80rem",
-  pagePaddingX = "clamp(1rem, 4vw, 2rem)",
+  // Default to a full-width navbar + footer with a small consistent
+  // inset, matching the tutorial step page. Pages with a centred
+  // column (home grid, tutorial landing) keep their own content
+  // column; the bars stay as site-wide strips.
+  pageMaxWidth = "none",
+  pagePaddingX = "1rem",
 } = Astro.props;
 // pageMaxWidth: "none" means no constraint — bars span the full
 // viewport width with just the padding.
