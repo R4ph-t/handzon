@@ -19,7 +19,7 @@ const EXCLUDED_SEGMENTS = new Set([
 // Workspace deps that need to point at published versions in the
 // bundled template — see `rewriteWorkspaceDeps()` below.
 const WORKSPACE_DEPS_TO_VERSIONS: Record<string, string> = {
-  "handzon-ui": "^0.3.0",
+  "handzon-ui": "^0.5.0",
   "handzon-ai": "^0.2.0",
 };
 
