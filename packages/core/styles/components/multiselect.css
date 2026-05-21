@@ -14,14 +14,15 @@
   background: transparent;
   border: 0;
   padding: 0;
-  /* `font: inherit` shorthand resets font-size to the body default
-   * (16px) which clobbers .hz-dd's 0.78em. Use granular inherits so
-   * the chrome stays mono + small and matches Dropdown.tsx. */
+  /* The button is also a `.hz-dd` element. That sibling class sets
+   * font-size: 0.78em + the mono family. Don't redeclare font-size /
+   * font-weight / line-height / letter-spacing here — at equal
+   * specificity, this stylesheet loads after dropdown.css and would
+   * win, resolving `inherit` to the body's 16px and making the
+   * trigger taller than the single-select Sort dropdown. We only
+   * need to undo the UA button defaults that .hz-dd doesn't already
+   * cover (font-family + color). */
   font-family: inherit;
-  font-size: inherit;
-  font-weight: inherit;
-  line-height: inherit;
-  letter-spacing: inherit;
   color: inherit;
   display: inline-flex;
   align-items: stretch;
@@ -32,6 +33,7 @@
   align-items: center;
   gap: 0.45rem;
   padding: 0.4rem 0.6rem;
+  min-height: 2.5rem;
   background: transparent;
   border: 1px solid var(--color-border);
   color: var(--color-fg);

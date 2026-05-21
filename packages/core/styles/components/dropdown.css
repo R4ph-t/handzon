@@ -32,6 +32,11 @@
   align-items: center;
   gap: 0.45rem;
   padding: 0.4rem 0.6rem;
+  /* Match the search input's natural height so the whole toolbar row
+   * shares a single baseline. Without this, the Sort dropdown reads
+   * ~6px shorter than the multi-select triggers which stretch via
+   * the toolbar's align-items: stretch. */
+  min-height: 2.5rem;
   background: transparent;
   border: 1px solid var(--color-border);
   color: var(--color-fg);
