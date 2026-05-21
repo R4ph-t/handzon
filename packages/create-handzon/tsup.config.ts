@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { cp, readFile, rm, writeFile } from "node:fs/promises";
 import { relative, resolve, sep } from "node:path";
 import { defineConfig } from "tsup";
@@ -16,11 +17,31 @@ const EXCLUDED_SEGMENTS = new Set([
   ".claude",
 ]);
 
+// Read the live version from a sibling workspace package so the
+// bundled template can't drift from the actual published packages.
+// Historical bug: WORKSPACE_DEPS_TO_VERSIONS used to be a hardcoded
+// `"handzon-ui": "^0.3.0"`, which silently froze fresh scaffolds at
+// 0.3.5 even after handzon-ui had moved to 0.4.x. Reading the
+// version inline removes the need to remember to keep two files in
+// sync at release time.
+function readWorkspaceVersion(workspaceRelPath: string): string {
+  const pkgPath = resolve(__dirname, "../..", workspaceRelPath, "package.json");
+  const pkg = JSON.parse(readFileSync(pkgPath, "utf8")) as { version: string };
+  if (!pkg.version) {
+    throw new Error(`No version in ${pkgPath}`);
+  }
+  // Caret semver on 0.x is patch-only (`^0.5.0` ≡ `>=0.5.0 <0.6.0`),
+  // which matches how unstable releases evolve here. Bumps to a new
+  // minor (0.5 → 0.6) require a CLI rebuild + republish so scaffolds
+  // pick them up — that's intentional, not a bug.
+  return `^${pkg.version}`;
+}
+
 // Workspace deps that need to point at published versions in the
 // bundled template — see `rewriteWorkspaceDeps()` below.
 const WORKSPACE_DEPS_TO_VERSIONS: Record<string, string> = {
-  "handzon-ui": "^0.5.0",
-  "handzon-ai": "^0.2.0",
+  "handzon-ui": readWorkspaceVersion("packages/ui"),
+  "handzon-ai": readWorkspaceVersion("packages/ai"),
 };
 
 async function rewriteWorkspaceDeps(pkgJsonPath: string) {
