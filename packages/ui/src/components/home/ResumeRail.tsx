@@ -10,13 +10,14 @@ interface Props {
   tutorials: Tutorial[];
 }
 
+/**
+ * "Continue [Tutorial] / step  →" — a single bordered link that reads
+ * as one coherent action, replacing the previous three-color, three-
+ * size stack of label + title + step.
+ */
 export default function ResumeRail({ tutorials }: Props) {
   const state = useProgressAfterMount();
 
-  // Pick the tutorial with the highest `ts` rather than relying on
-  // Object.entries() ordering (which is insertion order — overwriting an
-  // existing key keeps its original position, so "most recent insert"
-  // can be very stale).
   const mostRecent = useMemo(() => {
     if (!state) return null;
     let best: { slug: string; step: string; ts: number } | null = null;
@@ -39,12 +40,11 @@ export default function ResumeRail({ tutorials }: Props) {
   if (!state || !mostRecent) return null;
 
   return (
-    <aside className="resume-rail">
-      <div className="rr-label">Resume where you left off</div>
-      <a className="rr-link" href={`/${mostRecent.slug}/${mostRecent.step}`}>
-        <span className="rr-title">{mostRecent.title}</span>
-        <span className="rr-step">→ {mostRecent.step}</span>
-      </a>
-    </aside>
+    <a className="resume-rail" href={`/${mostRecent.slug}/${mostRecent.step}`}>
+      <span className="rr-prefix">Continue</span>
+      <span className="rr-title">{mostRecent.title}</span>
+      <span className="rr-step">/ {mostRecent.step}</span>
+      <span className="rr-arrow" aria-hidden="true">→</span>
+    </a>
   );
 }

@@ -63,33 +63,42 @@ export default function FilterBar({ difficulties, tags }: Props) {
 
   return (
     <div className="filterbar">
-      <label className="search">
-        <Search size={16} />
-        <input
-          type="search"
-          placeholder="Search tutorials..."
-          value={state.q}
-          onChange={(e) => set("q", e.target.value)}
-        />
-      </label>
+      {/* Row 1: search takes the lion's share + level + clear */}
+      <div className="fb-row fb-row-primary">
+        <label className="search">
+          <Search size={16} aria-hidden="true" />
+          <input
+            type="search"
+            placeholder="Search tutorials…"
+            value={state.q}
+            onChange={(e) => set("q", e.target.value)}
+            aria-label="Search tutorials"
+          />
+        </label>
 
-      <div className="pills">
-        <span className="pill-label">Level:</span>
-        {difficulties.map((d) => (
-          <button
-            key={d}
-            type="button"
-            className={`pill ${state.difficulty === d ? "is-active" : ""}`}
-            onClick={() => set("difficulty", state.difficulty === d ? "" : d)}
-          >
-            {d}
+        <div className="pills" role="group" aria-label="Difficulty">
+          {difficulties.map((d) => (
+            <button
+              key={d}
+              type="button"
+              className={`pill ${state.difficulty === d ? "is-active" : ""}`}
+              onClick={() => set("difficulty", state.difficulty === d ? "" : d)}
+            >
+              {d}
+            </button>
+          ))}
+        </div>
+
+        {hasFilters && (
+          <button type="button" className="clear" onClick={clear}>
+            <X size={14} aria-hidden="true" /> Clear
           </button>
-        ))}
+        )}
       </div>
 
+      {/* Row 2: tags wrap freely under the primary row */}
       {tags.length > 0 && (
-        <div className="pills">
-          <span className="pill-label">Tag:</span>
+        <div className="pills pills-tags" role="group" aria-label="Tags">
           {tags.map((t) => (
             <button
               key={t}
@@ -101,12 +110,6 @@ export default function FilterBar({ difficulties, tags }: Props) {
             </button>
           ))}
         </div>
-      )}
-
-      {hasFilters && (
-        <button type="button" className="clear" onClick={clear}>
-          <X size={14} /> Clear
-        </button>
       )}
     </div>
   );
