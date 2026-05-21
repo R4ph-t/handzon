@@ -159,13 +159,18 @@ const compactTutorials = tutorials.map((t) => ({ slug: t.id, title: t.data.title
   /* Two rows: search + level + clear on top, tag pills on a wrapping
    * second row. Replaces the previous one-line flex-wrap that crammed
    * 20+ pills into the same row as the input. */
+  /* Consistent vertical rhythm on the home page:
+   *   - Every block (resume rail, filterbar, grid) gets 1.5rem above.
+   *   - Inside the filterbar, the search row → tags row gap is 1rem.
+   * The previous design also had padding-bottom + border-bottom on
+   * the filterbar, which doubled the spacing below the tags
+   * relative to the 1.5rem above the search bar — that visible
+   * imbalance is gone now. */
   .filterbar {
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
+    gap: 1rem;
     margin-top: 1.5rem;
-    padding-bottom: 1rem;
-    border-bottom: 1px solid var(--color-border);
   }
   .fb-row-primary {
     display: flex;
