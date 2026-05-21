@@ -13,19 +13,23 @@ const { tutorial, steps, currentStepSlug } = Astro.props;
 const slug = tutorial.id;
 ---
 <aside class="sidebar" aria-label="Tutorial steps">
-  <header class="sb-header">
-    <a class="sb-back" href="/">← All tutorials</a>
-    <h2 class="sb-title">
-      <a href={`/${slug}`}>{tutorial.data.title}</a>
-    </h2>
-    {tutorial.data.estimatedDuration && (
-      <div class="sb-meta">{tutorial.data.estimatedDuration}</div>
-    )}
-  </header>
+  {/* Top block: back link, title, progress. Stays fixed while the
+   * step list below scrolls when there are many steps. */}
+  <div class="sb-top">
+    <header class="sb-header">
+      <a class="sb-back" href="/">← All tutorials</a>
+      <h2 class="sb-title">
+        <a href={`/${slug}`}>{tutorial.data.title}</a>
+      </h2>
+      {tutorial.data.estimatedDuration && (
+        <div class="sb-meta">{tutorial.data.estimatedDuration}</div>
+      )}
+    </header>
 
-  {tutorial.data.showProgress && (
-    <Progress tutorialSlug={slug} totalSteps={steps.length} client:load />
-  )}
+    {tutorial.data.showProgress && (
+      <Progress tutorialSlug={slug} totalSteps={steps.length} client:load />
+    )}
+  </div>
 
   <ol class="sb-steps">
     {steps.map((step) => {
@@ -61,12 +65,21 @@ const slug = tutorial.id;
 </script>
 
 <style>
+  /* Two-zone layout: sticky `.sb-top` (back link + title + progress)
+   * up top, scrollable `.sb-steps` underneath. The wrapper's overflow
+   * lives on the steps list so long tutorials never push the header
+   * out of view. */
   .sidebar {
     border-right: var(--border-default, 2px) solid var(--color-border);
     background: var(--color-bg);
-    padding: 1rem 1rem 2rem;
-    overflow-y: auto;
     height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .sb-top {
+    padding: 1rem 1rem 0.75rem;
+    flex-shrink: 0;
   }
   .sb-header { margin-bottom: 1rem; }
   .sb-back {
@@ -94,8 +107,10 @@ const slug = tutorial.id;
   }
   .sb-steps {
     list-style: none;
-    padding: 0;
-    margin: 1rem 0 0;
+    padding: 0 1rem 2rem;
+    margin: 0.75rem 0 0;
+    flex: 1;
+    overflow-y: auto;
     border-top: var(--border-default) solid var(--color-border);
   }
   .sb-steps li + li {

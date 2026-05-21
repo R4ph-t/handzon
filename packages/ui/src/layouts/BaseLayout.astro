@@ -76,7 +76,7 @@ const desc = description ?? tagline;
     <meta property="og:description" content={desc} />
     <meta property="og:type" content="website" />
   </head>
-  <body style={`--hz-page-max-width: ${resolvedMaxWidth}; --hz-page-padding-x: ${pagePaddingX};`}>
+  <body style={`--hz-page-max-width: ${resolvedMaxWidth}; --hz-page-padding-x: ${pagePaddingX}; --hz-nav-height: 3rem;`}>
     {nav === "full" && (
       <Navbar logoUrl={logoUrl} siteName={siteName} />
     )}

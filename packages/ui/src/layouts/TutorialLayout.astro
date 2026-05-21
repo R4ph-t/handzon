@@ -105,10 +105,13 @@ const {
     grid-template-columns: 280px minmax(0, 1fr);
     min-height: 100dvh;
   }
+  /* Anchor below the sticky navbar — was top:0 / 100dvh which made
+   * the sidebar slide under the navbar on scroll. */
   .sidebar-wrap {
     position: sticky;
-    top: 0;
-    height: 100dvh;
+    top: var(--hz-nav-height, 3rem);
+    height: calc(100dvh - var(--hz-nav-height, 3rem));
+    overflow: hidden;
   }
   .main {
     padding: 2rem clamp(1rem, 4vw, 3rem);
