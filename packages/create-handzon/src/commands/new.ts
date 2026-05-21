@@ -4,7 +4,7 @@ import * as p from "@clack/prompts";
 import pc from "picocolors";
 import { ask } from "../shared/ask";
 import { findProjectRoot } from "../shared/find-root";
-import { listTutorials, pad2 } from "../shared/scan-tutorials";
+import { listTutorials, readIndex } from "../shared/scan-tutorials";
 import { isValidSlug, slugify } from "../shared/slugify";
 
 interface NewOptions {
@@ -47,7 +47,6 @@ export async function runNew(opts: NewOptions = {}): Promise<void> {
     p.log.error(`A tutorial with slug "${slug}" already exists.`);
     process.exit(1);
   }
-  const prefix = pad2((tutorials.at(-1)?.prefix ?? 0) + 1);
 
   const difficulty = await ask(shouldPrompt, "beginner" as const, () =>
     p.select({
@@ -76,8 +75,7 @@ export async function runNew(opts: NewOptions = {}): Promise<void> {
     p.confirm({ message: "Enable AI helper for this tutorial?", initialValue: true }),
   );
 
-  const folder = `${prefix}-${slug}`;
-  const folderPath = join(root, "src/content/tutorials", folder);
+  const folderPath = join(root, "src/content/tutorials", slug);
   await mkdir(folderPath, { recursive: true });
   await mkdir(join(folderPath, "assets"), { recursive: true });
 
@@ -94,8 +92,18 @@ export async function runNew(opts: NewOptions = {}): Promise<void> {
   const stepBody = `In this step you'll get oriented before writing any code.\n\n<Callout type="tip">\nWrite a sentence about why this tutorial exists — what the learner gets at the end.\n</Callout>\n\n<Checkpoint label="I have my environment set up." />\n\n<Recap items={["...", "..."]} />\n`;
   await writeFile(join(folderPath, "01-introduction.mdx"), stepFrontmatter + stepBody, "utf8");
 
+  const index = await readIndex(root);
+  if (!index.order.includes(slug)) {
+    index.order.push(slug);
+  }
+  await writeFile(
+    join(root, "src/content/tutorials/_index.json"),
+    `${JSON.stringify(index, null, 2)}\n`,
+    "utf8",
+  );
+
   p.outro(
     pc.green("Created!") +
-      `\n  src/content/tutorials/${folder}/\n  ├── _meta.json\n  ├── 01-introduction.mdx\n  └── assets/`,
+      `\n  src/content/tutorials/${slug}/\n  ├── _meta.json\n  ├── 01-introduction.mdx\n  └── assets/`,
   );
 }

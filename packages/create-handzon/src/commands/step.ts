@@ -41,7 +41,7 @@ export async function runStep(opts: StepOptions = {}): Promise<void> {
     targetFolder = await ask(true, tutorials[0]!.folder, () =>
       p.select({
         message: "Which tutorial?",
-        options: tutorials.map((t) => ({ value: t.folder, label: `${t.folder} — ${t.title}` })),
+        options: tutorials.map((t) => ({ value: t.folder, label: `${t.slug} — ${t.title}` })),
       }),
     );
   }

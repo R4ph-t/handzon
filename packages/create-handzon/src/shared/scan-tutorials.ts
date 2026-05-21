@@ -1,15 +1,31 @@
 import { readdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
 
-const FOLDER_RE = /^(\d+)-(.+)$/;
 const FILE_RE = /^(\d+)-(.+)\.mdx$/;
 
 export interface TutorialInfo {
   folder: string;
-  prefix: number;
   slug: string;
   title: string;
   description: string;
+}
+
+interface TutorialIndex {
+  order: string[];
+}
+
+export async function readIndex(projectRoot: string): Promise<TutorialIndex> {
+  const path = join(projectRoot, "src/content/tutorials/_index.json");
+  try {
+    const raw = await readFile(path, "utf8");
+    const parsed = JSON.parse(raw);
+    const order = Array.isArray(parsed?.order)
+      ? parsed.order.filter((s: unknown): s is string => typeof s === "string")
+      : [];
+    return { order };
+  } catch {
+    return { order: [] };
+  }
 }
 
 export async function listTutorials(projectRoot: string): Promise<TutorialInfo[]> {
@@ -23,20 +39,30 @@ export async function listTutorials(projectRoot: string): Promise<TutorialInfo[]
   }
   for (const d of dirents) {
     if (!d.isDirectory()) continue;
-    const m = FOLDER_RE.exec(d.name);
-    if (!m) continue;
-    let title = m[2];
+    let title = d.name;
     let description = "";
+    let hasMeta = false;
     try {
       const meta = JSON.parse(await readFile(join(dir, d.name, "_meta.json"), "utf8"));
+      hasMeta = true;
       title = meta.title ?? title;
       description = meta.description ?? "";
     } catch {
-      // _meta.json missing — surface folder slug
+      // _meta.json missing — skip directories that aren't tutorials
     }
-    entries.push({ folder: d.name, prefix: Number(m[1]), slug: m[2], title, description });
+    if (!hasMeta) continue;
+    entries.push({ folder: d.name, slug: d.name, title, description });
   }
-  return entries.sort((a, b) => a.prefix - b.prefix);
+  const { order } = await readIndex(projectRoot);
+  const orderPos = new Map(order.map((slug, i) => [slug, i]));
+  return entries.sort((a, b) => {
+    const ai = orderPos.get(a.slug);
+    const bi = orderPos.get(b.slug);
+    if (ai !== undefined && bi !== undefined) return ai - bi;
+    if (ai !== undefined) return -1;
+    if (bi !== undefined) return 1;
+    return a.slug.localeCompare(b.slug);
+  });
 }
 
 export async function nextStepPrefix(tutorialFolder: string): Promise<number> {
