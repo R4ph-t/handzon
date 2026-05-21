@@ -52,18 +52,19 @@ projects:
               # URL. AUTH_TRUST_HOST tells Auth.js to trust the X-Forwarded
               # headers Render's edge sends, so callbacks resolve to the
               # public HTTPS URL instead of the internal http://host:port.
+              #
+              # AUTH_URL is *not* declared here. `createAuthConfig` falls
+              # back to Render's auto-injected RENDER_EXTERNAL_URL so the
+              # default deploy needs zero post-Blueprint config. If you
+              # later attach a custom domain, set AUTH_URL on this
+              # service via the Dashboard to override.
               - key: AUTH_SECRET
                 generateValue: true
               - key: AUTH_TRUST_HOST
                 value: "true"
-              # AUTH_URL: set this to your site's public origin
-              # (https://<your-domain>) post-deploy. Render doesn't expose
-              # a fully-qualified-URL fromService property, so this is
-              # `sync: false` — fill it in once via the Dashboard.
-              - key: AUTH_URL
-                sync: false
               # Create a GitHub OAuth App, then set these. Authorization
-              # callback URL: <AUTH_URL>/api/auth/callback/github
+              # callback URL: <site-url>/api/auth/callback/github
+              # (use the .onrender.com URL until you wire a custom domain).
               - key: GITHUB_CLIENT_ID
                 sync: false
               - key: GITHUB_CLIENT_SECRET

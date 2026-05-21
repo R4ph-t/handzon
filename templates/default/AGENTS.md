@@ -139,8 +139,10 @@ To set it up:
 3. Generate `AUTH_SECRET` once with `openssl rand -hex 32` and set
    `AUTH_TRUST_HOST=true` in production so Auth.js trusts Render's
    X-Forwarded-* headers.
-4. Set `AUTH_URL` to your site's public origin in production (Render
-   doesn't expose a fully-qualified-URL fromService property).
+4. `AUTH_URL` is derived automatically on Render from `RENDER_EXTERNAL_URL`.
+   Only set it manually when you attach a custom domain or run behind
+   a reverse proxy. The Authorization callback URL on GitHub should
+   match: `<site-url>/api/auth/callback/github`.
 
 Subsequent sign-ins on a new device claim that device's anonymous
 progress too, so a learner can roam without re-doing work.

@@ -25,7 +25,46 @@ interface AuthConfigOptions {
   db: Parameters<typeof DrizzleAdapter>[0] | null;
 }
 
+/**
+ * Normalises whatever the operator gave us into a full URL that
+ * Auth.js + GitHub OAuth callbacks can use. Priority:
+ *
+ *   1. `AUTH_URL`              — operator override; supports either a
+ *                                full URL or a bare hostname (in which
+ *                                case we append `.onrender.com`, the
+ *                                same shape used by ALLOWED_ORIGIN and
+ *                                PUBLIC_AI_SERVICE_URL).
+ *   2. `RENDER_EXTERNAL_URL`   — Render auto-injects this on every web
+ *                                service (e.g. `https://foo.onrender.com`).
+ *   3. `RENDER_EXTERNAL_HOSTNAME` — bare hostname, also auto-injected;
+ *                                we prefix with `https://`.
+ *
+ * Returns `undefined` when none are set (local dev with no override —
+ * Auth.js falls back to the request's Origin header).
+ */
+function resolveAuthUrl(): string | undefined {
+  const explicit = process.env.AUTH_URL?.trim();
+  if (explicit) {
+    const trimmed = explicit.replace(/\/$/, "");
+    return /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}.onrender.com`;
+  }
+  const renderUrl = process.env.RENDER_EXTERNAL_URL?.trim();
+  if (renderUrl) return renderUrl.replace(/\/$/, "");
+  const renderHost = process.env.RENDER_EXTERNAL_HOSTNAME?.trim();
+  if (renderHost) return `https://${renderHost}`;
+  return undefined;
+}
+
 export function createAuthConfig({ db }: AuthConfigOptions) {
+  // Auth.js v5 reads `AUTH_URL` from process.env on each request, so
+  // we resolve once and write it back. Idempotent: if AUTH_URL was
+  // already a full URL, this is a no-op aside from the trailing-slash
+  // trim.
+  const resolvedUrl = resolveAuthUrl();
+  if (resolvedUrl && resolvedUrl !== process.env.AUTH_URL) {
+    process.env.AUTH_URL = resolvedUrl;
+  }
+
   if (!db) {
     // No database → no adapter → no providers. auth-astro logs a warning
     // and any sign-in attempt fails gracefully instead of crashing the

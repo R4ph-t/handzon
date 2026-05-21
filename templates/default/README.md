@@ -34,8 +34,10 @@ cp services/ai/.env.example services/ai/.env
 Both `PUBLIC_AI_SERVICE_URL` and `ALLOWED_ORIGIN` accept either a fully-qualified URL (for local dev or custom domains) or a bare Render private-network hostname — the latter is what `fromService.property: host` ships in the Blueprints, and the code expands it to `https://<host>.onrender.com` at runtime.
 
 Optional GitHub sign-in (Tier 2 only) reads `AUTH_SECRET`,
-`AUTH_TRUST_HOST`, `AUTH_URL`, `GITHUB_CLIENT_ID`, and
-`GITHUB_CLIENT_SECRET`. See `.env.example` and the "GitHub sign-in"
+`AUTH_TRUST_HOST`, `GITHUB_CLIENT_ID`, and `GITHUB_CLIENT_SECRET`.
+The public URL is derived automatically from `RENDER_EXTERNAL_URL`
+on Render; set `AUTH_URL` only when you need to override (custom
+domain or reverse proxy). See `.env.example` and the "GitHub sign-in"
 section of `AGENTS.md` for the full setup.
 
 ## Deploying
