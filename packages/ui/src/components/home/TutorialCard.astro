@@ -9,7 +9,14 @@ const { tutorial, duration } = Astro.props;
 const data = tutorial.data;
 const slug = tutorial.id;
 ---
-<article class="card" data-difficulty={data.difficulty} data-tags={data.tags.join(",")} data-search={`${data.title} ${data.description} ${data.tags.join(" ")}`.toLowerCase()}>
+<article
+  class="card"
+  data-difficulty={data.difficulty}
+  data-tags={data.tags.join(",")}
+  data-search={`${data.title} ${data.description} ${data.tags.join(" ")}`.toLowerCase()}
+  data-card-slug={slug}
+  data-popularity="0"
+>
   <a href={`/${slug}`} class="card-link">
     <div class="card-body">
       <h3>{data.title}</h3>
@@ -41,6 +48,11 @@ const slug = tutorial.id;
           {data.tags.map((tag) => <span class="tag">#{tag}</span>)}
         </div>
       )}
+      <div
+        class="card-stats"
+        data-tutorial-stats-slug={slug}
+        aria-hidden="true"
+      ></div>
       <div class="card-progress" data-tutorial-slug={slug}></div>
     </div>
   </a>
@@ -148,4 +160,26 @@ const slug = tutorial.id;
   }
 
   .card-progress:not(:empty) { padding-top: 0.5rem; }
+
+  /* Cross-learner popularity, hydrated from /api/tutorials/stats.
+   * Hidden until the script populates content so the card height
+   * stays stable on first paint and gracefully degrades on Tier 1
+   * (no DB → no numbers → no row). */
+  .card-stats:empty { display: none; }
+  .card-stats {
+    margin-top: 0.6rem;
+    display: flex;
+    gap: 0.6rem;
+    font-family: var(--font-mono);
+    font-size: 0.7em;
+    color: var(--color-muted);
+  }
+  .card-stats .stat {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+  }
+  .card-stats .stat-divider {
+    color: var(--color-border);
+  }
 </style>

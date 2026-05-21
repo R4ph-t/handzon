@@ -108,6 +108,84 @@ const compactTutorials = tutorials.map((t) => ({ slug: t.id, title: t.data.title
     refresh();
     getStore().subscribe(refresh);
   </script>
+
+  <script>
+    // Hydrate cross-learner popularity numbers and the `data-popularity`
+    // attribute used by the FilterBar's "Popular" sort. Single fetch on
+    // mount; Cache-Control: max-age=60 on the response handles SPA-like
+    // navigations. Failures are silent — cards just show no numbers,
+    // which is the desired state on Tier 1 anyway.
+    type Stat = { slug: string; started: number; completed: number };
+    function fmt(n: number): string {
+      if (n < 1000) return String(n);
+      if (n < 10_000) return `${(n / 1000).toFixed(1)}k`;
+      if (n < 1_000_000) return `${Math.round(n / 1000)}k`;
+      return `${(n / 1_000_000).toFixed(1)}M`;
+    }
+    function popularityScore(stat: Stat): number {
+      // Weight completion higher than start. Completed learners are a
+      // much stronger signal than visitors who bounced after step 1.
+      return stat.completed * 3 + stat.started;
+    }
+    async function hydrateStats() {
+      try {
+        const res = await fetch("/api/tutorials/stats", { credentials: "same-origin" });
+        if (!res.ok) return;
+        const data = (await res.json()) as { stats: Stat[] };
+        for (const stat of data.stats) {
+          const card = document.querySelector<HTMLElement>(
+            `[data-card-slug="${CSS.escape(stat.slug)}"]`,
+          );
+          if (!card) continue;
+          card.dataset.popularity = String(popularityScore(stat));
+          const slot = card.querySelector<HTMLElement>(
+            `[data-tutorial-stats-slug="${CSS.escape(stat.slug)}"]`,
+          );
+          if (!slot) continue;
+          if (stat.started === 0 && stat.completed === 0) continue;
+          slot.innerHTML =
+            `<span class="stat" title="Unique learners started">▶ ${fmt(stat.started)} started</span>` +
+            `<span class="stat-divider">·</span>` +
+            `<span class="stat" title="Unique learners completed">✓ ${fmt(stat.completed)} finished</span>`;
+        }
+        window.dispatchEvent(new CustomEvent("hz:stats-loaded"));
+      } catch {
+        // ignore
+      }
+    }
+    hydrateStats();
+  </script>
+
+  <script>
+    // Popularity sort: re-orders cards in place by writing CSS `order`
+    // from `data-popularity`. Composes with the existing filter/page
+    // hide attributes because order is a flex/grid layout concern, not
+    // a visibility concern.
+    function applySort(mode: string) {
+      const cards = document.querySelectorAll<HTMLElement>("[data-card-slug]");
+      if (mode === "popular") {
+        const sorted = Array.from(cards).sort((a, b) => {
+          return Number(b.dataset.popularity ?? 0) - Number(a.dataset.popularity ?? 0);
+        });
+        sorted.forEach((card, idx) => {
+          card.style.order = String(idx);
+        });
+      } else {
+        cards.forEach((card) => {
+          card.style.removeProperty("order");
+        });
+      }
+    }
+    function syncFromUrl() {
+      const url = new URL(window.location.href);
+      applySort(url.searchParams.get("sort") ?? "");
+    }
+    syncFromUrl();
+    window.addEventListener("hz:sort-changed", (e) => {
+      applySort((e as CustomEvent<{ sort: string }>).detail.sort);
+    });
+    window.addEventListener("hz:stats-loaded", syncFromUrl);
+  </script>
 </BaseLayout>
 
 <style>

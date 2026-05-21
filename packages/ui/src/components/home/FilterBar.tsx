@@ -1,4 +1,4 @@
-import { Search, X } from "lucide-react";
+import { Flame, Search, X } from "lucide-react";
 import { useEffect, useState } from "react";
 
 interface Props {
@@ -6,17 +6,26 @@ interface Props {
   tags: string[];
 }
 
-function readUrlState() {
-  if (typeof window === "undefined") return { q: "", difficulty: "", tag: "" };
+interface FilterState {
+  q: string;
+  difficulty: string;
+  tag: string;
+  /** "" = curated (numeric-prefix) order; "popular" = by data-popularity desc. */
+  sort: string;
+}
+
+function readUrlState(): FilterState {
+  if (typeof window === "undefined") return { q: "", difficulty: "", tag: "", sort: "" };
   const url = new URL(window.location.href);
   return {
     q: url.searchParams.get("q") ?? "",
     difficulty: url.searchParams.get("difficulty") ?? "",
     tag: url.searchParams.get("tag") ?? "",
+    sort: url.searchParams.get("sort") ?? "",
   };
 }
 
-function writeUrlState(state: { q: string; difficulty: string; tag: string }) {
+function writeUrlState(state: FilterState) {
   const url = new URL(window.location.href);
   if (state.q) url.searchParams.set("q", state.q);
   else url.searchParams.delete("q");
@@ -24,10 +33,12 @@ function writeUrlState(state: { q: string; difficulty: string; tag: string }) {
   else url.searchParams.delete("difficulty");
   if (state.tag) url.searchParams.set("tag", state.tag);
   else url.searchParams.delete("tag");
+  if (state.sort) url.searchParams.set("sort", state.sort);
+  else url.searchParams.delete("sort");
   window.history.replaceState({}, "", url.toString());
 }
 
-function applyFilters(state: { q: string; difficulty: string; tag: string }) {
+function applyFilters(state: FilterState) {
   const cards = document.querySelectorAll<HTMLElement>("[data-search]");
   const q = state.q.trim().toLowerCase();
   let visible = 0;
@@ -51,22 +62,28 @@ function applyFilters(state: { q: string; difficulty: string; tag: string }) {
 }
 
 export default function FilterBar({ difficulties, tags }: Props) {
-  const [state, setState] = useState(readUrlState);
+  const [state, setState] = useState<FilterState>(readUrlState);
 
   useEffect(() => {
     applyFilters(state);
     writeUrlState(state);
+    // Sort lives in a separate inline script on Home.astro because it
+    // doesn't depend on React state — it just reads data-popularity.
+    // Fire an event so it can re-run.
+    window.dispatchEvent(
+      new CustomEvent("hz:sort-changed", { detail: { sort: state.sort } }),
+    );
   }, [state]);
 
-  function set<K extends keyof typeof state>(key: K, value: (typeof state)[K]) {
+  function set<K extends keyof FilterState>(key: K, value: FilterState[K]) {
     setState((prev) => ({ ...prev, [key]: value }));
   }
 
   function clear() {
-    setState({ q: "", difficulty: "", tag: "" });
+    setState({ q: "", difficulty: "", tag: "", sort: "" });
   }
 
-  const hasFilters = state.q || state.difficulty || state.tag;
+  const hasFilters = state.q || state.difficulty || state.tag || state.sort;
 
   return (
     <div className="filterbar">
@@ -94,6 +111,18 @@ export default function FilterBar({ difficulties, tags }: Props) {
               {d}
             </button>
           ))}
+        </div>
+
+        <div className="pills" role="group" aria-label="Sort">
+          <button
+            type="button"
+            className={`pill ${state.sort === "popular" ? "is-active" : ""}`}
+            onClick={() => set("sort", state.sort === "popular" ? "" : "popular")}
+            aria-pressed={state.sort === "popular"}
+            title="Sort by cross-learner popularity"
+          >
+            <Flame size={12} aria-hidden="true" /> popular
+          </button>
         </div>
 
         {hasFilters && (
