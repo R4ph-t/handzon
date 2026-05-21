@@ -83,14 +83,16 @@ const slug = tutorial.id;
     flex: 1;
   }
 
-  /* Metadata row: difficulty + duration, sitting *below* the
-   * description (was above). Keeps the title as the lead element and
-   * groups all the meta — badges, tags, progress — in the lower half
-   * of the card. */
+  /* Metadata row: difficulty + duration with a divider beneath it.
+   * `margin-top: auto` pins this row (and everything below it — tags,
+   * stats, progress) to the bottom of the card so all cards in the
+   * grid share the same bottom alignment regardless of how short the
+   * description is. */
   .badges {
     display: flex;
     gap: 0.4rem;
-    margin-top: 0.85rem;
+    margin-top: auto;
+    padding-top: 0.85rem;
     padding-bottom: 0.85rem;
     border-bottom: 1px solid var(--color-border);
     flex-wrap: wrap;
