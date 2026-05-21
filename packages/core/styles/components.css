@@ -9,6 +9,7 @@
 @import "./components/expressive-code.css";
 @import "./components/a11y.css";
 @import "./components/modal.css";
+@import "./components/dropdown.css";
 
 /* Site chrome */
 @import "./components/progress.css";

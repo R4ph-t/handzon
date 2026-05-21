@@ -1,5 +1,6 @@
 import { ArrowUpDown } from "lucide-react";
 import { useEffect, useState } from "react";
+import Dropdown, { type DropdownOption } from "../ui/Dropdown.tsx";
 
 /**
  * Sort dropdown for the homepage tutorial grid. Lives above the grid
@@ -13,7 +14,7 @@ import { useEffect, useState } from "react";
  */
 type SortValue = "" | "popular";
 
-const OPTIONS: Array<{ value: SortValue; label: string }> = [
+const OPTIONS: DropdownOption<SortValue>[] = [
   { value: "", label: "Default" },
   { value: "popular", label: "Most popular" },
 ];
@@ -46,23 +47,14 @@ export default function SortBar() {
   }, [sort]);
 
   return (
-    <div className="sortbar" role="group" aria-label="Sort tutorials">
-      <ArrowUpDown size={14} aria-hidden="true" className="sb-icon" />
-      <label className="sb-label" htmlFor="hz-sort">
-        Sort
-      </label>
-      <select
-        id="hz-sort"
-        className="sb-select"
-        value={sort}
-        onChange={(e) => setSort(e.target.value as SortValue)}
-      >
-        {OPTIONS.map((o) => (
-          <option key={o.value} value={o.value}>
-            {o.label}
-          </option>
-        ))}
-      </select>
-    </div>
+    <Dropdown<SortValue>
+      id="hz-sort"
+      value={sort}
+      onChange={setSort}
+      options={OPTIONS}
+      label="Sort"
+      triggerIcon={<ArrowUpDown size={14} aria-hidden="true" />}
+      ariaLabel="Sort tutorials"
+    />
   );
 }

@@ -398,40 +398,6 @@ const compactTutorials = tutorials.map((t) => ({ slug: t.id, title: t.data.title
   }
   .pg-status strong { color: var(--color-fg); }
 
-  /* ---------- Sort bar (above the grid) ---------- */
-  .sortbar {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.35rem 0.55rem 0.35rem 0.65rem;
-    border: 1px solid var(--color-border);
-    color: var(--color-muted);
-    font-family: var(--font-mono);
-    font-size: 0.78em;
-  }
-  .sortbar:focus-within {
-    border-color: var(--color-accent);
-  }
-  .sb-icon { flex-shrink: 0; }
-  .sb-label {
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    user-select: none;
-  }
-  .sb-select {
-    background: transparent;
-    border: 0;
-    color: var(--color-fg);
-    font: inherit;
-    cursor: pointer;
-    outline: none;
-    padding-right: 0.25rem;
-  }
-  .sb-select option {
-    background: var(--color-bg);
-    color: var(--color-fg);
-  }
-
   /* ---------- Per-card mini progress bar ---------- */
   [data-tutorial-slug] {
     display: flex;
