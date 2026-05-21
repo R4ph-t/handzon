@@ -73,35 +73,6 @@
   .fb-divider { display: none; }
 }
 
-/* ---------- Popular topics (inline pills) ---------- */
-
-.fb-popular-tags {
-  display: flex;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-}
-
-.pill {
-  padding: 0.3rem 0.65rem;
-  border: 1px solid var(--color-border);
-  background: transparent;
-  color: var(--color-muted);
-  font-family: var(--font-mono);
-  font-size: 0.75em;
-  cursor: pointer;
-  text-transform: lowercase;
-  transition: border-color 0.12s ease, color 0.12s ease, background 0.12s ease;
-}
-.pill:hover {
-  border-color: var(--color-accent);
-  color: var(--color-fg);
-}
-.pill.is-active {
-  background: var(--color-accent);
-  color: var(--color-accent-fg);
-  border-color: var(--color-accent);
-}
-
 /* ---------- Active filter chips ---------- */
 
 .active-filters {

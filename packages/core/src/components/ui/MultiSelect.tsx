@@ -104,13 +104,16 @@ export default function MultiSelect({
   }
 
   function summary(): string {
-    if (values.size === 0) return label;
+    // The label chip on the left already names the facet ("LEVEL",
+    // "TOPICS"), so the trigger body only carries the *value* — no
+    // repeat. Empty state reads "Any" (meaning "no filter applied").
+    if (values.size === 0) return "Any";
     if (values.size === 1) {
       const only = [...values][0];
       const match = options.find((o) => o.value === only);
-      return `${label}: ${match?.label ?? only}`;
+      return match?.label ?? only;
     }
-    return `${label}: ${values.size}`;
+    return `${values.size} selected`;
   }
 
   function onOptionKey(e: KeyboardEvent<HTMLDivElement>, idx: number) {
@@ -140,10 +143,14 @@ export default function MultiSelect({
           aria-label={ariaLabel ?? label}
           data-active={values.size > 0 || undefined}
         >
-          <span className="hz-dd-label">{label}</span>
+          <span className="hz-dd-label hz-ms-label">
+            {triggerIcon && <span className="hz-ms-label-icon">{triggerIcon}</span>}
+            <span>{label}</span>
+          </span>
           <span className="hz-dd-trigger hz-ms-trigger-body">
-            {triggerIcon && <span className="hz-dd-tricon">{triggerIcon}</span>}
-            <span className="hz-ms-value">{summary()}</span>
+            <span className="hz-ms-value" data-empty={values.size === 0 || undefined}>
+              {summary()}
+            </span>
             <span className="hz-dd-caret">
               <ChevronDown size={14} aria-hidden="true" />
             </span>
@@ -191,7 +198,7 @@ export default function MultiSelect({
                     <span className="hz-ms-check" aria-hidden="true">
                       {checked && <Check size={12} />}
                     </span>
-                    <span className="hz-ms-label">{opt.label}</span>
+                    <span className="hz-ms-option-label">{opt.label}</span>
                     <span className="hz-ms-count">{opt.count}</span>
                   </div>
                 );

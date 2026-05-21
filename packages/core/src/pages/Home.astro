@@ -51,12 +51,6 @@ for (const t of tutorials) {
   difficultyCounts[t.data.difficulty] = (difficultyCounts[t.data.difficulty] ?? 0) + 1;
   for (const tag of t.data.tags) tagCounts[tag] = (tagCounts[tag] ?? 0) + 1;
 }
-// Top tags by count rendered inline below the toolbar so the at-a-glance
-// topic map survives the move to a dropdown.
-const popularTags = Object.entries(tagCounts)
-  .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
-  .slice(0, 6)
-  .map(([t]) => t);
 ---
 <BaseLayout
   siteName={siteName}
@@ -79,7 +73,6 @@ const popularTags = Object.entries(tagCounts)
       tags={tags}
       difficultyCounts={difficultyCounts}
       tagCounts={tagCounts}
-      popularTags={popularTags}
     />
 
     <div class="results-status" data-results-status aria-live="polite"></div>

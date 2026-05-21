@@ -11,9 +11,6 @@ interface Props {
   difficultyCounts: Record<string, number>;
   /** Hit counts per tag, server-computed. */
   tagCounts: Record<string, number>;
-  /** Top tags by count (server-curated) shown inline below the toolbar
-   *  so the at-a-glance topic map survives the move to a dropdown. */
-  popularTags: string[];
 }
 
 interface FilterState {
@@ -103,7 +100,6 @@ export default function FilterBar({
   tags,
   difficultyCounts,
   tagCounts,
-  popularTags,
 }: Props) {
   const [state, setState] = useState<FilterState>(readUrlState);
 
@@ -120,14 +116,6 @@ export default function FilterBar({
   }
   function setTags(next: Set<string>) {
     setState((prev) => ({ ...prev, tags: next }));
-  }
-  function toggleTag(tag: string) {
-    setState((prev) => {
-      const next = new Set(prev.tags);
-      if (next.has(tag)) next.delete(tag);
-      else next.add(tag);
-      return { ...prev, tags: next };
-    });
   }
   function removeLevel(level: string) {
     setState((prev) => {
@@ -198,22 +186,6 @@ export default function FilterBar({
           <SortBar />
         </div>
       </div>
-
-      {popularTags.length > 0 && (
-        <div className="fb-popular-tags" role="group" aria-label="Popular topics">
-          {popularTags.map((t) => (
-            <button
-              key={t}
-              type="button"
-              className={`pill ${state.tags.has(t) ? "is-active" : ""}`}
-              onClick={() => toggleTag(t)}
-              aria-pressed={state.tags.has(t)}
-            >
-              #{t}
-            </button>
-          ))}
-        </div>
-      )}
 
       {hasActive && (
         <ActiveFilterChips
