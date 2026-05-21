@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
  *  - signed-out: a "Sign in with GitHub" form-post button
  *  - signed-in:  avatar + name + sign-out icon button
  *  - nothing:    if the auth-astro integration isn't wired (the
- *                endpoints 404), so dropping handzon-ui into a Tier-1
+ *                endpoints 404), so dropping handzon-core into a Tier-1
  *                scaffold doesn't surface dead UI
  *
  * Lives as a `client:only="react"` island instead of an Astro component

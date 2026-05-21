@@ -2,7 +2,7 @@
  * Handzon framework styles. Consumers should chain this with their own
  * theme tokens:
  *
- *   @import "handzon-ui/styles/global.css";
+ *   @import "handzon-core/styles/global.css";
  *   @import "./themes/<chosen>.css";
  *
  * Theme tokens (--color-*, --font-*, --border-*, --shadow-*) are NOT

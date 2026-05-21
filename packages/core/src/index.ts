@@ -2,7 +2,7 @@
  * Handzon framework — public API surface.
  *
  * .astro and .tsx components are NOT re-exported here; consumers import
- * them by subpath (e.g. `import BaseLayout from "handzon-ui/layouts/BaseLayout.astro"`).
+ * them by subpath (e.g. `import BaseLayout from "handzon-core/layouts/BaseLayout.astro"`).
  * Astro can only resolve `.astro` files through the package's `exports`
  * map, not through a barrel re-export, so this file ships only TS values
  * and types.

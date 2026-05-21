@@ -25,7 +25,7 @@
     "astro": "^6.3.5",
     "astro-expressive-code": "^0.42.0",
     "auth-astro": "^4.2.0",
-    "handzon-ui": "workspace:*",
+    "handzon-core": "workspace:*",
     "handzon-ai": "workspace:*",
     "mermaid": "^11.15.0",
     "react": "^19.2.6",

@@ -1,5 +1,44 @@
 # Changelog
 
+## 0.6.0
+
+**Rename: `handzon-ui` → `handzon-core`.**
+
+The framework package collected server handlers, the database schema,
+auth config, and runtime libs alongside the actual UI. The name no
+longer matched what was inside, and the same misnomer was about to
+get worse with the new migration runner. Renaming once before the
+package gains more non-UI surface area is cheaper than splitting
+later.
+
+The new `handzon-core` also hosts `runMigrations()`, the Drizzle
+migration runner that the scaffold's `db:migrate` script used to
+import directly. The scaffold no longer pulls `drizzle-orm` into
+its own dependency closure — which fixes a Render pre-deploy crash
+(`ERR_MODULE_NOT_FOUND: Cannot find package 'drizzle-orm'`) that
+struck any deploy without `shamefully-hoist=true` on the workspace
+`.npmrc`.
+
+### Migration for existing 0.5.x scaffolds
+
+1. `pnpm remove handzon-ui` and `pnpm add handzon-core@^0.6.0`.
+2. Search-and-replace `handzon-ui` → `handzon-core` across the
+   scaffold source. The 8–10 sites are typically: `auth.config.ts`,
+   `astro.config.mjs`, `drizzle.config.ts` (the `schema:` path
+   includes the package name), `src/content.config.ts`,
+   `src/config/{site,ai}.ts`, `src/styles/global.css`'s `@import`,
+   and the `src/pages/{healthz.ts,api/**,**.astro}` re-exports.
+3. Rewrite `src/db/migrate.ts` to a thin re-export:
+   ```ts
+   import { runMigrations } from "handzon-core/server/db/migrate.ts";
+   runMigrations("./drizzle")
+     .then(() => process.exit(0))
+     .catch((e) => { console.error(e); process.exit(1); });
+   ```
+4. `pnpm install` to refresh the lockfile.
+
+`handzon-ui` 0.5.0 stays on npm but receives no further releases.
+
 ## 0.5.1 (`create-handzon` only)
 
 - Bundled-template version pins are now read from

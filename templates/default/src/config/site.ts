@@ -1,7 +1,7 @@
 /**
  * Site-wide config. Edit this file to rebrand your scaffold without
  * touching framework code. Every value here is plumbed through the
- * thin scaffold pages into handzon-ui's layouts/components.
+ * thin scaffold pages into handzon-core's layouts/components.
  */
 export const site = {
   /** Browser tab title suffix and OG meta name. */

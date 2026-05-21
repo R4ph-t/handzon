@@ -190,7 +190,7 @@ export async function runInit(opts: InitOptions = {}): Promise<void> {
   // type comes from handzon — the scaffold just supplies values.
   await writeFile(
     join(targetDir, "src/config/ai.ts"),
-    `import type { AiConfig } from "handzon-ui";
+    `import type { AiConfig } from "handzon-core";
 
 export const aiDefaults: AiConfig = {
   enabled: ${aiEnabled},

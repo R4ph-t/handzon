@@ -1,1 +1,1 @@
-export { GET } from "handzon-ui/server/handlers/tutorialStats.ts";
+export { GET } from "handzon-core/server/handlers/tutorialStats.ts";

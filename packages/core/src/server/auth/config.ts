@@ -3,8 +3,8 @@
  *
  * Usage (scaffold side):
  *
- *   import { createAuthConfig } from "handzon-ui/server/auth/config";
- *   import { getDb } from "handzon-ui/server/db/client";
+ *   import { createAuthConfig } from "handzon-core/server/auth/config";
+ *   import { getDb } from "handzon-core/server/db/client";
  *   export default createAuthConfig({ db: getDb() });
  *
  * GitHub is the only provider in 0.2; email/password and others are

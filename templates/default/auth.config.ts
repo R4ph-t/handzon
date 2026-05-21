@@ -1,5 +1,5 @@
-import { createAuthConfig } from "handzon-ui/server/auth/config.ts";
-import { getDb } from "handzon-ui/server/db/client.ts";
+import { createAuthConfig } from "handzon-core/server/auth/config.ts";
+import { getDb } from "handzon-core/server/db/client.ts";
 
 // auth-astro picks this file up automatically from the project root.
 // We defer the drizzle client until DATABASE_URL is set so Tier 1

@@ -58,29 +58,7 @@ importers:
         specifier: ^6.0.3
         version: 6.0.3
 
-  packages/create-handzon:
-    dependencies:
-      '@clack/prompts':
-        specifier: ^1.4.0
-        version: 1.4.0
-      picocolors:
-        specifier: ^1.1.1
-        version: 1.1.1
-    devDependencies:
-      '@types/node':
-        specifier: ^25.9.1
-        version: 25.9.1
-      tsup:
-        specifier: ^8.5.1
-        version: 8.5.1(jiti@2.7.0)(postcss@8.5.15)(tsx@4.22.3)(typescript@6.0.3)(yaml@2.9.0)
-      tsx:
-        specifier: ^4.22.3
-        version: 4.22.3
-      typescript:
-        specifier: ^6.0.3
-        version: 6.0.3
-
-  packages/ui:
+  packages/core:
     dependencies:
       '@auth/core':
         specifier: ^0.37.3
@@ -156,6 +134,28 @@ importers:
         specifier: ^6.0.3
         version: 6.0.3
 
+  packages/create-handzon:
+    dependencies:
+      '@clack/prompts':
+        specifier: ^1.4.0
+        version: 1.4.0
+      picocolors:
+        specifier: ^1.1.1
+        version: 1.1.1
+    devDependencies:
+      '@types/node':
+        specifier: ^25.9.1
+        version: 25.9.1
+      tsup:
+        specifier: ^8.5.1
+        version: 8.5.1(jiti@2.7.0)(postcss@8.5.15)(tsx@4.22.3)(typescript@6.0.3)(yaml@2.9.0)
+      tsx:
+        specifier: ^4.22.3
+        version: 4.22.3
+      typescript:
+        specifier: ^6.0.3
+        version: 6.0.3
+
   templates/default:
     dependencies:
       '@astrojs/mdx':
@@ -182,9 +182,9 @@ importers:
       handzon-ai:
         specifier: workspace:*
         version: link:../../packages/ai
-      handzon-ui:
+      handzon-core:
         specifier: workspace:*
-        version: link:../../packages/ui
+        version: link:../../packages/core
       mermaid:
         specifier: ^11.15.0
         version: 11.15.0

@@ -4,7 +4,7 @@
  * Scaffolds wire these into their `src/content.config.ts`:
  *
  *   import { defineCollection } from "astro:content";
- *   import { tutorialsLoader, tutorialsSchema, stepsLoader, stepsSchema } from "handzon-ui/collections.ts";
+ *   import { tutorialsLoader, tutorialsSchema, stepsLoader, stepsSchema } from "handzon-core/collections.ts";
  *
  *   export const collections = {
  *     tutorials: defineCollection({ loader: tutorialsLoader(), schema: tutorialsSchema }),

@@ -1,4 +1,4 @@
-import type { AiConfig } from "handzon-ui";
+import type { AiConfig } from "handzon-core";
 
 export const aiDefaults: AiConfig = {
   enabled: true,

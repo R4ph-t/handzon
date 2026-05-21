@@ -1,1 +1,1 @@
-export { GET } from "handzon-ui/server/handlers/healthz.ts";
+export { GET } from "handzon-core/server/handlers/healthz.ts";

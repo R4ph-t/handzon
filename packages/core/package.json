@@ -1,7 +1,7 @@
 {
-  "name": "handzon-ui",
-  "version": "0.5.0",
-  "description": "UI framework for Handzon — layouts, components, lib, styles consumed by Handzon scaffolds.",
+  "name": "handzon-core",
+  "version": "0.6.0",
+  "description": "Core framework for Handzon — layouts, components, content + AI libs, and server runtime (handlers, DB, auth, migration runner) consumed by Handzon scaffolds.",
   "publishConfig": {
     "access": "public"
   },
@@ -35,7 +35,7 @@
     "./styles/*": "./styles/*"
   },
   "scripts": {
-    "build": "echo 'handzon-ui ships source — Astro type-checks at consume time'"
+    "build": "echo 'handzon-core ships source — Astro type-checks at consume time'"
   },
   "peerDependencies": {
     "astro": "^6.0.0",

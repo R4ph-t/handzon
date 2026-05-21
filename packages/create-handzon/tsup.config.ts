@@ -21,7 +21,7 @@ const EXCLUDED_SEGMENTS = new Set([
 // bundled template can't drift from the actual published packages.
 // Historical bug: WORKSPACE_DEPS_TO_VERSIONS used to be a hardcoded
 // `"handzon-ui": "^0.3.0"`, which silently froze fresh scaffolds at
-// 0.3.5 even after handzon-ui had moved to 0.4.x. Reading the
+// 0.3.5 even after handzon-ui (now handzon-core) had moved on. Reading the
 // version inline removes the need to remember to keep two files in
 // sync at release time.
 function readWorkspaceVersion(workspaceRelPath: string): string {
@@ -40,7 +40,7 @@ function readWorkspaceVersion(workspaceRelPath: string): string {
 // Workspace deps that need to point at published versions in the
 // bundled template — see `rewriteWorkspaceDeps()` below.
 const WORKSPACE_DEPS_TO_VERSIONS: Record<string, string> = {
-  "handzon-ui": readWorkspaceVersion("packages/ui"),
+  "handzon-core": readWorkspaceVersion("packages/core"),
   "handzon-ai": readWorkspaceVersion("packages/ai"),
 };
 

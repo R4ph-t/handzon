@@ -4,7 +4,7 @@ import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "astro/config";
 import expressiveCode from "astro-expressive-code";
 import auth from "auth-astro";
-import rehypeMermaidPassthrough from "handzon-ui/lib/rehype-mermaid-passthrough.ts";
+import rehypeMermaidPassthrough from "handzon-core/lib/rehype-mermaid-passthrough.ts";
 
 // Markdown-level config (shared by .md and .mdx); EC auto-extends it.
 
@@ -66,7 +66,7 @@ export default defineConfig({
       // dayjs, …) with proper ESM interop. Without this, hydration
       // dies with "does not provide an export named 'default'".
       // Both must be top-level deps of the scaffold so Vite can
-      // resolve them — handzon-ui declares them too but pnpm hides
+      // resolve them — handzon-core declares them too but pnpm hides
       // transitives in .pnpm/ where Vite's project-root scan can't
       // see them.
       include: ["react-markdown", "mermaid"],
