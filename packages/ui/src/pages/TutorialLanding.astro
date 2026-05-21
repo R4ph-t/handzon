@@ -34,7 +34,6 @@ const firstStepSlug = steps[0] ? parseStepId(steps[0].id).stepSlug : null;
         <span class={`pill pill-${tutorial.data.difficulty}`}>{tutorial.data.difficulty}</span>
         {duration && <span class="pill pill-neutral">⏱ {duration}</span>}
         <span class="pill pill-neutral">{steps.length} {steps.length === 1 ? "step" : "steps"}</span>
-        {tutorial.data.tags.map((tag) => <span class="pill pill-soft">#{tag}</span>)}
       </div>
 
       <h1>{tutorial.data.title}</h1>
@@ -56,6 +55,14 @@ const firstStepSlug = steps[0] ? parseStepId(steps[0].id).stepSlug : null;
           </div>
         )}
       </div>
+
+      {tutorial.data.tags.length > 0 && (
+        <div class="hero-tags" aria-label="Topics">
+          {tutorial.data.tags.map((tag) => (
+            <a class="hero-tag" href={`/?tag=${encodeURIComponent(tag)}`}>#{tag}</a>
+          ))}
+        </div>
+      )}
     </header>
 
     {tutorial.data.prerequisites.length > 0 && (
@@ -160,6 +167,26 @@ const firstStepSlug = steps[0] ? parseStepId(steps[0].id).stepSlug : null;
   .pill-beginner { color: var(--color-success); border-color: var(--color-success); }
   .pill-intermediate { color: var(--color-warn); border-color: var(--color-warn); }
   .pill-advanced { color: var(--color-danger); border-color: var(--color-danger); }
+
+  /* Topics — quiet, hash-prefixed, sitting below the CTA. No pill
+   * boxes (which fought with the difficulty/duration row); just
+   * monospace muted text, clickable to filter the homepage. */
+  .hero-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem 1rem;
+    margin-top: 1.75rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--color-border);
+  }
+  .hero-tag {
+    font-family: var(--font-mono);
+    font-size: 0.75em;
+    color: var(--color-muted);
+    text-decoration: none;
+    transition: color 0.12s ease;
+  }
+  .hero-tag:hover { color: var(--color-accent); }
   h1 {
     font-size: clamp(2.1rem, 4.5vw, 3rem);
     font-weight: 800;
