@@ -16,10 +16,6 @@
 #
 # Migrations run automatically via `preDeployCommand` on the site service.
 
-previews:
-  generation: automatic
-  expireAfterDays: 7
-
 projects:
   - name: __PROJECT_NAME__
     environments:

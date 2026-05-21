@@ -15,10 +15,6 @@
 # users/accounts/sessions tables. Use render.full.yaml (Tier 2) if you
 # want learners to sign in.
 
-previews:
-  generation: automatic
-  expireAfterDays: 7
-
 projects:
   - name: __PROJECT_NAME__
     environments:
