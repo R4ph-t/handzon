@@ -1,7 +1,6 @@
 {
   "title": "Build a TODO app with React",
   "description": "Scaffold a Vite + React app, add state, forms, and localStorage persistence.",
-  "order": 2,
   "tags": ["react", "vite", "frontend", "javascript"],
   "difficulty": "beginner",
   "estimatedDuration": "30 min",

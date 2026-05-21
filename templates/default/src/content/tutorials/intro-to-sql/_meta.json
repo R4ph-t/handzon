@@ -1,7 +1,6 @@
 {
   "title": "Intro to SQL",
   "description": "Master SELECT, JOINs, and aggregations against a sample database.",
-  "order": 3,
   "tags": ["sql", "databases", "postgres"],
   "difficulty": "beginner",
   "estimatedDuration": "25 min",
