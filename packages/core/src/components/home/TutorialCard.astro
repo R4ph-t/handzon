@@ -48,6 +48,11 @@ const slug = tutorial.id;
             {duration}
           </span>
         )}
+        <span
+          class="card-progress"
+          data-tutorial-slug={slug}
+          data-step-count={stepCount}
+        ></span>
       </div>
       {data.tags.length > 0 && (
         <div class="tags">
@@ -59,7 +64,6 @@ const slug = tutorial.id;
         data-tutorial-stats-slug={slug}
         aria-hidden="true"
       ></div>
-      <div class="card-progress" data-tutorial-slug={slug} data-step-count={stepCount}></div>
     </div>
   </a>
 </article>
@@ -167,7 +171,41 @@ const slug = tutorial.id;
     color: var(--color-muted);
   }
 
-  .card-progress:not(:empty) { padding-top: 0.5rem; }
+  /* Per-card completion ring, hydrated by the home-page script.
+   * Sits inside the `.badges` row, pushed to the right edge so it
+   * lines up with the level + duration chips on the same baseline. */
+  .card-progress {
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: var(--font-mono);
+    font-size: 0.68em;
+    color: var(--color-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .card-progress:empty { display: none; }
+  .card-progress .ring {
+    /* Start the fill at 12 o'clock. */
+    transform: rotate(-90deg);
+    flex-shrink: 0;
+  }
+  .card-progress .ring-track {
+    fill: none;
+    stroke: var(--color-border);
+    stroke-width: 2.5;
+  }
+  .card-progress .ring-fill {
+    fill: none;
+    stroke: var(--color-accent);
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 0.3s ease;
+  }
+  .card-progress .ring-label {
+    color: var(--color-accent);
+  }
 
   /* Cross-learner popularity, hydrated from /api/tutorials/stats.
    * Hidden until the script populates content so the card height

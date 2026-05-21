@@ -104,6 +104,9 @@ const compactTutorials = tutorials.map((t) => ({ slug: t.id, title: t.data.title
         if (!slug) continue;
         completed.set(slug, (completed.get(slug) ?? 0) + 1);
       }
+      // SVG ring geometry: r=9 → circumference 2π·9 ≈ 56.5485.
+      const R = 9;
+      const C = 2 * Math.PI * R;
       document.querySelectorAll<HTMLElement>("[data-tutorial-slug]").forEach((el) => {
         const slug = el.dataset.tutorialSlug!;
         const total = Number(el.dataset.stepCount ?? "0");
@@ -112,8 +115,17 @@ const compactTutorials = tutorials.map((t) => ({ slug: t.id, title: t.data.title
           el.innerHTML = "";
           return;
         }
-        const pct = Math.round((done / total) * 100);
-        el.innerHTML = `<div class="mini-bar"><div style="width:${pct}%"></div></div><span>${done}/${total} steps</span>`;
+        const pct = done / total;
+        const offset = C * (1 - pct);
+        el.setAttribute("title", `${done} of ${total} steps complete`);
+        el.innerHTML =
+          `<span class="ring-label">${done}/${total}</span>` +
+          `<svg class="ring" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">` +
+            `<circle class="ring-track" cx="12" cy="12" r="${R}"></circle>` +
+            `<circle class="ring-fill" cx="12" cy="12" r="${R}" ` +
+              `stroke-dasharray="${C.toFixed(2)}" ` +
+              `stroke-dashoffset="${offset.toFixed(2)}"></circle>` +
+          `</svg>`;
       });
     }
     refresh();
@@ -404,21 +416,4 @@ const compactTutorials = tutorials.map((t) => ({ slug: t.id, title: t.data.title
   }
   .pg-status strong { color: var(--color-fg); }
 
-  /* ---------- Per-card mini progress bar ---------- */
-  [data-tutorial-slug] {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-top: 0.75rem;
-    font-family: var(--font-mono);
-    font-size: 0.7em;
-    color: var(--color-muted);
-  }
-  .mini-bar {
-    flex: 1;
-    height: 3px;
-    background: var(--color-surface);
-    overflow: hidden;
-  }
-  .mini-bar div { background: var(--color-accent); height: 100%; }
 </style>
