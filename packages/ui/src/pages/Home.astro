@@ -170,8 +170,12 @@ const compactTutorials = tutorials.map((t) => ({ slug: t.id, title: t.data.title
   .fb-row-primary {
     display: flex;
     gap: 0.75rem;
-    align-items: center;
+    align-items: stretch;
     flex-wrap: wrap;
+  }
+  /* Stretch the pills group itself so each pill can flex to row height */
+  .fb-row-primary .pills {
+    align-items: stretch;
   }
   .filterbar .search {
     flex: 1 1 22rem;
@@ -212,12 +216,14 @@ const compactTutorials = tutorials.map((t) => ({ slug: t.id, title: t.data.title
     text-transform: lowercase;
     transition: border-color 0.12s ease, color 0.12s ease, background 0.12s ease;
   }
-  /* Pills in the primary row (difficulty + clear) match the search
-   * input's height so the whole row reads as one strip. Tag pills
+  /* Pills in the primary row stretch to match the search input's
+   * height so the whole row reads as one strip. align-items on the
+   * inner flex re-centers the text within each grown pill. Tag pills
    * stay compact on the secondary row. */
   .fb-row-primary .pill,
   .fb-row-primary .clear {
-    padding: 0.45rem 0.85rem;
+    padding: 0 0.85rem;
+    align-items: center;
   }
   .pill:hover {
     border-color: var(--color-accent);
