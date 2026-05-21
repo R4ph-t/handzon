@@ -292,7 +292,11 @@ export type { AiConfig };
   if (initGit) {
     s.start("Initializing git");
     await new Promise<void>((res, rej) => {
-      const child = spawn("git", ["init"], { cwd: targetDir, stdio: "ignore" });
+      // `-b main` lands on `refs/heads/main` from the first commit
+      // instead of inheriting the user's `init.defaultBranch` (which
+      // defaults to `master` on stock git, with a deprecation warning).
+      // Requires git >= 2.28 (July 2020).
+      const child = spawn("git", ["init", "-b", "main"], { cwd: targetDir, stdio: "ignore" });
       child.on("exit", (code) => (code === 0 ? res() : rej(new Error(`git init exited ${code}`))));
     }).catch(() => { });
     s.stop("Git initialized");

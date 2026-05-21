@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.6.2 (`create-handzon` only)
+
+`init` now runs `git init -b main` instead of plain `git init`, so
+fresh scaffolds land on the `main` branch regardless of the user's
+`init.defaultBranch` setting. Requires git >= 2.28 (July 2020).
+
 ## 0.6.1 (`create-handzon` only)
 
 Fixes a 403 "Cross-site POST form submissions are forbidden" on every
