@@ -100,17 +100,28 @@ const {
 </BaseLayout>
 
 <style>
+  /* Draw the sidebar/main divider as a background line on the grid
+   * itself: 1px-thin vertical strip at the 280px column boundary,
+   * from the top of the layout to the bottom. The grid auto-stretches
+   * to fit its content, so the line runs all the way down to the
+   * footer regardless of step length — without piggybacking on the
+   * (sticky, viewport-height) sidebar's own border. */
   .layout {
     display: grid;
     grid-template-columns: 280px minmax(0, 1fr);
     min-height: 100dvh;
+    background: linear-gradient(
+      to right,
+      transparent 280px,
+      var(--color-border) 280px,
+      var(--color-border) 281px,
+      transparent 281px
+    ) no-repeat;
   }
-  /* The column wrapper is a plain grid cell, so it stretches to the
-   * grid row's height — which means the right border runs all the
-   * way down to the footer even on long step pages. The inner
-   * .sidebar is the one that sticks below the navbar. */
   .sidebar-wrap {
-    border-right: 1px solid var(--color-border);
+    position: sticky;
+    top: var(--hz-nav-height, 3rem);
+    height: calc(100dvh - var(--hz-nav-height, 3rem));
   }
   .main {
     padding: 2rem clamp(1rem, 4vw, 3rem);
