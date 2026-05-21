@@ -8,19 +8,30 @@ A static Astro 5 + MDX site that publishes hands-on, step-by-step tutorials with
 
 ## Content model (read first)
 
-Every tutorial lives in `src/content/tutorials/<NN-slug>/`:
+Every tutorial lives in `src/content/tutorials/<slug>/`:
 
 ```
-src/content/tutorials/02-react-todo/
+src/content/tutorials/react-todo/
 ├── _meta.json            # tutorial-level config
 ├── 01-setup.mdx          → /react-todo/setup
 ├── 02-list.mdx           → /react-todo/list
 └── assets/cover.png      # co-located assets (preferred)
 ```
 
-- The numeric prefix on **folders** is the order tutorials appear on the homepage.
-- The numeric prefix on **files** is the step order within a tutorial.
-- The slug (everything after the prefix) becomes the URL segment.
+- The folder name is the tutorial slug and the URL segment — no numeric prefix.
+- The numeric prefix on **step files** is the step order within a tutorial.
+
+### Tutorial order (`_index.json`)
+
+Homepage order comes from `src/content/tutorials/_index.json`:
+
+```json
+{
+  "order": ["authoring-101", "react-todo", "intro-to-sql"]
+}
+```
+
+Listed tutorials appear first, in array order. Anything not listed is appended after, sorted alphabetically by slug. `pnpm handzon:new` appends new tutorials to `order` automatically; reorder by editing the array.
 
 ### `_meta.json` fields
 

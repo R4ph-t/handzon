@@ -50,12 +50,14 @@ Every `## <Title>` h2 starts a new step. The line right after the heading is usu
 For a codelab with N steps, produce:
 
 ```
-src/content/tutorials/<NN-slug>/
+src/content/tutorials/<slug>/
 ├── _meta.json
 ├── 01-<slugified-step-1>.mdx
 ├── 02-<slugified-step-2>.mdx
 └── …
 ```
+
+After creating the folder, append `<slug>` to the `order` array in `src/content/tutorials/_index.json` (create the file with `{ "order": [] }` if missing) so the tutorial appears on the homepage in the position you want.
 
 Each step file's frontmatter:
 
@@ -99,7 +101,7 @@ If the author wants gated progression, also set `"gated": true` in `_meta.json`.
 
 ## 5. Move images
 
-Codelabs reference images via `img/foo.png` relative paths. Copy them to `src/content/tutorials/<NN-slug>/assets/` and update markdown links to `./assets/foo.png`. Astro's image pipeline will optimize them automatically.
+Codelabs reference images via `img/foo.png` relative paths. Copy them to `src/content/tutorials/<slug>/assets/` and update markdown links to `./assets/foo.png`. Astro's image pipeline will optimize them automatically.
 
 If the codelab has a hero image, set it as `cover` in `_meta.json`.
 
@@ -127,6 +129,7 @@ If the codelab links to API docs, drop the doc URLs into `_meta.json.ai.referenc
 ## Quick checklist
 
 - [ ] `_meta.json` written with title, description, tags, author, feedback URL.
+- [ ] Tutorial slug appended to `src/content/tutorials/_index.json`'s `order` array.
 - [ ] One MDX file per `##` step, numeric-prefixed.
 - [ ] Step `duration` in frontmatter (codelab `Duration: M:SS` → `M min`).
 - [ ] All `Positive`/`Negative` blocks converted to `<Callout>`.
