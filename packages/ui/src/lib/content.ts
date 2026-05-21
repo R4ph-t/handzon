@@ -6,17 +6,23 @@ export type StepEntry = CollectionEntry<"steps">;
 const STEP_PREFIX = /^(\d+)-(.+)$/;
 
 /**
- * Parse a step's collection id ("02-react-todo/01-setup") into its parts.
+ * Parse a step's collection id ("react-todo/01-setup") into its parts.
+ * Tutorial slug is the verbatim first path segment; step ordering comes
+ * from the file's numeric prefix.
  */
 export function parseStepId(id: string): { tutorialSlug: string; stepSlug: string; order: number } {
-  const [tutorialDir, stepFile] = id.split("/");
-  if (!tutorialDir || !stepFile) {
+  const slash = id.indexOf("/");
+  if (slash < 0) {
     throw new Error(`Unrecognized step id: ${id}`);
   }
-  const tutorialMatch = STEP_PREFIX.exec(tutorialDir);
+  const tutorialSlug = id.slice(0, slash);
+  const stepFile = id.slice(slash + 1);
+  if (!tutorialSlug || !stepFile) {
+    throw new Error(`Unrecognized step id: ${id}`);
+  }
   const stepMatch = STEP_PREFIX.exec(stepFile);
   return {
-    tutorialSlug: tutorialMatch?.[2] ?? tutorialDir,
+    tutorialSlug,
     stepSlug: stepMatch?.[2] ?? stepFile,
     order: stepMatch?.[1] ? Number.parseInt(stepMatch[1], 10) : 0,
   };
@@ -24,7 +30,11 @@ export function parseStepId(id: string): { tutorialSlug: string; stepSlug: strin
 
 export async function getTutorials(): Promise<TutorialEntry[]> {
   const all = await getCollection("tutorials");
-  return all.sort((a, b) => (a.data.order ?? 0) - (b.data.order ?? 0));
+  return all.sort((a, b) => {
+    const ao = (a.data as { order?: number }).order ?? 0;
+    const bo = (b.data as { order?: number }).order ?? 0;
+    return ao - bo;
+  });
 }
 
 export async function getTutorialBySlug(slug: string): Promise<TutorialEntry | undefined> {

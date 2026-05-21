@@ -21,12 +21,24 @@ import type { Loader } from "astro/loaders";
 import { glob } from "astro/loaders";
 
 const TUTORIALS_REL = "src/content/tutorials";
-const STEP_FOLDER = /^\d+-/;
+const INDEX_FILE = "_index.json";
+
+async function readIndexOrder(dir: string): Promise<string[]> {
+  try {
+    const raw = await readFile(join(dir, INDEX_FILE), "utf8");
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed?.order)
+      ? parsed.order.filter((s: unknown) => typeof s === "string")
+      : [];
+  } catch {
+    return [];
+  }
+}
 
 /**
  * Custom loader that scans tutorials/<slug>/_meta.json for each tutorial.
- * Returns entries keyed by the slug-portion of the folder name (everything
- * after the leading numeric prefix).
+ * Tutorial order is driven by `_index.json` at the tutorials root; folder
+ * names are used verbatim as slugs (no numeric prefix expected).
  */
 export function tutorialsLoader(): Loader {
   return {
@@ -37,12 +49,19 @@ export function tutorialsLoader(): Loader {
       let folders: string[] = [];
       try {
         const dirents = await readdir(dir, { withFileTypes: true });
-        folders = dirents
-          .filter((d) => d.isDirectory() && STEP_FOLDER.test(d.name))
-          .map((d) => d.name);
+        folders = dirents.filter((d) => d.isDirectory()).map((d) => d.name);
       } catch {
         return;
       }
+      const indexOrder = await readIndexOrder(dir);
+      const listed = new Set(indexOrder);
+      const unlisted = folders.filter((f) => !listed.has(f)).sort();
+      const orderOf = (slug: string): number => {
+        const i = indexOrder.indexOf(slug);
+        if (i >= 0) return i;
+        const u = unlisted.indexOf(slug);
+        return u >= 0 ? indexOrder.length + u : indexOrder.length + unlisted.length;
+      };
       for (const folder of folders) {
         const metaPath = join(dir, folder, "_meta.json");
         let raw: string;
@@ -52,13 +71,16 @@ export function tutorialsLoader(): Loader {
           continue;
         }
         const parsed = JSON.parse(raw);
-        const slug = folder.replace(STEP_FOLDER, "");
-        const order = parsed.order ?? Number.parseInt(folder.match(/^(\d+)-/)?.[1] ?? "0", 10);
-        const data = await parseData({ id: slug, data: { ...parsed, order } });
-        store.set({ id: slug, data, filePath: relative(process.cwd(), metaPath) });
+        const validated = await parseData({ id: folder, data: parsed });
+        store.set({
+          id: folder,
+          data: { ...validated, order: orderOf(folder) },
+          filePath: relative(process.cwd(), metaPath),
+        });
       }
       if (watcher) {
         watcher.add(`${dir}/**/_meta.json`);
+        watcher.add(join(dir, INDEX_FILE));
       }
     },
   };
@@ -81,13 +103,10 @@ export const stepsSchema = z.object({
 });
 
 /** Schema for tutorial entries. Pass through Astro's image() helper. */
-export function tutorialsSchema({
-  image,
-}: { image: () => import("astro/zod").ZodType }) {
+export function tutorialsSchema({ image }: { image: () => import("astro/zod").ZodType }) {
   return z.object({
     title: z.string(),
     description: z.string(),
-    order: z.number().default(0),
     author: z
       .object({
         name: z.string(),
