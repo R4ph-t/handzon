@@ -18,6 +18,8 @@ interface Props {
   nav?: "full" | "userMenu" | "none";
   /** Logo URL passed to Navbar (when nav === "full"). */
   logoUrl?: string;
+  /** Favicon URL injected into <head>. */
+  faviconUrl?: string;
   /** Show the site footer ("Built with Handzon" + repo link). */
   showFooter?: boolean;
   /** Footer link URL; defaults to the Handzon repo. */
@@ -46,6 +48,7 @@ const {
   tagline = "Hands-on tutorials",
   nav = "full",
   logoUrl = "/logo.svg",
+  faviconUrl = "/favicon.svg",
   showFooter = true,
   repoUrl,
   // Default to a full-width navbar + footer with a small consistent
@@ -66,7 +69,7 @@ const desc = description ?? tagline;
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/svg+xml" href={faviconUrl} />
     <title>{pageTitle}</title>
     <meta name="description" content={desc} />
     <meta property="og:title" content={pageTitle} />

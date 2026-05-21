@@ -4,6 +4,7 @@ import "~/styles/global.css";
 import TutorialStepPage from "handzon-ui/pages/TutorialStep.astro";
 import { getTutorialStepPaths } from "handzon-ui/pages/paths.ts";
 import { aiDefaults } from "~/config/ai";
+import { site } from "~/config/site";
 
 export const getStaticPaths = getTutorialStepPaths;
 
@@ -14,4 +15,9 @@ const { tutorial, steps, currentStep } = Astro.props;
   steps={steps}
   currentStep={currentStep}
   aiDefaults={aiDefaults}
+  siteName={site.name}
+  tagline={site.tagline}
+  logoUrl={site.logo}
+  faviconUrl={site.favicon}
+  repoUrl={site.repoUrl}
 />

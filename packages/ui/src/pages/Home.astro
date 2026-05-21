@@ -11,6 +11,9 @@ interface Props {
   siteName?: string;
   tagline?: string;
   hero?: { title?: string; subtitle?: string };
+  logoUrl?: string;
+  faviconUrl?: string;
+  repoUrl?: string;
   showResumeRail?: boolean;
   emptyStateCommand?: string;
   /** Tutorials per page on the grid. */
@@ -21,6 +24,9 @@ const {
   siteName = "Handzon",
   tagline = "Hands-on tutorials",
   hero,
+  logoUrl,
+  faviconUrl,
+  repoUrl,
   showResumeRail = true,
   emptyStateCommand = "pnpm handzon:new",
   pageSize = 9,
@@ -36,9 +42,16 @@ const difficulties = ["beginner", "intermediate", "advanced"];
 const tags = Array.from(new Set(tutorials.flatMap((t) => t.data.tags))).sort();
 const compactTutorials = tutorials.map((t) => ({ slug: t.id, title: t.data.title }));
 ---
-<BaseLayout siteName={siteName} tagline={tagline} nav="userMenu">
+<BaseLayout
+  siteName={siteName}
+  tagline={tagline}
+  logoUrl={logoUrl}
+  faviconUrl={faviconUrl}
+  repoUrl={repoUrl}
+  nav="userMenu"
+>
   <div class="home">
-    <Hero title={hero?.title} subtitle={hero?.subtitle} />
+    <Hero title={hero?.title} subtitle={hero?.subtitle} logoUrl={logoUrl} />
 
     {showResumeRail && (
       <ResumeRail client:load tutorials={compactTutorials} />

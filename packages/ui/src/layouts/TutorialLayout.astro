@@ -10,13 +10,34 @@ interface Props {
   currentStep: StepEntry;
   currentStepSlug: string;
   hasCheckpoint?: boolean;
+  siteName?: string;
+  tagline?: string;
+  logoUrl?: string;
+  faviconUrl?: string;
+  repoUrl?: string;
 }
 
-const { tutorial, steps, currentStep, currentStepSlug, hasCheckpoint = false } = Astro.props;
+const {
+  tutorial,
+  steps,
+  currentStep,
+  currentStepSlug,
+  hasCheckpoint = false,
+  siteName,
+  tagline,
+  logoUrl,
+  faviconUrl,
+  repoUrl,
+} = Astro.props;
 ---
 <BaseLayout
   title={`${currentStep.data.title} — ${tutorial.data.title}`}
   description={currentStep.data.summary}
+  siteName={siteName}
+  tagline={tagline}
+  logoUrl={logoUrl}
+  faviconUrl={faviconUrl}
+  repoUrl={repoUrl}
 >
   <div class="layout">
     <div class="sidebar-wrap">

@@ -14,9 +14,24 @@ interface Props {
   steps: StepEntry[];
   currentStep: StepEntry;
   aiDefaults: AiConfig;
+  siteName?: string;
+  tagline?: string;
+  logoUrl?: string;
+  faviconUrl?: string;
+  repoUrl?: string;
 }
 
-const { tutorial, steps, currentStep, aiDefaults } = Astro.props;
+const {
+  tutorial,
+  steps,
+  currentStep,
+  aiDefaults,
+  siteName,
+  tagline,
+  logoUrl,
+  faviconUrl,
+  repoUrl,
+} = Astro.props;
 const { stepSlug } = parseStepId(currentStep.id);
 const { Content } = await render(currentStep);
 
@@ -39,6 +54,11 @@ const initialContext = buildContext({
   currentStep={currentStep}
   currentStepSlug={stepSlug}
   hasCheckpoint={hasCheckpoint}
+  siteName={siteName}
+  tagline={tagline}
+  logoUrl={logoUrl}
+  faviconUrl={faviconUrl}
+  repoUrl={repoUrl}
 >
   <Content components={components} />
   {aiConfig.enabled && (
