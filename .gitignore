@@ -13,4 +13,5 @@ coverage/
 .idea/
 *.tsbuildinfo
 .playwright-mcp/
-step-page-state.png
+# Playwright/manual-QA scratch screenshots at the repo root.
+/*.png
