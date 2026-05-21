@@ -5,6 +5,7 @@ import TutorialCard from "../components/home/TutorialCard.astro";
 import FilterBar from "../components/home/FilterBar.tsx";
 import Pagination from "../components/home/Pagination.tsx";
 import ResumeRail from "../components/home/ResumeRail.tsx";
+import SortBar from "../components/home/SortBar.tsx";
 import { getTutorials, getStepsForTutorial, sumDurations } from "../lib/content.ts";
 
 interface Props {
@@ -58,6 +59,10 @@ const compactTutorials = tutorials.map((t) => ({ slug: t.id, title: t.data.title
     )}
 
     <FilterBar client:load difficulties={difficulties} tags={tags} />
+
+    <div class="grid-controls">
+      <SortBar client:load />
+    </div>
 
     <section class="grid">
       {tutorials.map((tut) => {
@@ -194,11 +199,16 @@ const compactTutorials = tutorials.map((t) => ({ slug: t.id, title: t.data.title
     margin: 0 auto;
     padding: 0 clamp(1rem, 4vw, 2rem) 4rem;
   }
+  .grid-controls {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 1.5rem;
+  }
   .grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 1rem;
-    margin-top: 1.5rem;
+    margin-top: 0.75rem;
   }
   .empty {
     margin: 2rem 0;
@@ -387,6 +397,40 @@ const compactTutorials = tutorials.map((t) => ({ slug: t.id, title: t.data.title
     cursor: not-allowed;
   }
   .pg-status strong { color: var(--color-fg); }
+
+  /* ---------- Sort bar (above the grid) ---------- */
+  .sortbar {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.35rem 0.55rem 0.35rem 0.65rem;
+    border: 1px solid var(--color-border);
+    color: var(--color-muted);
+    font-family: var(--font-mono);
+    font-size: 0.78em;
+  }
+  .sortbar:focus-within {
+    border-color: var(--color-accent);
+  }
+  .sb-icon { flex-shrink: 0; }
+  .sb-label {
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    user-select: none;
+  }
+  .sb-select {
+    background: transparent;
+    border: 0;
+    color: var(--color-fg);
+    font: inherit;
+    cursor: pointer;
+    outline: none;
+    padding-right: 0.25rem;
+  }
+  .sb-select option {
+    background: var(--color-bg);
+    color: var(--color-fg);
+  }
 
   /* ---------- Per-card mini progress bar ---------- */
   [data-tutorial-slug] {

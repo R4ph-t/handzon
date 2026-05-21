@@ -85,7 +85,11 @@ const desc = description ?? tagline;
         <UserMenu />
       </div>
     )}
-    <slot />
+    {/* Wrap the slot in a flex-growing region so the footer hugs the
+        bottom of the viewport even when the page content is short. */}
+    <div class="hz-page">
+      <slot />
+    </div>
     {showFooter && <Footer repoUrl={repoUrl} />}
     <script>
       // Render any <pre class="mermaid"> blocks emitted by rehype-mermaid.
@@ -98,6 +102,25 @@ const desc = description ?? tagline;
     </script>
 
     <style is:global>
+      /* Sticky-footer layout: body is a flex column at viewport height
+       * minimum; the page-content region grows to fill, pushing the
+       * footer to the bottom when content is short. */
+      html, body {
+        min-height: 100dvh;
+      }
+      body {
+        display: flex;
+        flex-direction: column;
+      }
+      .hz-page {
+        flex: 1 0 auto;
+        display: flex;
+        flex-direction: column;
+      }
+      .hz-page > * {
+        flex: 1 0 auto;
+      }
+
       .hz-topbar {
         position: fixed;
         top: 0.75rem;

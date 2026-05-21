@@ -73,22 +73,29 @@ export default function UserMenu() {
   const user = session?.user;
   const callbackUrl = typeof window !== "undefined" ? window.location.href : "/";
 
+  // Compact label for the topbar: first word of `name`, falling back
+  // to the local part of `email`, falling back to a generic. Full name
+  // / email stays in the `alt` text and `title` for accessibility +
+  // long-form context.
+  const fullLabel = user?.name ?? user?.email ?? "Signed in";
+  const displayName = user
+    ? (user.name ? user.name.trim().split(/\s+/)[0] : null) ??
+      (user.email ? user.email.split("@")[0] : null) ??
+      "Signed in"
+    : "";
+
   return (
     <div className="user-menu">
       {user ? (
         <>
           {user.image ? (
-            <img
-              className="um-avatar"
-              src={user.image}
-              alt={user.name ?? user.email ?? "Signed in"}
-            />
+            <img className="um-avatar" src={user.image} alt={fullLabel} />
           ) : (
             <span className="um-avatar um-avatar-fallback" aria-hidden="true">
-              {(user.name ?? user.email ?? "?").trim().charAt(0).toUpperCase()}
+              {fullLabel.trim().charAt(0).toUpperCase()}
             </span>
           )}
-          <span className="um-name">{user.name ?? user.email ?? "Signed in"}</span>
+          <span className="um-name" title={fullLabel}>{displayName}</span>
           <form method="post" action="/api/auth/signout">
             <input type="hidden" name="csrfToken" value={csrfToken} />
             <input type="hidden" name="callbackUrl" value={callbackUrl} />
