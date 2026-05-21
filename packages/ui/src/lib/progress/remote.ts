@@ -76,6 +76,15 @@ function diffState(prev: ProgressState, next: ProgressState): ProgressEntry[] {
       out.push({ kind: "lastVisited", scope, key: "step", value });
     }
   }
+  for (const [scope, marker] of Object.entries(next.tutorials)) {
+    const prevMarker = prev.tutorials[scope] ?? {};
+    if (marker.started && prevMarker.started !== marker.started) {
+      out.push({ kind: "tutorial", scope, key: "started", value: { ts: marker.started } });
+    }
+    if (marker.completed && prevMarker.completed !== marker.completed) {
+      out.push({ kind: "tutorial", scope, key: "completed", value: { ts: marker.completed } });
+    }
+  }
   return out;
 }
 
@@ -149,6 +158,12 @@ export function createRemoteStore(): ProgressStore {
             const v = e.value as unknown;
             merged.lastVisited[e.scope] =
               typeof v === "string" ? { step: v, ts: 0 } : (v as { step: string; ts: number });
+          } else if (e.kind === "tutorial") {
+            const v = (e.value as { ts?: number }) ?? {};
+            const marker = merged.tutorials[e.scope] ?? {};
+            if (e.key === "started") marker.started = v.ts;
+            else if (e.key === "completed") marker.completed = v.ts;
+            merged.tutorials[e.scope] = marker;
           }
         }
         state = merged;

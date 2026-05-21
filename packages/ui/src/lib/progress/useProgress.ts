@@ -13,6 +13,8 @@ interface ProgressApi {
     value: ProgressState["prefs"][K],
   ) => void;
   setLastVisited: (tutorial: string, step: string) => void;
+  markTutorialStarted: (tutorial: string) => void;
+  markTutorialCompleted: (tutorial: string) => void;
   isStepComplete: (tutorial: string, step: string) => boolean;
 }
 
@@ -61,6 +63,31 @@ export function useProgress(): ProgressApi {
           ...s,
           lastVisited: { ...s.lastVisited, [tutorial]: { step, ts: Date.now() } },
         })),
+      markTutorialStarted: (tutorial: string) =>
+        store.set((s) => {
+          // Idempotent: bail if we already recorded this learner's
+          // "started" event so we don't spam /api/progress on every
+          // navigation.
+          if (s.tutorials[tutorial]?.started) return s;
+          return {
+            ...s,
+            tutorials: {
+              ...s.tutorials,
+              [tutorial]: { ...s.tutorials[tutorial], started: Date.now() },
+            },
+          };
+        }),
+      markTutorialCompleted: (tutorial: string) =>
+        store.set((s) => {
+          if (s.tutorials[tutorial]?.completed) return s;
+          return {
+            ...s,
+            tutorials: {
+              ...s.tutorials,
+              [tutorial]: { ...s.tutorials[tutorial], completed: Date.now() },
+            },
+          };
+        }),
     };
   }, [store]);
 

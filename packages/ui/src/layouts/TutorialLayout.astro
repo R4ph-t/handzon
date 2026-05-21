@@ -2,6 +2,7 @@
 import BaseLayout from "./BaseLayout.astro";
 import Sidebar from "../components/Sidebar.astro";
 import StepNav from "../components/StepNav.astro";
+import { parseStepId } from "../lib/content.ts";
 import type { TutorialEntry, StepEntry } from "../lib/content";
 
 interface Props {
@@ -29,6 +30,8 @@ const {
   faviconUrl,
   repoUrl,
 } = Astro.props;
+
+const stepSlugs = steps.map((s) => parseStepId(s.id).stepSlug);
 ---
 <BaseLayout
   title={`${currentStep.data.title} — ${tutorial.data.title}`}
@@ -79,22 +82,76 @@ const {
     id="tt-route"
     data-tutorial-slug={tutorial.id}
     data-step-slug={currentStepSlug}
+    data-tutorial-steps={JSON.stringify(stepSlugs)}
     hidden
   ></div>
   <script>
-    // Record last-visited from a data marker (set in the markup above).
-    // Using a normal <script> + relative import so Vite resolves the path
-    // alias correctly; define:vars + dynamic import("~/...") bypasses
-    // Vite's resolver and the browser can't load the module.
+    // Record last-visited + popularity markers from a data marker
+    // (set in the markup above). Using a normal <script> + relative
+    // import so Vite resolves the path alias correctly; define:vars +
+    // dynamic import("~/...") bypasses Vite's resolver and the browser
+    // can't load the module.
     import { getStore } from "../lib/progress/local";
     const route = document.getElementById("tt-route");
     if (route) {
       const tutorialSlug = route.dataset.tutorialSlug!;
       const stepSlug = route.dataset.stepSlug!;
-      getStore().set((s) => ({
-        ...s,
-        lastVisited: { ...s.lastVisited, [tutorialSlug]: { step: stepSlug, ts: Date.now() } },
-      }));
+      const tutorialSteps = JSON.parse(
+        route.dataset.tutorialSteps ?? "[]",
+      ) as string[];
+      const store = getStore();
+
+      // Mark last-visited + tutorial "started" on every mount. The
+      // started branch is idempotent: it only writes the timestamp the
+      // first time per learner, so /api/progress sees one POST per
+      // tutorial — not one per page view.
+      store.set((s) => {
+        const nextLastVisited = {
+          ...s.lastVisited,
+          [tutorialSlug]: { step: stepSlug, ts: Date.now() },
+        };
+        if (s.tutorials[tutorialSlug]?.started) {
+          return { ...s, lastVisited: nextLastVisited };
+        }
+        return {
+          ...s,
+          lastVisited: nextLastVisited,
+          tutorials: {
+            ...s.tutorials,
+            [tutorialSlug]: {
+              ...s.tutorials[tutorialSlug],
+              started: Date.now(),
+            },
+          },
+        };
+      });
+
+      // Watch for tutorial completion: once every step in the embedded
+      // list flips to "complete", record the "completed" event exactly
+      // once. Re-runs on store changes so finishing the last step on a
+      // mid-tutorial page (rare) still triggers it.
+      function checkCompletion() {
+        const s = store.get();
+        if (s.tutorials[tutorialSlug]?.completed) return;
+        if (tutorialSteps.length === 0) return;
+        const allDone = tutorialSteps.every(
+          (slug) => s.steps[`${tutorialSlug}/${slug}` as `${string}/${string}`] === "complete",
+        );
+        if (allDone) {
+          store.set((cur) => ({
+            ...cur,
+            tutorials: {
+              ...cur.tutorials,
+              [tutorialSlug]: {
+                ...cur.tutorials[tutorialSlug],
+                completed: Date.now(),
+              },
+            },
+          }));
+        }
+      }
+      checkCompletion();
+      store.subscribe(checkCompletion);
     }
   </script>
 </BaseLayout>

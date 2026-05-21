@@ -5,6 +5,17 @@ export interface LastVisitedEntry {
   ts: number;
 }
 
+/**
+ * Local mirror of the per-learner "I started / finished this tutorial"
+ * markers. We keep them locally so the remote diff is idempotent (no
+ * duplicate POSTs when the user reloads). The server's composite PK
+ * makes re-sends harmless but spamming `/api/progress` is rude.
+ */
+export interface TutorialMarker {
+  started?: number;
+  completed?: number;
+}
+
 export type ProgressState = {
   steps: Record<StepKey, "incomplete" | "complete">;
   quizzes: Record<string, { chosen: number[]; correct: boolean; ts: number }>;
@@ -21,6 +32,12 @@ export type ProgressState = {
    * key is overwritten.
    */
   lastVisited: Record<string, LastVisitedEntry>;
+  /**
+   * Per-tutorial popularity-event markers. Cross-learner aggregates
+   * live on the server (`/api/tutorials/stats`); this map only tracks
+   * what *this* learner has emitted so we can dedupe.
+   */
+  tutorials: Record<string, TutorialMarker>;
 };
 
 export interface ProgressStore {
@@ -35,6 +52,7 @@ export const emptyState = (): ProgressState => ({
   checkpoints: {},
   prefs: {},
   lastVisited: {},
+  tutorials: {},
 });
 
 // TODO: when you change ProgressState's shape in a way that's not
