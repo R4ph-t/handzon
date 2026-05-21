@@ -186,24 +186,27 @@ const slug = tutorial.id;
     letter-spacing: 0.08em;
   }
   .card-progress:empty { display: none; }
-  .card-progress .ring {
+  /* The ring + label live inside `.card-progress` but are injected
+   * via innerHTML at runtime, so Astro's scope hash doesn't apply to
+   * them. Use :global() so the rules still match. */
+  .card-progress :global(.ring) {
     /* Start the fill at 12 o'clock. */
     transform: rotate(-90deg);
     flex-shrink: 0;
   }
-  .card-progress .ring-track {
+  .card-progress :global(.ring-track) {
     fill: none;
     stroke: var(--color-border);
     stroke-width: 2.5;
   }
-  .card-progress .ring-fill {
+  .card-progress :global(.ring-fill) {
     fill: none;
     stroke: var(--color-accent);
     stroke-width: 2.5;
     stroke-linecap: round;
     transition: stroke-dashoffset 0.3s ease;
   }
-  .card-progress .ring-label {
+  .card-progress :global(.ring-label) {
     color: var(--color-accent);
   }
 
