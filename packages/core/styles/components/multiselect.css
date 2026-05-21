@@ -68,11 +68,6 @@
   align-items: center;
   color: var(--color-muted);
 }
-.hz-ms-trigger[data-active] .hz-ms-label-icon,
-.hz-ms-trigger:hover .hz-ms-label-icon,
-.hz-ms-trigger[data-state="open"] .hz-ms-label-icon {
-  color: var(--color-accent);
-}
 
 /* Inherit the trigger's font (already mono + 0.78em via .hz-dd).
  * No font-size override here — it would compound with the parent
