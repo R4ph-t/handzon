@@ -68,7 +68,7 @@ const compactTutorials = tutorials.map((t) => ({ slug: t.id, title: t.data.title
       {tutorials.map((tut) => {
         const steps = stepsByTutorial.get(tut.id) ?? [];
         const dur = tut.data.estimatedDuration ?? sumDurations(steps);
-        return <TutorialCard tutorial={tut} duration={dur} />;
+        return <TutorialCard tutorial={tut} duration={dur} stepCount={steps.length} />;
       })}
     </section>
 
@@ -93,19 +93,25 @@ const compactTutorials = tutorials.map((t) => ({ slug: t.id, title: t.data.title
     import { getStore } from "../lib/progress/local.ts";
     function refresh() {
       const state = getStore().get();
-      const totals = new Map<string, number>();
+      // Only the *numerator* (completed-step count) is computed from
+      // localStorage. The *denominator* comes from the card's
+      // server-rendered `data-step-count` so a learner who's only
+      // visited 1 of 4 steps still sees "1/4", not "1/1".
       const completed = new Map<string, number>();
       for (const [key, value] of Object.entries(state.steps)) {
+        if (value !== "complete") continue;
         const slug = key.split("/")[0];
         if (!slug) continue;
-        totals.set(slug, (totals.get(slug) ?? 0) + 1);
-        if (value === "complete") completed.set(slug, (completed.get(slug) ?? 0) + 1);
+        completed.set(slug, (completed.get(slug) ?? 0) + 1);
       }
       document.querySelectorAll<HTMLElement>("[data-tutorial-slug]").forEach((el) => {
         const slug = el.dataset.tutorialSlug!;
-        const done = completed.get(slug) ?? 0;
-        const total = totals.get(slug) ?? 0;
-        if (total === 0) return;
+        const total = Number(el.dataset.stepCount ?? "0");
+        const done = Math.min(completed.get(slug) ?? 0, total);
+        if (total === 0 || done === 0) {
+          el.innerHTML = "";
+          return;
+        }
         const pct = Math.round((done / total) * 100);
         el.innerHTML = `<div class="mini-bar"><div style="width:${pct}%"></div></div><span>${done}/${total} steps</span>`;
       });

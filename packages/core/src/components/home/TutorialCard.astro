@@ -4,8 +4,14 @@ import type { TutorialEntry } from "../../lib/content";
 interface Props {
   tutorial: TutorialEntry;
   duration?: string;
+  /** Total number of steps in this tutorial. Used as the denominator
+   *  for the per-card progress bar — has to come from the server-side
+   *  content collection because localStorage only holds states for the
+   *  steps the user has visited (so a fresh learner who completed 1 of
+   *  4 steps would otherwise see 1/1). */
+  stepCount: number;
 }
-const { tutorial, duration } = Astro.props;
+const { tutorial, duration, stepCount } = Astro.props;
 const data = tutorial.data;
 const slug = tutorial.id;
 ---
@@ -53,7 +59,7 @@ const slug = tutorial.id;
         data-tutorial-stats-slug={slug}
         aria-hidden="true"
       ></div>
-      <div class="card-progress" data-tutorial-slug={slug}></div>
+      <div class="card-progress" data-tutorial-slug={slug} data-step-count={stepCount}></div>
     </div>
   </a>
 </article>
