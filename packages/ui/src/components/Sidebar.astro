@@ -66,13 +66,15 @@ const slug = tutorial.id;
 
 <style>
   /* Two-zone layout: sticky `.sb-top` (back link + title + progress)
-   * up top, scrollable `.sb-steps` underneath. The wrapper's overflow
-   * lives on the steps list so long tutorials never push the header
-   * out of view. */
+   * up top, scrollable `.sb-steps` underneath. The sidebar itself
+   * sticks below the navbar; the divider against main lives on the
+   * grid column wrapper (.sidebar-wrap) so it spans the full row,
+   * not just the viewport-height sidebar. */
   .sidebar {
-    border-right: var(--border-default, 2px) solid var(--color-border);
+    position: sticky;
+    top: var(--hz-nav-height, 3rem);
+    height: calc(100dvh - var(--hz-nav-height, 3rem));
     background: var(--color-bg);
-    height: 100%;
     display: flex;
     flex-direction: column;
     overflow: hidden;

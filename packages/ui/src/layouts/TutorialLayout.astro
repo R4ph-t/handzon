@@ -105,13 +105,12 @@ const {
     grid-template-columns: 280px minmax(0, 1fr);
     min-height: 100dvh;
   }
-  /* Anchor below the sticky navbar — was top:0 / 100dvh which made
-   * the sidebar slide under the navbar on scroll. */
+  /* The column wrapper is a plain grid cell, so it stretches to the
+   * grid row's height — which means the right border runs all the
+   * way down to the footer even on long step pages. The inner
+   * .sidebar is the one that sticks below the navbar. */
   .sidebar-wrap {
-    position: sticky;
-    top: var(--hz-nav-height, 3rem);
-    height: calc(100dvh - var(--hz-nav-height, 3rem));
-    overflow: hidden;
+    border-right: 1px solid var(--color-border);
   }
   .main {
     padding: 2rem clamp(1rem, 4vw, 3rem);
