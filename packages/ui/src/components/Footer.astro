@@ -42,8 +42,13 @@ const {
 </footer>
 
 <style is:global>
+  /* No margin-top here: the footer's border sits flush against the
+   * preceding block. Pages that need breathing room above the footer
+   * (home grid, tutorial landing) carry their own padding-bottom on
+   * their content column; the tutorial step page wants the sidebar's
+   * right border to meet the footer's top border without a gap, which
+   * only works when this margin is zero. */
   .hz-footer {
-    margin-top: 4rem;
     border-top: 1px solid var(--color-border);
   }
   .hz-footer-inner {
