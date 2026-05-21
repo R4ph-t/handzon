@@ -10,7 +10,7 @@ const MAX_BODY_BYTES = 32 * 1024;
 const MAX_ENTRIES = 200;
 
 const ProgressEntrySchema = z.object({
-  kind: z.enum(["step", "checkpoint", "quiz", "pref", "lastVisited"]),
+  kind: z.enum(["step", "checkpoint", "quiz", "pref", "lastVisited", "tutorial"]),
   scope: z.string().min(1).max(128),
   key: z.string().min(1).max(128),
   value: z.unknown(),

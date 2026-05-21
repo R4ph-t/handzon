@@ -46,7 +46,13 @@ export const progressEntries = pgTable(
     learnerId: uuid("learner_id")
       .notNull()
       .references(() => learners.id, { onDelete: "cascade" }),
-    kind: text("kind").notNull(), // 'step' | 'checkpoint' | 'quiz' | 'pref' | 'lastVisited'
+    // 'step' | 'checkpoint' | 'quiz' | 'pref' | 'lastVisited' | 'tutorial'
+    // The 'tutorial' kind keys aggregate popularity events. Two keys
+    // matter for cross-learner counts: 'started' (first step view per
+    // learner) and 'completed' (all steps in the tutorial complete).
+    // The composite PK guarantees each learner is counted at most once
+    // per (slug, key), so a plain COUNT(*) gives unique-learner totals.
+    kind: text("kind").notNull(),
     scope: text("scope").notNull(), // tutorial slug or 'global'
     key: text("key").notNull(),
     value: jsonb("value").notNull(),
