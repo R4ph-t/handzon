@@ -212,6 +212,13 @@ const compactTutorials = tutorials.map((t) => ({ slug: t.id, title: t.data.title
     text-transform: lowercase;
     transition: border-color 0.12s ease, color 0.12s ease, background 0.12s ease;
   }
+  /* Pills in the primary row (difficulty + clear) match the search
+   * input's height so the whole row reads as one strip. Tag pills
+   * stay compact on the secondary row. */
+  .fb-row-primary .pill,
+  .fb-row-primary .clear {
+    padding: 0.45rem 0.85rem;
+  }
   .pill:hover {
     border-color: var(--color-accent);
     color: var(--color-fg);
