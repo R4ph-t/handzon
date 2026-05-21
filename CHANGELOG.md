@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.5.1 (`create-handzon` only)
+
+- Bundled-template version pins are now read from
+  `packages/{ui,ai}/package.json` at tsup build time instead of being
+  a hand-maintained constant in `tsup.config.ts`. Closes the silent
+  drift bug that froze scaffolds at `handzon-ui@^0.3.0` from 0.4.0
+  onward. From now on, bumping `handzon-ui` is enough — a CLI rebuild
+  picks up the new version automatically.
+
 ## 0.5.0
 
 **Cross-learner tutorial popularity + zero-config auth URL on Render.**
