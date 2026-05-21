@@ -74,12 +74,16 @@
   color: var(--color-accent);
 }
 
+/* Inherit the trigger's font (already mono + 0.78em via .hz-dd).
+ * No font-size override here — it would compound with the parent
+ * (0.78em × 0.78em ≈ 0.6em) and render as tiny ~10px text, out of
+ * step with the single-select Dropdown's value chrome.
+ *
+ * No muted color for the empty "Any" state either — the value text
+ * should read the same as the Sort dropdown's "Default" so the
+ * three trigger bodies share one visual rhythm. */
 .hz-ms-value {
-  font-family: var(--font-mono);
-  font-size: 0.78em;
-}
-.hz-ms-value[data-empty] {
-  color: var(--color-muted);
+  font-family: inherit;
 }
 
 /* ---------- Popover content ---------- */
