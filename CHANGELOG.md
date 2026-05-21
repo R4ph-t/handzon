@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.6.1 (`create-handzon` only)
+
+Fixes a 403 "Cross-site POST form submissions are forbidden" on every
+form POST (Auth.js sign-in, `/api/progress`, …) on Render and any
+other TLS-terminating reverse proxy.
+
+The template's `astro.config.mjs` now sets `security.allowedDomains:
+[{}]`, which tells Astro's `checkOrigin` middleware to honour
+`X-Forwarded-Host` and `X-Forwarded-Proto`. Without it, Astro
+constructs `url.origin` as `http://localhost:PORT` (TLS terminated
+at the edge, plain socket internally) and rejects the request
+against the browser's `Origin: https://<site>.onrender.com`.
+
+Existing 0.6.0 scaffolds: paste the `security:` block from
+`templates/default/astro.config.mjs` into your own `astro.config.mjs`.
+
 ## 0.6.0
 
 **Rename: `handzon-ui` → `handzon-core`.**

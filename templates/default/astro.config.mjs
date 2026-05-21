@@ -20,6 +20,21 @@ export default defineConfig({
     host: process.env.HOST ?? "0.0.0.0",
     port: Number(process.env.PORT ?? 4321),
   },
+  security: {
+    // Render terminates TLS at the edge and forwards plain HTTP with
+    // `X-Forwarded-Host` / `X-Forwarded-Proto` headers. Astro's
+    // checkOrigin middleware only honours those headers when
+    // `allowedDomains` is populated — otherwise it falls back to
+    // `http://localhost`, which mismatches the browser's
+    // `Origin: https://<your-site>.onrender.com` and 403s every
+    // form POST (Auth.js sign-in, /api/progress, etc.) with
+    // "Cross-site POST form submissions are forbidden". Trusting
+    // any forwarded host is safe here because Render's edge is the
+    // only thing that can inject these headers; the deployment
+    // hostname is unknown at build time so a specific pattern
+    // would be fragile.
+    allowedDomains: [{}],
+  },
   integrations: [
     expressiveCode({
       themes: ["github-dark"],
