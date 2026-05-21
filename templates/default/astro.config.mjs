@@ -6,6 +6,17 @@ import expressiveCode from "astro-expressive-code";
 import auth from "auth-astro";
 import rehypeMermaidPassthrough from "handzon-core/lib/rehype-mermaid-passthrough.ts";
 
+// Astro auto-loads `.env` into `import.meta.env`, but SSR/Node code
+// (Auth.js, the Drizzle client, our /api routes) reads `process.env`.
+// `process.loadEnvFile` (Node ≥20.12) bridges the two so AUTH_SECRET,
+// DATABASE_URL, GITHUB_CLIENT_ID etc. arrive where Auth.js + drizzle
+// look for them. Silent no-op if .env is absent (Tier 1 builds).
+try {
+  process.loadEnvFile(".env");
+} catch {
+  // .env missing or unreadable — that's fine for Tier 1.
+}
+
 // Markdown-level config (shared by .md and .mdx); EC auto-extends it.
 
 // Always run as a Node web service. Tier 1 (no Postgres) still ships every
