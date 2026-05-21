@@ -49,8 +49,8 @@ FLAGS
   --help, -h    Show this help
 
 EXAMPLES
-  npx create-handzon my-codelab
-  cd my-codelab && pnpm handzon:new
+  npx create-handzon my-tutorials
+  cd my-tutorials && pnpm handzon:new
   npx create-handzon skills
 `);
 }

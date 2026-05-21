@@ -3,8 +3,8 @@
 CLI for scaffolding and growing [Handzon](../../README.md) projects.
 
 ```bash
-npx create-handzon my-codelab        # scaffold a new project
-cd my-codelab
+npx create-handzon my-tutorials        # scaffold a new project
+cd my-tutorials
 pnpm handzon:new                     # add a tutorial
 pnpm handzon:step                    # add a step
 ```

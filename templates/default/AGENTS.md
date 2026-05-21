@@ -4,7 +4,7 @@ You're editing a tutorial site built with **Handzon**. This file is the single s
 
 ## What this project is
 
-A static Astro 5 + MDX site that publishes Google Codelab-style step-by-step tutorials with interactive components (quizzes, checkpoints, playgrounds), an AI assistant (built on **Mastra**), and a Render-friendly deploy story.
+A static Astro 5 + MDX site that publishes hands-on, step-by-step tutorials with interactive components (quizzes, checkpoints, playgrounds), an AI assistant (built on **Mastra**), and a Render-friendly deploy story.
 
 ## Content model (read first)
 

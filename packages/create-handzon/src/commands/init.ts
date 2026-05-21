@@ -30,7 +30,7 @@ export async function runInit(opts: InitOptions = {}): Promise<void> {
   p.intro(pc.bgMagenta(pc.black(" create-handzon ")));
 
   const shouldPrompt = !opts.yes;
-  const defaultName = opts.targetName ?? "my-codelab";
+  const defaultName = opts.targetName ?? "my-tutorials";
 
   const projectName = await ask(shouldPrompt, defaultName, () =>
     p.text({

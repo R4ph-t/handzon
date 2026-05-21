@@ -2,7 +2,7 @@
 
 A pnpm-workspaces monorepo with two products:
 
-- **`packages/create-handzon/`** — the published CLI (`npx create-handzon my-codelab`). Scaffolds + grows hands-on tutorial projects.
+- **`packages/create-handzon/`** — the published CLI (`npx create-handzon my-tutorials`). Scaffolds + grows hands-on tutorial projects.
 - **`templates/default/`** — the Astro 5 + MDX template the CLI copies. Self-contained, runnable on its own.
 
 ## Quick start

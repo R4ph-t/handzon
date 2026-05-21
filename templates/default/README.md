@@ -1,6 +1,6 @@
 # __PROJECT_NAME__
 
-A Google Codelab-style hands-on tutorial site, built with [Handzon](https://github.com/your-org/handzon).
+A hands-on, step-by-step tutorial site, built with [Handzon](https://github.com/R4ph-t/handzon).
 
 ## Getting started
 

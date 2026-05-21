@@ -1,7 +1,7 @@
 {
   "name": "create-handzon",
   "version": "0.3.1",
-  "description": "Scaffold and grow Codelab-style hands-on tutorial sites built with Handzon.",
+  "description": "Scaffold and grow hands-on, step-by-step tutorial sites built with Handzon.",
   "license": "MIT",
   "author": "r4ph_t",
   "homepage": "https://github.com/R4ph-t/handzon#readme",
@@ -15,7 +15,6 @@
   },
   "keywords": [
     "astro",
-    "codelab",
     "tutorial",
     "mdx",
     "scaffold",
