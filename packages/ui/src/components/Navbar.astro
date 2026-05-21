@@ -1,0 +1,65 @@
+---
+/**
+ * Site-wide top bar. Rendered by BaseLayout on every page except the
+ * homepage (the homepage's Hero contains the brand mark inline).
+ *
+ * Layout: logo left, UserMenu right. The logo links back to the
+ * homepage. Sticky so it stays available as users scroll long
+ * tutorial steps.
+ */
+import UserMenu from "./auth/UserMenu.astro";
+
+interface Props {
+  logoUrl?: string;
+  siteName?: string;
+}
+
+const { logoUrl = "/logo.svg", siteName = "Handzon" } = Astro.props;
+---
+<header class="hz-nav">
+  <div class="hz-nav-inner">
+    {logoUrl && (
+      <a href="/" class="hz-nav-brand" aria-label={`${siteName} home`}>
+        <img src={logoUrl} alt={siteName} height="22" width="auto" />
+      </a>
+    )}
+    <div class="hz-nav-actions">
+      <UserMenu />
+    </div>
+  </div>
+</header>
+
+<style is:global>
+  .hz-nav {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    background: color-mix(in oklab, var(--color-bg) 92%, transparent);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--color-border);
+  }
+  .hz-nav-inner {
+    max-width: 80rem;
+    margin: 0 auto;
+    padding: 0.75rem clamp(1rem, 4vw, 2rem);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+  .hz-nav-brand {
+    display: inline-flex;
+    align-items: center;
+    line-height: 0;
+    opacity: 0.92;
+    transition: opacity 0.12s ease;
+  }
+  .hz-nav-brand:hover { opacity: 1; }
+  .hz-nav-brand img { display: block; }
+  .hz-nav-actions {
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+  }
+</style>

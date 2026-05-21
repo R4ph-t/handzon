@@ -3,6 +3,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 import Hero from "../components/home/Hero.astro";
 import TutorialCard from "../components/home/TutorialCard.astro";
 import FilterBar from "../components/home/FilterBar.tsx";
+import Pagination from "../components/home/Pagination.tsx";
 import ResumeRail from "../components/home/ResumeRail.tsx";
 import { getTutorials, getStepsForTutorial, sumDurations } from "../lib/content.ts";
 
@@ -12,6 +13,8 @@ interface Props {
   hero?: { title?: string; subtitle?: string };
   showResumeRail?: boolean;
   emptyStateCommand?: string;
+  /** Tutorials per page on the grid. */
+  pageSize?: number;
 }
 
 const {
@@ -20,6 +23,7 @@ const {
   hero,
   showResumeRail = true,
   emptyStateCommand = "pnpm handzon:new",
+  pageSize = 9,
 } = Astro.props;
 
 const tutorials = await getTutorials();
@@ -32,7 +36,7 @@ const difficulties = ["beginner", "intermediate", "advanced"];
 const tags = Array.from(new Set(tutorials.flatMap((t) => t.data.tags))).sort();
 const compactTutorials = tutorials.map((t) => ({ slug: t.id, title: t.data.title }));
 ---
-<BaseLayout siteName={siteName} tagline={tagline}>
+<BaseLayout siteName={siteName} tagline={tagline} nav="userMenu">
   <div class="home">
     <Hero title={hero?.title} subtitle={hero?.subtitle} />
 
@@ -49,6 +53,8 @@ const compactTutorials = tutorials.map((t) => ({ slug: t.id, title: t.data.title
         return <TutorialCard tutorial={tut} duration={dur} />;
       })}
     </section>
+
+    <Pagination client:load pageSize={pageSize} />
 
     <div class="empty" data-empty-state hidden>
       <p>No tutorials match the current filters.</p>
@@ -169,7 +175,7 @@ const compactTutorials = tutorials.map((t) => ({ slug: t.id, title: t.data.title
   .filterbar {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 1.5rem;
     margin-top: 1.5rem;
   }
   .fb-row-primary {
@@ -253,6 +259,43 @@ const compactTutorials = tutorials.map((t) => ({ slug: t.id, title: t.data.title
     transition: color 0.12s ease, border-color 0.12s ease;
   }
   .clear:hover { color: var(--color-fg); border-color: var(--color-fg); }
+
+  /* Cards hidden by filter and/or pagination. Both layers set their
+   * own data-attribute so they compose without stomping each other. */
+  [data-filter-hidden],
+  [data-page-hidden] {
+    display: none !important;
+  }
+
+  /* ---------- Pagination ---------- */
+  .pagination {
+    margin-top: 1.5rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    font-family: var(--font-mono);
+    font-size: 0.85em;
+    color: var(--color-muted);
+  }
+  .pg-btn {
+    padding: 0.45rem 0.85rem;
+    background: transparent;
+    border: 1px solid var(--color-border);
+    color: var(--color-fg);
+    font: inherit;
+    cursor: pointer;
+    transition: border-color 0.12s ease, color 0.12s ease;
+  }
+  .pg-btn:hover:not(:disabled) {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+  }
+  .pg-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+  .pg-status strong { color: var(--color-fg); }
 
   /* ---------- Per-card mini progress bar ---------- */
   [data-tutorial-slug] {

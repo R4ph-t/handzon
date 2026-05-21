@@ -1,4 +1,5 @@
 ---
+import Navbar from "../components/Navbar.astro";
 import UserMenu from "../components/auth/UserMenu.astro";
 
 interface Props {
@@ -6,12 +7,24 @@ interface Props {
   description?: string;
   siteName?: string;
   tagline?: string;
+  /**
+   * Top navigation mode:
+   *  - "full": Navbar with logo + UserMenu (default — every page).
+   *  - "userMenu": floating UserMenu only, no logo. For the homepage
+   *    where the Hero already shows the brand inline.
+   *  - "none": no nav at all.
+   */
+  nav?: "full" | "userMenu" | "none";
+  /** Logo URL passed to Navbar (when nav === "full"). */
+  logoUrl?: string;
 }
 const {
   title,
   description,
   siteName = "Handzon",
   tagline = "Hands-on tutorials",
+  nav = "full",
+  logoUrl = "/logo.svg",
 } = Astro.props;
 const pageTitle = title ? `${title} — ${siteName}` : siteName;
 const desc = description ?? tagline;
@@ -29,9 +42,14 @@ const desc = description ?? tagline;
     <meta property="og:type" content="website" />
   </head>
   <body>
-    <div class="hz-topbar">
-      <UserMenu />
-    </div>
+    {nav === "full" && (
+      <Navbar logoUrl={logoUrl} siteName={siteName} />
+    )}
+    {nav === "userMenu" && (
+      <div class="hz-topbar">
+        <UserMenu />
+      </div>
+    )}
     <slot />
     <script>
       // Render any <pre class="mermaid"> blocks emitted by rehype-mermaid.
@@ -50,8 +68,6 @@ const desc = description ?? tagline;
         right: 0.9rem;
         z-index: 50;
       }
-      /* Hide the topbar slot entirely when its child renders nothing
-       * (auth disabled) so we don't reserve dead space. */
       .hz-topbar:empty {
         display: none;
       }

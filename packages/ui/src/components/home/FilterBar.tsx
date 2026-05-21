@@ -36,11 +36,18 @@ function applyFilters(state: { q: string; difficulty: string; tag: string }) {
     const matchesDiff = !state.difficulty || card.dataset.difficulty === state.difficulty;
     const matchesTag = !state.tag || (card.dataset.tags ?? "").split(",").includes(state.tag);
     const show = matchesQ && matchesDiff && matchesTag;
-    card.style.display = show ? "" : "none";
-    if (show) visible += 1;
+    if (show) {
+      card.removeAttribute("data-filter-hidden");
+      visible += 1;
+    } else {
+      card.setAttribute("data-filter-hidden", "");
+    }
   });
   const empty = document.querySelector<HTMLElement>("[data-empty-state]");
   if (empty) empty.style.display = visible === 0 ? "" : "none";
+  // Notify Pagination (and any other listeners) that the filtered set
+  // changed so they can reset their slice.
+  window.dispatchEvent(new CustomEvent("hz:filter-changed"));
 }
 
 export default function FilterBar({ difficulties, tags }: Props) {
