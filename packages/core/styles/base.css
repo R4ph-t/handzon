@@ -76,8 +76,18 @@ a:hover {
   padding-left: 1.5rem;
   margin: 0.75em 0;
 }
+/* Tailwind's preflight zeroes `list-style` on ul/ol, so the bullets
+ * disappear by default. Put them back inside .prose only — UI lists
+ * (sidebar, filter pills, etc.) keep the unstyled default. */
+.prose ul { list-style: disc outside; }
+.prose ol { list-style: decimal outside; }
+.prose ul ul { list-style-type: circle; }
+.prose ul ul ul { list-style-type: square; }
+.prose ol ol { list-style-type: lower-alpha; }
+.prose ol ol ol { list-style-type: lower-roman; }
 
 .prose li { margin: 0.25em 0; }
+.prose li::marker { color: var(--color-muted); }
 
 .prose code:not(pre code),
 .tut-tab-panel code:not(pre code) {
