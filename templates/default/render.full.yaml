@@ -73,9 +73,14 @@ projects:
             name: __PROJECT_NAME__-ai
             runtime: node
             plan: starter
-            rootDir: services/ai
-            buildCommand: pnpm install --frozen-lockfile && pnpm build
-            startCommand: pnpm start
+            # Post-refactor: the AI service is the `handzon-ai` npm bin
+            # shipped by the @handzon/ai package, so it lives at the
+            # scaffold root alongside the site (no `services/ai/`
+            # subdir anymore). `pnpm install` pulls it in; `pnpm exec
+            # handzon-ai` runs the prebundled dist/server.js.
+            rootDir: .
+            buildCommand: pnpm install --frozen-lockfile
+            startCommand: pnpm exec handzon-ai
             healthCheckPath: /healthz
             envVars:
               - key: NODE_VERSION
