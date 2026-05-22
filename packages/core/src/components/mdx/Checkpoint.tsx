@@ -82,6 +82,14 @@ export default function Checkpoint({ label, id }: Props) {
     if (route) markStepComplete(route.tutorial, route.step);
   }
 
+  // Family D: inline failure feedback from a submit_verification call.
+  // SSE pushes the verification row into state.verificationFeedback;
+  // we render it under the checkpoint label when present and the
+  // checkpoint isn't ticked yet. Cleared on the next pass or when
+  // the learner unchecks the checkpoint.
+  const feedback = state.verificationFeedback[checkpointId];
+  const showFeedback = !done && feedback && !feedback.pass;
+
   return (
     <div ref={rootRef} className={done ? "checkpoint is-done" : "checkpoint"}>
       <button type="button" onClick={onToggle} aria-pressed={done}>
@@ -97,6 +105,13 @@ export default function Checkpoint({ label, id }: Props) {
         >
           Stuck? Ask the tutor →
         </button>
+      )}
+      {showFeedback && (
+        <div className="checkpoint-feedback" role="status">
+          <strong>Check failed</strong>
+          {feedback.reason && <p>{feedback.reason}</p>}
+          {feedback.hint && <p className="checkpoint-feedback-hint">{feedback.hint}</p>}
+        </div>
       )}
     </div>
   );

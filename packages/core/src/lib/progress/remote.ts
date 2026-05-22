@@ -133,6 +133,26 @@ function applyEntryInto(state: ProgressState, e: ProgressEntry): void {
     if (e.key === "started") marker.started = v.ts;
     else if (e.key === "completed") marker.completed = v.ts;
     state.tutorials[e.scope] = marker;
+  } else if (e.kind === "verification") {
+    if (e.value == null) {
+      delete state.verificationFeedback[e.key];
+      return;
+    }
+    const v = e.value as {
+      pass: boolean;
+      failingCheckIndex?: number;
+      reason?: string;
+      hint?: string;
+      ts?: number;
+    };
+    state.verificationFeedback[e.key] = {
+      scope: e.scope as `${string}/${string}`,
+      pass: !!v.pass,
+      failingCheckIndex: v.failingCheckIndex,
+      reason: v.reason,
+      hint: v.hint,
+      ts: v.ts ?? Date.now(),
+    };
   }
 }
 
