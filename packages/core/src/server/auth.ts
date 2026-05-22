@@ -2,7 +2,7 @@ import type { AstroCookieSetOptions, AstroCookies } from "astro";
 import { and, eq, isNull } from "drizzle-orm";
 import { getAuthedUser } from "./auth/session.ts";
 import { getDb } from "./db/client.ts";
-import { learners, progressEntries } from "./db/schema.ts";
+import { learnerApiTokens, learners, progressEntries } from "./db/schema.ts";
 
 const COOKIE = "tt-device";
 const ONE_YEAR = 60 * 60 * 24 * 365;
@@ -120,4 +120,87 @@ async function maybeClaimDeviceProgress(
     await tx.delete(progressEntries).where(eq(progressEntries.learnerId, orphan.id));
     await tx.delete(learners).where(eq(learners.id, orphan.id));
   });
+}
+
+const PAT_PREFIX = "hzn_pat_";
+const PAT_RANDOM_BYTES = 32;
+
+/** Hash a raw PAT string to its database form. SHA-256 hex. */
+export async function hashPat(raw: string): Promise<string> {
+  const data = new TextEncoder().encode(raw);
+  const digest = await crypto.subtle.digest("SHA-256", data);
+  return Array.from(new Uint8Array(digest))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+/**
+ * Generate a fresh PAT to show the learner once. The settings page is
+ * the only caller — the API surface never sees the raw token after
+ * mint, and only the hash hits the database.
+ */
+export function generatePat(): string {
+  const bytes = new Uint8Array(PAT_RANDOM_BYTES);
+  crypto.getRandomValues(bytes);
+  // Base64url without padding — agent config files want short, copy/pasteable tokens.
+  const b64 = btoa(String.fromCharCode(...bytes))
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/, "");
+  return `${PAT_PREFIX}${b64}`;
+}
+
+/**
+ * Resolve a bearer token presented on an incoming request to the
+ * learner that owns it. Returns null when no token, the token is
+ * unknown, or it has expired. `last_used_at` is touched
+ * asynchronously so a slow DB write doesn't add latency to MCP calls.
+ *
+ * Used by the MCP endpoint; the cookie-based progress endpoint stays
+ * on getOrCreateLearner so the same-origin guard remains effective.
+ */
+export async function resolveBearerLearner(
+  request: Request,
+): Promise<{ learnerId: string; scopes: string[] } | null> {
+  const header = request.headers.get("authorization") ?? request.headers.get("Authorization");
+  if (!header) return null;
+  const match = /^Bearer\s+(\S+)$/i.exec(header.trim());
+  if (!match) return null;
+  const raw = match[1]!;
+  if (!raw.startsWith(PAT_PREFIX)) return null;
+
+  const db = getDb();
+  const hash = await hashPat(raw);
+  const rows = await db
+    .select()
+    .from(learnerApiTokens)
+    .where(eq(learnerApiTokens.tokenHash, hash))
+    .limit(1);
+  const token = rows[0];
+  if (!token) return null;
+  if (token.expiresAt && token.expiresAt.getTime() < Date.now()) return null;
+
+  const learnerRow = await db
+    .select({ id: learners.id })
+    .from(learners)
+    .where(eq(learners.userId, token.userId))
+    .limit(1);
+  const learner = learnerRow[0];
+  if (!learner) return null;
+
+  // Fire-and-forget last-used touch. Failures are logged-but-ignored;
+  // an audit log is more useful than blocking the call.
+  void db
+    .update(learnerApiTokens)
+    .set({ lastUsedAt: new Date() })
+    .where(eq(learnerApiTokens.id, token.id))
+    .catch((e) => {
+      console.warn("[handzon] failed to update PAT last_used_at:", e);
+    });
+
+  const scopes = token.scopes
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+  return { learnerId: learner.id, scopes };
 }

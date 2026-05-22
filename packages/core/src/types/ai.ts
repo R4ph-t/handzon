@@ -12,6 +12,12 @@ export interface AiConfig {
   contextBudgetTokens: number;
   includeFutureSteps: boolean;
   tools: { suggestPlaygroundEdit: boolean };
+  /**
+   * When true, the tutorial layout renders a "Stuck on this step?"
+   * footer under every step body so authors don't have to drop a
+   * <HelpMe /> by hand. Off by default.
+   */
+  autoStepHelp?: boolean;
   disabledSkills?: string[];
   allowedDomains?: string[];
 }

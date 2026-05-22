@@ -19,6 +19,7 @@
 /* AI assistant */
 @import "./components/chat.css";
 @import "./components/byok.css";
+@import "./components/assist.css";
 
 /* MDX components */
 @import "./components/tabs.css";

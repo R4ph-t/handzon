@@ -13,19 +13,27 @@ interface Props {
   onOpenChange: (open: boolean) => void;
   config: AiConfig;
   context: AssistantContext;
+  /**
+   * Seed turns prepended after the assistant greeting. Callers that
+   * open the panel with a specific intent (HelpMe, quiz "why is this
+   * wrong?", checkpoint nudge, …) pass a single user turn here; the
+   * panel auto-streams a response once on open. The user-turn body
+   * stays editable in history but isn't re-sent on reopen.
+   */
+  initialMessages?: ChatMessage[];
 }
 
-export default function ChatPanel({ open, onOpenChange, config, context }: Props) {
+export default function ChatPanel({ open, onOpenChange, config, context, initialMessages }: Props) {
   const [messages, setMessages] = useState<ChatMessage[]>(() => {
-    if (config.greeting) {
-      return [{ role: "assistant", content: config.greeting }];
-    }
-    return [
-      {
-        role: "assistant",
-        content: `Hi, I'm ${config.name}. Ask me anything about "${context.tutorial.title}". I can see what step you're on.`,
-      },
-    ];
+    const greeting: ChatMessage = config.greeting
+      ? { role: "assistant", content: config.greeting }
+      : {
+          role: "assistant",
+          content: `Hi, I'm ${config.name}. Ask me anything about "${context.tutorial.title}". I can see what step you're on.`,
+        };
+    return initialMessages && initialMessages.length > 0
+      ? [greeting, ...initialMessages]
+      : [greeting];
   });
   const [input, setInput] = useState("");
   const [streaming, setStreaming] = useState(false);
@@ -54,21 +62,9 @@ export default function ChatPanel({ open, onOpenChange, config, context }: Props
     listRef.current?.scrollTo({ top: listRef.current.scrollHeight });
   }, [messages, streaming]);
 
-  async function send() {
-    const trimmed = input.trim();
-    if (!trimmed || streaming) return;
-
-    if (needsKey) {
-      setByokOpen(true);
-      return;
-    }
-
-    const next: ChatMessage[] = [...messages, { role: "user", content: trimmed }];
-    setMessages(next);
-    setInput("");
+  async function runStream(next: ChatMessage[]) {
     setStreaming(true);
     setError(null);
-
     abortRef.current = new AbortController();
     try {
       const stream = await streamChat({
@@ -106,6 +102,73 @@ export default function ChatPanel({ open, onOpenChange, config, context }: Props
       setStreaming(false);
     }
   }
+
+  async function send() {
+    const trimmed = input.trim();
+    if (!trimmed || streaming) return;
+
+    if (needsKey) {
+      setByokOpen(true);
+      return;
+    }
+
+    const next: ChatMessage[] = [...messages, { role: "user", content: trimmed }];
+    setMessages(next);
+    setInput("");
+    await runStream(next);
+  }
+
+  // Help-bridge: when the panel first opens and there's no seed from
+  // a Family A touchpoint, fetch pending help requests posted by the
+  // agent via MCP and prepend them as user turns. Same one-shot ref
+  // as the seed below so subsequent opens don't re-replay them.
+  const inboxRef = useRef(false);
+  // biome-ignore lint/correctness/useExhaustiveDependencies: open is the trigger
+  useEffect(() => {
+    if (!open || inboxRef.current) return;
+    if (initialMessages && initialMessages.length > 0) return;
+    inboxRef.current = true;
+    void (async () => {
+      try {
+        const res = await fetch("/api/help-inbox");
+        if (!res.ok) return;
+        const data = (await res.json()) as {
+          requests?: Array<{ query: string; tutorialSlug: string; stepSlug: string }>;
+        };
+        const queued = data.requests ?? [];
+        if (queued.length === 0) return;
+        const turns: ChatMessage[] = queued.map((r) => ({
+          role: "user",
+          content: `From my agent on ${r.tutorialSlug}/${r.stepSlug}: ${r.query}`,
+        }));
+        setMessages((prev) => [...prev, ...turns]);
+        if (!needsKey) void runStream([...messages, ...turns]);
+      } catch {
+        /* network error — silently fall back to a normal session */
+      }
+    })();
+  }, [open]);
+
+  // When the panel opens with a pre-seeded user turn (HelpMe, quiz
+  // "why is this wrong?", checkpoint nudge, …) auto-trigger the
+  // stream once. Gated on `open` so closing + reopening doesn't fire
+  // it again, and on a one-shot ref so re-renders during streaming
+  // don't either.
+  const seededRef = useRef(false);
+  // biome-ignore lint/correctness/useExhaustiveDependencies: open is the trigger; messages/needsKey are read once.
+  useEffect(() => {
+    if (!open) {
+      seededRef.current = false;
+      inboxRef.current = false;
+      return;
+    }
+    if (seededRef.current) return;
+    if (needsKey) return;
+    const last = messages[messages.length - 1];
+    if (!last || last.role !== "user") return;
+    seededRef.current = true;
+    void runStream(messages);
+  }, [open]);
 
   function clear() {
     setMessages([]);

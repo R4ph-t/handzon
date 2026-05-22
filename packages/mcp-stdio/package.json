@@ -1,0 +1,35 @@
+{
+  "name": "handzon-mcp",
+  "version": "0.1.0",
+  "description": "Stdio MCP wrapper that proxies to a deployed Handzon site's remote MCP endpoint. For clients without remote MCP support.",
+  "license": "MIT",
+  "author": "r4ph_t",
+  "homepage": "https://github.com/R4ph-t/handzon#readme",
+  "bugs": {
+    "url": "https://github.com/R4ph-t/handzon/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/R4ph-t/handzon.git",
+    "directory": "packages/mcp-stdio"
+  },
+  "keywords": [
+    "mcp",
+    "handzon",
+    "stdio"
+  ],
+  "type": "module",
+  "bin": {
+    "handzon-mcp": "./src/index.js"
+  },
+  "files": [
+    "src",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

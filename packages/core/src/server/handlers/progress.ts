@@ -1,10 +1,11 @@
 import type { APIRoute } from "astro";
-import { and, eq, sql } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { getOrCreateLearner } from "../auth.ts";
 import { getDb } from "../db/client.ts";
 import { progressEntries } from "../db/schema.ts";
 import { isSameOrigin, json } from "../http.ts";
+import { writeProgressEntries } from "../progress.ts";
 
 const MAX_BODY_BYTES = 32 * 1024;
 const MAX_ENTRIES = 200;
@@ -59,55 +60,10 @@ export const POST: APIRoute = async ({ cookies, request }) => {
   if (parsed.length === 0) return json({ written: 0 });
 
   const learner = await getOrCreateLearner(cookies, request);
-  const db = getDb();
-  const now = new Date();
-
   // `value: null` is the tombstone signal for "this entry was undone"
-  // (e.g. unchecking a checkpoint). The `value` column is NOT NULL, so
-  // we DELETE these rows instead of upserting them.
-  const deletes = parsed.filter((b) => b.value === null);
-  const upserts = parsed.filter((b) => b.value !== null);
-
-  for (const d of deletes) {
-    await db
-      .delete(progressEntries)
-      .where(
-        and(
-          eq(progressEntries.learnerId, learner.id),
-          eq(progressEntries.kind, d.kind),
-          eq(progressEntries.scope, d.scope),
-          eq(progressEntries.key, d.key),
-        ),
-      );
-  }
-
-  if (upserts.length > 0) {
-    const rows = upserts.map((b) => ({
-      learnerId: learner.id,
-      kind: b.kind,
-      scope: b.scope,
-      key: b.key,
-      value: b.value,
-      updatedAt: now,
-    }));
-    await db
-      .insert(progressEntries)
-      .values(rows)
-      .onConflictDoUpdate({
-        target: [
-          progressEntries.learnerId,
-          progressEntries.kind,
-          progressEntries.scope,
-          progressEntries.key,
-        ],
-        set: {
-          // `excluded` is the row Postgres would have inserted — without
-          // this the SET was a no-op (`value = progress_entries.value`).
-          value: sql`excluded.value`,
-          updatedAt: sql`excluded.updated_at`,
-        },
-      });
-  }
-
-  return json({ written: parsed.length });
+  // (e.g. unchecking a checkpoint). writeProgressEntries handles the
+  // split into deletes + upserts; the same writer is used by the MCP
+  // write tools so behaviour stays consistent across surfaces.
+  const written = await writeProgressEntries(learner.id, parsed);
+  return json({ written });
 };

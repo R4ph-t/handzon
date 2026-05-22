@@ -82,9 +82,28 @@ const stepSlugs = steps.map((s) => parseStepId(s.id).stepSlug);
     id="tt-route"
     data-tutorial-slug={tutorial.id}
     data-step-slug={currentStepSlug}
+    data-tutorial-title={tutorial.data.title}
     data-tutorial-steps={JSON.stringify(stepSlugs)}
     hidden
   ></div>
+  {/*
+    Raw MDX source of the current step + selected metadata. CopyPrompt,
+    "Copy step as Markdown", deep-link row, and the BYOA touchpoints
+    read this at click time. Replacing "<" with "<" inside JSON
+    keeps a stray "</script>" or "<!--" in the step body from
+    terminating the script tag early.
+  */}
+  <script
+    id="tt-step-data"
+    type="application/json"
+    set:html={JSON.stringify({
+      tutorialSlug: tutorial.id,
+      tutorialTitle: tutorial.data.title,
+      stepSlug: currentStepSlug,
+      stepTitle: currentStep.data.title,
+      stepSource: currentStep.body ?? "",
+    }).replace(/</g, "\\u003c")}
+  ></script>
   <script>
     // Record last-visited + popularity markers from a data marker
     // (set in the markup above). Using a normal <script> + relative

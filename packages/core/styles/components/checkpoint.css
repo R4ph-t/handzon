@@ -47,3 +47,32 @@
   letter-spacing: 0.06em;
   margin-left: auto;
 }
+
+/* Family D: inline failure feedback under the checkpoint when a
+ * submit_verification call from the agent reported a failed check.
+ * Styled as a subdued warning band, not a toast — failure UX is the
+ * agent's job in its own surface; this is a backstop. */
+.checkpoint-feedback {
+  flex-basis: 100%;
+  background: var(--color-bg);
+  border-left: var(--border-thick) solid var(--color-warning, #d9a200);
+  padding: 0.6rem 0.85rem;
+  margin-top: 0.5rem;
+  font-size: 0.9em;
+  color: var(--color-fg);
+}
+.checkpoint-feedback strong {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.8em;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-warning, #d9a200);
+}
+.checkpoint-feedback p {
+  margin: 0.25rem 0 0;
+}
+.checkpoint-feedback-hint {
+  color: var(--color-muted);
+  font-size: 0.95em;
+}

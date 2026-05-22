@@ -89,6 +89,19 @@ rg -nP '<Checkpoint(?![^>]*\bid=)' src/content/tutorials/<slug>/
 rg -nP '<Quiz(?![^>]*\bid=)' src/content/tutorials/<slug>/
 ```
 
+- **Gated step has `<Checkpoint>` but no `verify.checks`** (Family D soft warning, not a must-fix). If the step's outcome is machine-observable (file landed, command exited 0, port responds), declaring a `verify` block in frontmatter lets an agent on the learner's machine tick the checkpoint deterministically. Prose-fallback (label-only `<Checkpoint>`) still works — it's the author's call. Flag for **consideration**, not as a blocker.
+
+```bash
+# Steps with a Checkpoint but no `verify:` block in frontmatter.
+for f in src/content/tutorials/<slug>/*.mdx; do
+  if rg -q '<Checkpoint' "$f" && ! rg -q '^verify:' "$f"; then
+    echo "PROSE-ONLY VERIFICATION: $f"
+  fi
+done
+```
+
+When you flag these, suggest the `add-verify-checks` skill to the author. Don't flag visual-only outcomes ("the chart looks right") — those genuinely belong in prose-fallback land.
+
 ## 4. Content & component-fit checks
 
 A tutorial that's mostly prose underuses the platform. For each step, scan for these anti-patterns:
@@ -159,6 +172,7 @@ Group everything into three buckets. Be honest about what's must-fix vs. taste.
 - Component-fit fixes (bash → `<Terminal>`, file lists → `<FileTree>`, before/after → `<Diff>`)
 - AI-tell phrasing flagged by section 4a (`leverage`, `utilize`, `let's dive in`, etc.)
 - Adding explicit `id`s to Checkpoints and Quizzes in gated tutorials
+- Adding `verify.checks` to gated steps with machine-observable outcomes (see `add-verify-checks`)
 - Splitting steps longer than 10 minutes
 - Fixing `estimatedDuration` drift
 - Adding `<Tabs group="...">` for multi-platform variants

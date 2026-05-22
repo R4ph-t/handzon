@@ -59,10 +59,14 @@ export function useProgress(): ProgressApi {
         })),
       removeCheckpoint: (checkpointId: string) =>
         store.set((s) => {
-          if (!s.checkpoints[checkpointId]) return s;
-          const next = { ...s.checkpoints };
-          delete next[checkpointId];
-          return { ...s, checkpoints: next };
+          const hadCheckpoint = !!s.checkpoints[checkpointId];
+          const hadFeedback = !!s.verificationFeedback[checkpointId];
+          if (!hadCheckpoint && !hadFeedback) return s;
+          const nextCheckpoints = { ...s.checkpoints };
+          delete nextCheckpoints[checkpointId];
+          const nextFeedback = { ...s.verificationFeedback };
+          delete nextFeedback[checkpointId];
+          return { ...s, checkpoints: nextCheckpoints, verificationFeedback: nextFeedback };
         }),
       setPref: <K extends keyof ProgressState["prefs"]>(key: K, value: ProgressState["prefs"][K]) =>
         store.set((s) => ({ ...s, prefs: { ...s.prefs, [key]: value } })),

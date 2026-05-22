@@ -1,0 +1,10 @@
+---
+import HelpMeIsland from "./HelpMe.tsx";
+
+interface Props {
+  topic?: string;
+  label?: string;
+}
+const props = Astro.props as Props;
+---
+<HelpMeIsland client:visible {...props} />

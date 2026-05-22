@@ -1,10 +1,12 @@
 import Callout from "../components/mdx/Callout.astro";
 import Checkpoint from "../components/mdx/Checkpoint.astro";
+import CopyPrompt from "../components/mdx/CopyPrompt.astro";
 import Diff from "../components/mdx/Diff.astro";
 import Download from "../components/mdx/Download.astro";
 import Embed from "../components/mdx/Embed.astro";
 import File from "../components/mdx/File.astro";
 import FileTree from "../components/mdx/FileTree.astro";
+import HelpMe from "../components/mdx/HelpMe.astro";
 import Hint from "../components/mdx/Hint.astro";
 import Mermaid from "../components/mdx/Mermaid.astro";
 import Playground from "../components/mdx/Playground.astro";
@@ -43,5 +45,7 @@ export function mdxComponents() {
     Quiz,
     Checkpoint,
     Playground,
+    HelpMe,
+    CopyPrompt,
   };
 }

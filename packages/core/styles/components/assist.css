@@ -1,0 +1,101 @@
+/* Family A: in-app tutor touchpoints (HelpMe, quiz wrong-answer hint,
+ * checkpoint stuck nudge, selection ask, playground fix, step footer)
+ * and Family B: bring-your-own-agent surfaces (CopyPrompt, deep-link
+ * row, copy-step button). Shared visual language so author-placed
+ * affordances feel like one family.
+ */
+
+.hz-helpme,
+.hz-assist-link,
+.hz-copy-prompt {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: none;
+  border: var(--border-default) solid var(--color-border);
+  padding: 0.35rem 0.65rem;
+  font: inherit;
+  font-size: 0.85em;
+  color: var(--color-accent);
+  cursor: pointer;
+  text-decoration: none;
+  border-radius: 0;
+}
+
+.hz-helpme:hover,
+.hz-assist-link:hover,
+.hz-copy-prompt:hover {
+  background: var(--color-surface);
+}
+
+.hz-helpme[disabled],
+.hz-copy-prompt[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Block-level "Stuck on this step?" step footer */
+.hz-step-help {
+  margin-top: 2rem;
+  padding: 0.9rem 1.1rem;
+  background: var(--color-surface);
+  border: var(--border-default) solid var(--color-border);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.9em;
+}
+.hz-step-help-text {
+  color: var(--color-muted);
+  flex: 1;
+}
+
+/* Checkpoint "Stuck?" nudge: rendered inside .checkpoint when the
+ * step has been on-screen + unchecked for a while.
+ */
+.checkpoint-nudge {
+  margin-left: auto;
+  font-size: 0.8em;
+  color: var(--color-accent);
+}
+
+/* Selection-anchored floating "Ask about this" */
+.hz-selection-ask {
+  position: absolute;
+  z-index: 60;
+  background: var(--color-bg);
+  border: var(--border-default) solid var(--color-accent);
+  padding: 0.3rem 0.6rem;
+  font-size: 0.8em;
+  color: var(--color-accent);
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Deep-link / open-in row */
+.hz-openin {
+  margin-top: 1.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+.hz-openin-label {
+  font-size: 0.8em;
+  color: var(--color-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-right: 0.25rem;
+}
+
+/* Quiz wrong-answer help inline link */
+.quiz .hz-helpme {
+  margin-top: 0.4rem;
+}
+
+/* Playground toolbar: row sitting just under the Sandpack iframe */
+.playground-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 0.4rem;
+}
