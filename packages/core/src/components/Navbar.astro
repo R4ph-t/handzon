@@ -33,17 +33,19 @@ const {
 ---
 <header class="hz-nav">
   <div class="hz-nav-inner">
-    {logoUrl && (
-      <a href="/" class="hz-nav-brand" aria-label={`${siteName} home`}>
+    <a href="/" class="hz-nav-brand" aria-label={`${siteName} home`}>
+      {logoUrl && (
         <img
           src={logoUrl}
-          alt={siteName}
+          alt=""
+          aria-hidden="true"
           class="hz-nav-logo"
           width={logoWidth}
           height={logoHeight}
         />
-      </a>
-    )}
+      )}
+      <span class="hz-nav-name">{siteName}</span>
+    </a>
     <div class="hz-nav-actions">
       <UserMenu />
     </div>
@@ -77,8 +79,11 @@ const {
   .hz-nav-brand {
     display: inline-flex;
     align-items: center;
-    line-height: 0;
+    gap: 0.45rem;
+    line-height: 1;
     opacity: 0.92;
+    color: var(--color-fg);
+    text-decoration: none;
     transition: opacity 0.12s ease;
   }
   .hz-nav-brand:hover { opacity: 1; }
@@ -86,6 +91,18 @@ const {
     display: block;
     height: 1.4rem;
     width: auto;
+    flex-shrink: 0;
+  }
+  /* Matches the Hero headline's font choice so the wordmark reads as
+     the same brand across the homepage hero and every-other-page nav.
+     Smaller, no display tracking — this is a chrome label, not a
+     headline. */
+  .hz-nav-name {
+    font-family: var(--font-display, var(--font-sans));
+    font-weight: var(--font-weight-display, 700);
+    font-size: 1.05rem;
+    letter-spacing: var(--tracking-display, -0.02em);
+    white-space: nowrap;
   }
   .hz-nav-actions {
     display: flex;

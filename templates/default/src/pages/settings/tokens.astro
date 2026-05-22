@@ -275,6 +275,13 @@ const GITHUB_ICON_PATH =
     display: grid;
     gap: 1.25rem;
   }
+  /* Let the article fill the card. handzon-core's .prose default of
+     `max-width: 72ch` is for free-flowing tutorial body text where
+     line length matters more than container alignment — but on a
+     forms-and-cards page that gives a visible mismatch (text wraps
+     well before the card's right edge). The container is already the
+     readability constraint here. */
+  .tokens-page .prose { max-width: none; }
   /* Card chrome — heading lives outside .prose so it doesn't pick up
      the prose's border-top-on-h2 rule (designed for tutorial body
      content, not card titles). */
