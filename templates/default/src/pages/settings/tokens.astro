@@ -1,6 +1,7 @@
 ---
 import "~/styles/global.css";
 import BaseLayout from "handzon-core/layouts/BaseLayout.astro";
+import SignInButton from "handzon-core/components/auth/SignInButton.astro";
 import { getAuthedUser } from "handzon-core/server/auth/session.ts";
 import { isSameOrigin } from "handzon-core/server/http.ts";
 import {
@@ -65,6 +66,11 @@ const mcpServerName =
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-|-$/g, "") || "handzon";
 const tokenPlaceholder = "hzn_pat_xxxxxxxxxxxxxxxxxxxxxxxx";
+
+// GitHub octocat — same path used by handzon-core's UserMenu so the
+// brand mark stays consistent across the in-nav sign-in and this card.
+const GITHUB_ICON_PATH =
+  "M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.55v-2.02c-3.2.7-3.88-1.36-3.88-1.36-.52-1.33-1.28-1.68-1.28-1.68-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.03 1.76 2.7 1.25 3.36.96.1-.74.4-1.25.72-1.54-2.55-.29-5.24-1.27-5.24-5.66 0-1.25.45-2.27 1.18-3.07-.12-.29-.51-1.45.11-3.03 0 0 .96-.31 3.15 1.17a10.94 10.94 0 0 1 5.76 0c2.19-1.48 3.15-1.17 3.15-1.17.62 1.58.23 2.74.11 3.03.74.8 1.18 1.82 1.18 3.07 0 4.4-2.69 5.37-5.25 5.65.41.35.78 1.04.78 2.11v3.13c0 .3.21.66.79.55C20.71 21.39 24 17.08 24 12 24 5.65 18.85.5 12 .5z";
 ---
 <BaseLayout
   title="Access tokens"
@@ -73,36 +79,44 @@ const tokenPlaceholder = "hzn_pat_xxxxxxxxxxxxxxxxxxxxxxxx";
   logoUrl={site.logo}
   faviconUrl={site.favicon}
   repoUrl={site.repoUrl}
-  pageMaxWidth="48rem"
 >
   <main class="tokens-page">
-    <header>
+    <header class="prose">
       <h1>Access tokens</h1>
-      <p class="muted">
+      <p>
         Use this site from Cursor, Claude Code, Codex, and other MCP-aware
         editors. Mint a token, copy the one-liner into your editor's config
         (or hit "Add to Cursor"), and your agent can browse tutorials, mark
         checkpoints, record quiz results, and ping the in-browser tutor
-        without you leaving your editor. Tokens are scoped — keep them safe;
-        they grant the same writes your browser session can make.
+        without you leaving your editor. Tokens are scoped — keep them
+        safe; they grant the same writes your browser session can make.
       </p>
     </header>
 
     {!user && (
-      <div class="card">
-        <p>Sign in with GitHub to mint personal access tokens.</p>
-        <a class="btn" href="/api/auth/signin/github">Sign in with GitHub</a>
-      </div>
+      <section class="card">
+        <div class="prose">
+          <p>Sign in with GitHub to mint personal access tokens.</p>
+        </div>
+        <SignInButton provider="github">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true">
+            <path d={GITHUB_ICON_PATH} />
+          </svg>
+          <span>Sign in with GitHub</span>
+        </SignInButton>
+      </section>
     )}
 
     {user && mintedRaw && (
-      <div class="card card-emph" role="status">
+      <section class="card card-emph" role="status">
         <h2>Token created</h2>
-        <p>
-          Here is your new token for <strong>{mintedName}</strong>. It will only be
-          shown once — copy it now, or use one of the install paths below
-          (the token is already baked into every option).
-        </p>
+        <div class="prose">
+          <p>
+            Here is your new token for <strong>{mintedName}</strong>. It will
+            only be shown once — copy it now, or use one of the install paths
+            below (the token is already baked into every option).
+          </p>
+        </div>
         <pre class="token" data-copy>{mintedRaw}</pre>
 
         <h3>Install in your editor</h3>
@@ -111,7 +125,7 @@ const tokenPlaceholder = "hzn_pat_xxxxxxxxxxxxxxxxxxxxxxxx";
           serverName={mcpServerName}
           origin={origin}
         />
-      </div>
+      </section>
     )}
 
     {user && formError && (
@@ -123,7 +137,7 @@ const tokenPlaceholder = "hzn_pat_xxxxxxxxxxxxxxxxxxxxxxxx";
     {user && (
       <section class="card">
         <h2>Create a new token</h2>
-        <form method="POST">
+        <form method="POST" class="create-token-form">
           <input type="hidden" name="action" value="create" />
           <label>
             <span>Name</span>
@@ -138,19 +152,21 @@ const tokenPlaceholder = "hzn_pat_xxxxxxxxxxxxxxxxxxxxxxxx";
               </label>
             ))}
           </fieldset>
-          <button class="btn" type="submit">Create token</button>
+          <button class="sib" type="submit">Create token</button>
         </form>
       </section>
     )}
 
     <section class="card">
       <h2>Connect your editor</h2>
-      <p class="muted">
-        Reference for wiring this site into an MCP-aware editor on a second
-        machine, or after you've lost the raw value of an existing token.
-        Replace <code>{tokenPlaceholder}</code> in the snippet with a token
-        from above (or mint a fresh one — the previous one keeps working).
-      </p>
+      <div class="prose">
+        <p>
+          Reference for wiring this site into an MCP-aware editor on a second
+          machine, or after you've lost the raw value of an existing token.
+          Replace <code>{tokenPlaceholder}</code> in the snippet with a token
+          from above (or mint a fresh one — the previous one keeps working).
+        </p>
+      </div>
 
       <EditorInstall
         token={tokenPlaceholder}
@@ -159,25 +175,27 @@ const tokenPlaceholder = "hzn_pat_xxxxxxxxxxxxxxxxxxxxxxxx";
       />
 
       <h3>What the agent can do</h3>
-      <ul class="tool-list">
-        <li>
-          <strong>Reads</strong> (any token, or no token):{" "}
-          <code>list_tutorials</code>, <code>get_tutorial</code>,{" "}
-          <code>get_step</code>, <code>get_progress</code>.
-        </li>
-        <li>
-          <strong>Writes</strong> (need <code>progress:write</code>):{" "}
-          <code>complete_checkpoint</code>, <code>uncheck_checkpoint</code>,{" "}
-          <code>complete_step</code>, <code>mark_step_incomplete</code>,{" "}
-          <code>record_quiz</code>, <code>set_last_visited</code>,{" "}
-          <code>set_preference</code>, <code>request_help</code>.
-        </li>
-      </ul>
-      <p class="muted">
-        <code>request_help</code> is the bridge — the editor agent can say
-        "the learner is stuck on X" and the message lands in the in-browser
-        tutor's inbox the next time you open the tab.
-      </p>
+      <div class="prose">
+        <ul>
+          <li>
+            <strong>Reads</strong> (any token, or no token):{" "}
+            <code>list_tutorials</code>, <code>get_tutorial</code>,{" "}
+            <code>get_step</code>, <code>get_progress</code>.
+          </li>
+          <li>
+            <strong>Writes</strong> (need <code>progress:write</code>):{" "}
+            <code>complete_checkpoint</code>, <code>uncheck_checkpoint</code>,{" "}
+            <code>complete_step</code>, <code>mark_step_incomplete</code>,{" "}
+            <code>record_quiz</code>, <code>set_last_visited</code>,{" "}
+            <code>set_preference</code>, <code>request_help</code>.
+          </li>
+        </ul>
+        <p>
+          <code>request_help</code> is the bridge — the editor agent can say
+          "the learner is stuck on X" and the message lands in the in-browser
+          tutor's inbox the next time you open the tab.
+        </p>
+      </div>
     </section>
 
     {user && (
@@ -202,7 +220,7 @@ const tokenPlaceholder = "hzn_pat_xxxxxxxxxxxxxxxxxxxxxxxx";
                 <form method="POST" class="token-revoke">
                   <input type="hidden" name="action" value="revoke" />
                   <input type="hidden" name="tokenId" value={t.id} />
-                  <button class="btn btn-sm" type="submit">Revoke</button>
+                  <button class="sib" type="submit">Revoke</button>
                 </form>
               </li>
             ))}
@@ -214,48 +232,11 @@ const tokenPlaceholder = "hzn_pat_xxxxxxxxxxxxxxxxxxxxxxxx";
 </BaseLayout>
 
 <script>
-  // Flag the document as JS-ready so the editor-picker CSS can collapse
-  // the stacked no-JS fallback into a select + single-panel view. We do
-  // this first thing so the layout switch happens before paint settles.
-  document.documentElement.classList.add("js-ready");
-
-  // --- Editor install picker -------------------------------------------------
-  // Two <EditorInstall> instances on the page (post-mint success card +
-  // persistent reference). Keep their selects in sync, persist the last
-  // choice across reloads so a learner who picks "Codex" once doesn't
-  // have to pick it again next time they mint a token.
-  const STORAGE_KEY = "handzon-editor-pick";
-  const pickers = Array.from(document.querySelectorAll<HTMLElement>(".editor-picker"));
-  const stored = localStorage.getItem(STORAGE_KEY);
-  const initial =
-    stored && pickers.some((p) => p.querySelector(`[data-editor="${stored}"]`))
-      ? stored
-      : "cursor";
-
-  function showEditor(value: string): void {
-    for (const picker of pickers) {
-      const select = picker.querySelector<HTMLSelectElement>(".editor-select");
-      if (select) select.value = value;
-      for (const panel of picker.querySelectorAll<HTMLElement>(".editor-panel")) {
-        panel.toggleAttribute("hidden", panel.dataset.editor !== value);
-      }
-    }
-  }
-
-  showEditor(initial);
-  for (const picker of pickers) {
-    const select = picker.querySelector<HTMLSelectElement>(".editor-select");
-    select?.addEventListener("change", () => {
-      const value = select.value;
-      localStorage.setItem(STORAGE_KEY, value);
-      showEditor(value);
-    });
-  }
-
-  // --- Copy-to-clipboard for every snippet -----------------------------------
-  // Runs after the picker so newly-hidden panels still get their copy
-  // buttons (textContent works on hidden elements). Falls back to "Copy
-  // failed" if the Clipboard API is unavailable (insecure context).
+  // Copy-to-clipboard for the raw token (the one `<pre data-copy>` left
+  // on the page after migrating snippets to Expressive Code — EC ships
+  // its own copy button so all other snippets are covered). Falls back
+  // to "Copy failed" if the Clipboard API is unavailable (insecure
+  // context / older browser).
   for (const pre of document.querySelectorAll<HTMLPreElement>("pre[data-copy]")) {
     const wrap = document.createElement("div");
     wrap.className = "copy-wrap";
@@ -267,9 +248,8 @@ const tokenPlaceholder = "hzn_pat_xxxxxxxxxxxxxxxxxxxxxxxx";
     btn.className = "copy-btn";
     btn.textContent = "Copy";
     btn.addEventListener("click", async () => {
-      const text = pre.textContent ?? "";
       try {
-        await navigator.clipboard.writeText(text);
+        await navigator.clipboard.writeText(pre.textContent ?? "");
         btn.textContent = "Copied!";
         setTimeout(() => {
           btn.textContent = "Copy";
@@ -283,12 +263,21 @@ const tokenPlaceholder = "hzn_pat_xxxxxxxxxxxxxxxxxxxxxxxx";
 </script>
 
 <style>
+  /* Match the navbar + footer column convention used by every other
+     page: BaseLayout's pageMaxWidth defaults to "none" so those bars
+     span the viewport, and each page constrains its OWN content here.
+     The 48rem column reads well for a forms-and-snippets page; nav
+     stays aligned to the wider 80rem default fallback. */
   .tokens-page {
+    max-width: 48rem;
+    margin: 0 auto;
     padding: 2rem 1.25rem 4rem;
     display: grid;
     gap: 1.25rem;
   }
-  .muted { color: var(--color-muted); }
+  /* Card chrome — heading lives outside .prose so it doesn't pick up
+     the prose's border-top-on-h2 rule (designed for tutorial body
+     content, not card titles). */
   .card {
     background: var(--color-surface);
     border: var(--border-default) solid var(--color-border);
@@ -296,98 +285,35 @@ const tokenPlaceholder = "hzn_pat_xxxxxxxxxxxxxxxxxxxxxxxx";
   }
   .card-emph { border-left: var(--border-thick) solid var(--color-success); }
   .card-err  { border-left: var(--border-thick) solid var(--color-danger, #ff4d4f); }
-  .card h2 { margin-top: 0; }
-  .card h3 { margin: 1.1rem 0 0.35rem; font-size: 1.05em; }
-  .card h4 { margin: 0.9rem 0 0.3rem; font-size: 0.95em; color: var(--color-muted); font-weight: 600; }
-  .card code {
-    background: var(--color-bg);
-    border: var(--border-default) solid var(--color-border);
-    padding: 0.05rem 0.3rem;
-    font-family: var(--font-mono);
-    font-size: 0.85em;
-  }
+  .card h2 { margin: 0 0 0.4rem; }
+  .card h3 { margin: 1.2rem 0 0.4rem; font-size: 1.05em; }
+
+  .muted { color: var(--color-muted); }
+
   .token {
     background: var(--color-bg);
     border: var(--border-default) solid var(--color-border);
     padding: 0.6rem 0.8rem;
     font-family: var(--font-mono);
     overflow-wrap: anywhere;
+    margin: 0.4rem 0 0.6rem;
   }
-  .snippet {
-    background: var(--color-bg);
-    border: var(--border-default) solid var(--color-border);
-    padding: 0.75rem 0.9rem;
-    margin: 0.3rem 0 0.6rem;
-    font-family: var(--font-mono);
-    font-size: 0.85em;
-    overflow-x: auto;
-    white-space: pre;
-  }
-  .tool-list { padding-left: 1.2rem; margin: 0.3rem 0 0.6rem; }
-  .tool-list li { margin-bottom: 0.35rem; }
-  /* Editor install picker.
-     Default (no JS): the <select> is hidden, every panel renders with
-     its <h4> label above it — a stacked, labeled fallback that still
-     lets the user copy whichever install path they want.
-     With JS: <html> gets `.js-ready`, the select appears, the per-panel
-     labels collapse, and only the active panel stays visible. */
-  .editor-picker { margin: 0.4rem 0 0.6rem; display: grid; gap: 0.4rem; }
-  .editor-picker-label { display: none; gap: 0.25rem; max-width: 22rem; }
-  html.js-ready .editor-picker-label { display: grid; }
-  .editor-select {
+
+  /* Scope the create-token form's grid layout so it doesn't leak into
+     other forms on the page (revoke, SignInButton's <form>). */
+  .create-token-form { display: grid; gap: 0.75rem; }
+  .create-token-form label { display: grid; gap: 0.25rem; }
+  .create-token-form label > span { font-size: 0.8em; color: var(--color-muted); }
+  .create-token-form input[type="text"] {
     background: var(--color-bg);
     border: var(--border-default) solid var(--color-border);
     padding: 0.45rem 0.6rem;
     color: var(--color-fg);
     font: inherit;
   }
-  .editor-label {
-    margin: 0.9rem 0 0.3rem;
-    font-size: 0.95em;
-    color: var(--color-muted);
-    font-weight: 600;
-  }
-  html.js-ready .editor-label { display: none; }
-  .editor-panel { display: block; }
-  .editor-panel[hidden] { display: none; }
-  .copy-wrap { position: relative; }
-  .copy-btn {
-    position: absolute;
-    top: 0.4rem;
-    right: 0.4rem;
-    background: var(--color-surface);
-    color: var(--color-fg);
-    border: var(--border-default) solid var(--color-border);
-    padding: 0.2rem 0.55rem;
-    font: inherit;
-    font-size: 0.75em;
-    cursor: pointer;
-  }
-  .copy-btn:hover { background: var(--color-bg); }
-  form { display: grid; gap: 0.75rem; }
-  label { display: grid; gap: 0.25rem; }
-  label > span { font-size: 0.8em; color: var(--color-muted); }
-  input[type="text"] {
-    background: var(--color-bg);
-    border: var(--border-default) solid var(--color-border);
-    padding: 0.45rem 0.6rem;
-    color: var(--color-fg);
-    font: inherit;
-  }
-  fieldset { border: var(--border-default) solid var(--color-border); padding: 0.65rem; }
-  .check { display: inline-flex; gap: 0.4rem; margin-right: 1rem; align-items: center; }
-  .btn {
-    display: inline-flex;
-    background: var(--color-accent);
-    color: var(--color-bg);
-    padding: 0.45rem 0.9rem;
-    border: 0;
-    font: inherit;
-    cursor: pointer;
-    text-decoration: none;
-    width: fit-content;
-  }
-  .btn-sm { padding: 0.3rem 0.6rem; font-size: 0.85em; }
+  .create-token-form fieldset { border: var(--border-default) solid var(--color-border); padding: 0.65rem; }
+  .create-token-form .check { display: inline-flex; gap: 0.4rem; margin-right: 1rem; align-items: center; }
+
   .token-list {
     list-style: none;
     padding: 0;
@@ -405,4 +331,33 @@ const tokenPlaceholder = "hzn_pat_xxxxxxxxxxxxxxxxxxxxxxxx";
   }
   .token-list li:last-child { border-bottom: 0; padding-bottom: 0; }
   .token-row { display: grid; gap: 0.15rem; }
+
+  /* The Sign in / Revoke / Create token buttons all use .sib (the
+     handzon-core themed sign-in button class) so they share one look.
+     Keep their padding consistent with form rhythm. */
+  .create-token-form .sib,
+  .token-revoke .sib {
+    width: fit-content;
+  }
+</style>
+
+<!-- Copy-button styling for the raw token pre (the only `pre[data-copy]`
+     left after the EC migration). The wrap + button are created by the
+     script above and never receive Astro's scoping hash, so the rules
+     must be global to reach them. -->
+<style is:global>
+  .copy-wrap { position: relative; }
+  .copy-btn {
+    position: absolute;
+    top: 0.4rem;
+    right: 0.4rem;
+    background: var(--color-surface);
+    color: var(--color-fg);
+    border: var(--border-default) solid var(--color-border);
+    padding: 0.2rem 0.55rem;
+    font: inherit;
+    font-size: 0.75em;
+    cursor: pointer;
+  }
+  .copy-btn:hover { background: var(--color-bg); }
 </style>

@@ -98,6 +98,27 @@ export default function UserMenu() {
           <span className="um-name" title={fullLabel}>
             {displayName}
           </span>
+          <a
+            className="um-btn um-btn-icon"
+            href="/settings/tokens"
+            title="Access tokens for editor MCP"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              width="14"
+              height="14"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <circle cx="7.5" cy="15.5" r="4.5" />
+              <path d="M11 12L20 3l1.5 1.5L20 6l1.5 1.5L19 9l-1.5-1.5L16 9" />
+            </svg>
+            <span className="sr-only">Access tokens</span>
+          </a>
           <form method="post" action="/api/auth/signout">
             <input type="hidden" name="csrfToken" value={csrfToken} />
             <input type="hidden" name="callbackUrl" value={callbackUrl} />

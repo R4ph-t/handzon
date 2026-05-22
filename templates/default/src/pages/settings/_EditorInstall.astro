@@ -1,4 +1,6 @@
 ---
+import { Code } from "astro-expressive-code/components";
+import EditorPicker from "~/components/EditorPicker.tsx";
 /**
  * Editor install picker for /settings/tokens.
  *
@@ -9,19 +11,17 @@
  *   2. As a persistent reference below the tokens list, with the
  *      `hzn_pat_…` placeholder for learners coming back later.
  *
- * Variants:
- *   - Cursor:             `cursor://` deeplink (one-click) + remote JSON
- *   - VS Code:            `vscode:mcp/install` deeplink + `code --add-mcp`
- *   - VS Code Insiders:   `vscode-insiders:mcp/install` deeplink
- *   - Claude Code (CLI):  `claude mcp add` one-liner
- *   - Codex (CLI):        `codex mcp add` + shell `export` (env-var-based)
- *   - Claude Desktop:     stdio bridge JSON via `handzon-mcp` wrapper
- *   - Other / generic:    raw remote `mcp.json`
+ * The trigger is a React island around handzon-core's <Dropdown> (Radix
+ * Select) so the open popover is fully themed — no native OS chrome.
+ * Each panel is server-rendered and toggled via the island's effect.
  *
- * No-JS fallback: panels render unhidden on first paint. A tiny inline
- * script flips `<html>` to `.js-ready`, which CSS uses to hide all but
- * the active panel and reveal the `<select>`. Without JS you see all
- * options stacked with their `<h4>` labels — ugly but functional.
+ * Every snippet renders via Expressive Code's <Code> component so the
+ * highlighting, frame chrome, and copy button match the tutorial code
+ * blocks exactly — no hand-rolled tokenizer, no DIY copy button.
+ *
+ * No-JS fallback: every panel renders unhidden with its <h4> label
+ * stacked above it. Without React, the picker island never hydrates,
+ * so all options remain visible and copyable — ugly but functional.
  */
 export interface Props {
   /** The PAT to bake into snippets / deeplinks. Use `hzn_pat_…` for the persistent (placeholder) variant. */
@@ -34,6 +34,22 @@ export interface Props {
 
 const { token, serverName, origin } = Astro.props;
 const endpoint = `${origin}/api/mcp`;
+// Deeplinks bake the token into the URL — clicking one with the
+// `hzn_pat_xxxxxxxxxxxxxxxxxxxxxxxx` placeholder would install a dead
+// server in the user's editor. Persistent-reference renders pass that
+// placeholder, success-card renders pass the freshly-minted PAT. We
+// gate the buttons on the same sentinel string the page exposes.
+const tokenIsPlaceholder = token.includes("xxxxxxxx");
+
+const editorOptions = [
+  { value: "cursor", label: "Cursor" },
+  { value: "vscode", label: "VS Code" },
+  { value: "vscode-insiders", label: "VS Code Insiders" },
+  { value: "claude-code", label: "Claude Code (CLI)" },
+  { value: "codex", label: "Codex (CLI)" },
+  { value: "claude-desktop", label: "Claude Desktop" },
+  { value: "other", label: "Other / raw mcp.json" },
+];
 
 const remoteJson = JSON.stringify(
   {
@@ -84,8 +100,6 @@ const vscodeInsidersDeeplink = `vscode-insiders:mcp/install?${vscodeQuery}`;
 const vscodeCli = `code --add-mcp '${JSON.stringify(vscodeConfig)}'`;
 
 // Claude Code CLI: --header form works across all 2.x versions.
-// `add-json` is newer (2.1.1+) but has a Windows bug, so we keep the
-// classic form here.
 const claudeCodeCli = `claude mcp add --transport http ${serverName} ${endpoint} --header "Authorization: Bearer ${token}"`;
 
 // Codex CLI: deliberately env-var-based — the config file stores the
@@ -96,90 +110,183 @@ const codexEnvExport = `export HANDZON_PAT="${token}"`;
 ---
 
 <div class="editor-picker">
-  <label class="editor-picker-label">
-    <span>Install in</span>
-    <select class="editor-select" name="editor">
-      <option value="cursor" selected>Cursor</option>
-      <option value="vscode">VS Code</option>
-      <option value="vscode-insiders">VS Code Insiders</option>
-      <option value="claude-code">Claude Code (CLI)</option>
-      <option value="codex">Codex (CLI)</option>
-      <option value="claude-desktop">Claude Desktop</option>
-      <option value="other">Other / raw mcp.json</option>
-    </select>
-  </label>
+  <EditorPicker client:load options={editorOptions} />
 
   <h4 class="editor-label" data-for="cursor">Cursor</h4>
-  <div class="editor-panel" data-editor="cursor">
-    <p class="muted">
+  <div class="editor-panel prose" data-editor="cursor">
+    <p>
       One click — opens Cursor's MCP install prompt with the server and
       token already filled in.
     </p>
     <p>
-      <a class="btn" href={cursorDeeplink}>Add to Cursor</a>
+      {tokenIsPlaceholder ? (
+        <button
+          type="button"
+          class="sib"
+          disabled
+          aria-disabled="true"
+          title="Mint a token first to enable one-click install"
+        >
+          Add to Cursor
+        </button>
+      ) : (
+        <a class="sib" href={cursorDeeplink}>Add to Cursor</a>
+      )}
     </p>
-    <p class="muted">
-      Or paste into <code>~/.cursor/mcp.json</code> (or{" "}
-      <code>.cursor/mcp.json</code> in your project):
-    </p>
-    <pre class="snippet" data-copy>{remoteJson}</pre>
+    {tokenIsPlaceholder && (
+      <p class="install-hint">
+        Mint a token below to enable one-click install.
+      </p>
+    )}
+    <p>Or paste into your Cursor MCP config:</p>
+    <Code code={remoteJson} lang="json" title="~/.cursor/mcp.json" />
   </div>
 
   <h4 class="editor-label" data-for="vscode">VS Code</h4>
-  <div class="editor-panel" data-editor="vscode">
-    <p class="muted">One click — opens VS Code's MCP install prompt.</p>
+  <div class="editor-panel prose" data-editor="vscode">
+    <p>One click — opens VS Code's MCP install prompt.</p>
     <p>
-      <a class="btn" href={vscodeDeeplink}>Add to VS Code</a>
+      {tokenIsPlaceholder ? (
+        <button
+          type="button"
+          class="sib"
+          disabled
+          aria-disabled="true"
+          title="Mint a token first to enable one-click install"
+        >
+          Add to VS Code
+        </button>
+      ) : (
+        <a class="sib" href={vscodeDeeplink}>Add to VS Code</a>
+      )}
     </p>
-    <p class="muted">Or run in your terminal (uses the <code>code</code> CLI):</p>
-    <pre class="snippet" data-copy>{vscodeCli}</pre>
+    {tokenIsPlaceholder && (
+      <p class="install-hint">
+        Mint a token below to enable one-click install.
+      </p>
+    )}
+    <p>Or run in your terminal (uses the <code>code</code> CLI):</p>
+    <Code code={vscodeCli} lang="shell" title="Terminal" />
   </div>
 
   <h4 class="editor-label" data-for="vscode-insiders">VS Code Insiders</h4>
-  <div class="editor-panel" data-editor="vscode-insiders">
+  <div class="editor-panel prose" data-editor="vscode-insiders">
     <p>
-      <a class="btn" href={vscodeInsidersDeeplink}>Add to VS Code Insiders</a>
+      {tokenIsPlaceholder ? (
+        <button
+          type="button"
+          class="sib"
+          disabled
+          aria-disabled="true"
+          title="Mint a token first to enable one-click install"
+        >
+          Add to VS Code Insiders
+        </button>
+      ) : (
+        <a class="sib" href={vscodeInsidersDeeplink}>Add to VS Code Insiders</a>
+      )}
     </p>
+    {tokenIsPlaceholder && (
+      <p class="install-hint">
+        Mint a token below to enable one-click install.
+      </p>
+    )}
   </div>
 
   <h4 class="editor-label" data-for="claude-code">Claude Code (CLI)</h4>
-  <div class="editor-panel" data-editor="claude-code">
-    <p class="muted">Run in your terminal:</p>
-    <pre class="snippet" data-copy>{claudeCodeCli}</pre>
+  <div class="editor-panel prose" data-editor="claude-code">
+    <p>Run in your terminal:</p>
+    <Code code={claudeCodeCli} lang="shell" title="Terminal" />
   </div>
 
   <h4 class="editor-label" data-for="codex">Codex (CLI)</h4>
-  <div class="editor-panel" data-editor="codex">
-    <p class="muted">
-      1. Register the server in <code>~/.codex/config.toml</code>:
-    </p>
-    <pre class="snippet" data-copy>{codexCli}</pre>
-    <p class="muted">
+  <div class="editor-panel prose" data-editor="codex">
+    <p>1. Register the server in your Codex config:</p>
+    <Code code={codexCli} lang="shell" title="Terminal" />
+    <p>
       2. Export the token where your shell can find it (add to{" "}
-      <code>~/.zshrc</code> / <code>~/.bashrc</code>). Codex stores only
+      <code>~/.zshrc</code> or <code>~/.bashrc</code>). Codex stores only
       the env var <em>name</em> in its config file, never the token
       itself — so the secret stays out of files you might commit.
     </p>
-    <pre class="snippet" data-copy>{codexEnvExport}</pre>
+    <Code code={codexEnvExport} lang="shell" title="~/.zshrc" />
   </div>
 
   <h4 class="editor-label" data-for="claude-desktop">Claude Desktop</h4>
-  <div class="editor-panel" data-editor="claude-desktop">
-    <p class="muted">
-      Paste into{" "}
-      <code>~/Library/Application Support/Claude/claude_desktop_config.json</code>{" "}
-      on macOS. Uses the <code>handzon-mcp</code> npx wrapper (Claude
-      Desktop has no native remote-MCP support yet).
+  <div class="editor-panel prose" data-editor="claude-desktop">
+    <p>
+      Paste into Claude Desktop's config. Uses the <code>handzon-mcp</code>{" "}
+      npx wrapper since Claude Desktop has no native remote-MCP support yet.
     </p>
-    <pre class="snippet" data-copy>{stdioJson}</pre>
+    <Code
+      code={stdioJson}
+      lang="json"
+      title="~/Library/Application Support/Claude/claude_desktop_config.json"
+    />
   </div>
 
   <h4 class="editor-label" data-for="other">Other / raw mcp.json</h4>
-  <div class="editor-panel" data-editor="other">
-    <p class="muted">
+  <div class="editor-panel prose" data-editor="other">
+    <p>
       Generic remote MCP config for any client that supports the
       standard <code>mcp.json</code> shape (HTTP transport + bearer auth).
     </p>
-    <pre class="snippet" data-copy>{remoteJson}</pre>
+    <Code code={remoteJson} lang="json" title="mcp.json" />
   </div>
 </div>
+
+<style>
+  /* Stack the picker control above the panels with a touch of breathing
+     room. Everything else (typography, code chrome, dropdown look) is
+     inherited from handzon-core: .prose for paragraphs, EC for snippets,
+     .hz-dd-* (via the React Dropdown) for the trigger + popover. */
+  .editor-picker {
+    margin: 0.4rem 0 0.6rem;
+    display: grid;
+    gap: 0.6rem;
+  }
+  .editor-label {
+    margin: 1.1rem 0 0.35rem;
+    font-size: 1.05em;
+    font-weight: 600;
+  }
+  /* Labels render unhidden on first paint (no-JS fallback). The picker
+     island hides them imperatively once it hydrates — see EditorPicker
+     .tsx's applyPanelVisibility. CSS-only hiding is intentionally not
+     used because Astro's per-component scoping makes cross-style-block
+     :has() / class selectors unreliable here. */
+  .editor-panel { display: block; }
+  .editor-panel[hidden] { display: none; }
+  /* EC frames sit flush against the surrounding paragraphs by default;
+     give them a hair more vertical air so they don't collide with the
+     "Or paste into…" line. */
+  .editor-panel :global(.expressive-code) {
+    margin: 0.55rem 0 0.9rem;
+  }
+  /* Inline note shown next to the disabled deeplink buttons in the
+     persistent (placeholder-token) variant. */
+  .install-hint {
+    font-size: 0.85em;
+    color: var(--color-muted);
+    margin-top: -0.4rem;
+  }
+</style>
+
+<!-- Global because `.sib` is defined in handzon-core's SignInButton
+     (also global) — adding a `:disabled` modifier here keeps the
+     disabled deeplink buttons visually distinct without forking the
+     core component. -->
+<style is:global>
+  .sib[disabled],
+  .sib[aria-disabled="true"] {
+    opacity: 0.45;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+  .sib[disabled]:hover,
+  .sib[aria-disabled="true"]:hover {
+    background: transparent;
+    color: var(--color-fg);
+    border-color: var(--color-fg);
+  }
+</style>
