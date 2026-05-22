@@ -118,6 +118,37 @@ export default function ChatPanel({ open, onOpenChange, config, context, initial
     await runStream(next);
   }
 
+  // Help-bridge: when the panel first opens and there's no seed from
+  // a Family A touchpoint, fetch pending help requests posted by the
+  // agent via MCP and prepend them as user turns. Same one-shot ref
+  // as the seed below so subsequent opens don't re-replay them.
+  const inboxRef = useRef(false);
+  // biome-ignore lint/correctness/useExhaustiveDependencies: open is the trigger
+  useEffect(() => {
+    if (!open || inboxRef.current) return;
+    if (initialMessages && initialMessages.length > 0) return;
+    inboxRef.current = true;
+    void (async () => {
+      try {
+        const res = await fetch("/api/help-inbox");
+        if (!res.ok) return;
+        const data = (await res.json()) as {
+          requests?: Array<{ query: string; tutorialSlug: string; stepSlug: string }>;
+        };
+        const queued = data.requests ?? [];
+        if (queued.length === 0) return;
+        const turns: ChatMessage[] = queued.map((r) => ({
+          role: "user",
+          content: `From my agent on ${r.tutorialSlug}/${r.stepSlug}: ${r.query}`,
+        }));
+        setMessages((prev) => [...prev, ...turns]);
+        if (!needsKey) void runStream([...messages, ...turns]);
+      } catch {
+        /* network error — silently fall back to a normal session */
+      }
+    })();
+  }, [open]);
+
   // When the panel opens with a pre-seeded user turn (HelpMe, quiz
   // "why is this wrong?", checkpoint nudge, …) auto-trigger the
   // stream once. Gated on `open` so closing + reopening doesn't fire
@@ -128,6 +159,7 @@ export default function ChatPanel({ open, onOpenChange, config, context, initial
   useEffect(() => {
     if (!open) {
       seededRef.current = false;
+      inboxRef.current = false;
       return;
     }
     if (seededRef.current) return;

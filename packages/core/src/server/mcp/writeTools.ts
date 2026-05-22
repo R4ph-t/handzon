@@ -1,3 +1,5 @@
+import { getDb } from "../db/client.ts";
+import { helpRequests } from "../db/schema.ts";
 import { writeProgressEntries } from "../progress.ts";
 import { errorResult, type McpTool, text } from "./protocol.ts";
 
@@ -202,6 +204,39 @@ export const progressWriteTools: McpTool[] = [
         },
       ]);
       return text(`Last-visited set to ${a.tutorial}/${a.step}.`);
+    },
+  },
+  {
+    name: "request_help",
+    description:
+      "Post a help request from the agent into the in-browser tutor's inbox. The next time the learner opens ChatPanel, your query is prepended as a user turn.",
+    requiredScope: SCOPE,
+    inputSchema: {
+      type: "object",
+      properties: {
+        tutorial: { type: "string", minLength: 1 },
+        step: { type: "string", minLength: 1 },
+        query: { type: "string", minLength: 1 },
+      },
+      required: ["tutorial", "step", "query"],
+      additionalProperties: false,
+    },
+    handler: async (args, ctx) => {
+      const a = args as { tutorial: string; step: string; query: string };
+      const learnerId = requireLearner(ctx.learnerId);
+      const db = getDb();
+      const [row] = await db
+        .insert(helpRequests)
+        .values({
+          learnerId,
+          tutorialSlug: a.tutorial,
+          stepSlug: a.step,
+          query: a.query,
+        })
+        .returning({ id: helpRequests.id });
+      return text(
+        `Help request queued (${row!.id}). It will appear in the learner's tutor on next open.`,
+      );
     },
   },
   {

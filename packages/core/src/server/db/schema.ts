@@ -66,6 +66,33 @@ export const learnerApiTokens = pgTable("learner_api_tokens", {
   expiresAt: timestamp("expires_at", { withTimezone: true }),
 });
 
+/**
+ * Help-bridge inbox: pending help requests posted by the agent on
+ * the learner's machine (`request_help` MCP tool). ChatPanel reads
+ * pending rows on open, prepends them as a user turn, and marks
+ * them consumed so the next open doesn't re-replay them.
+ */
+export const helpRequests = pgTable(
+  "help_requests",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    learnerId: uuid("learner_id")
+      .notNull()
+      .references(() => learners.id, { onDelete: "cascade" }),
+    tutorialSlug: text("tutorial_slug").notNull(),
+    stepSlug: text("step_slug").notNull(),
+    query: text("query").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    consumedAt: timestamp("consumed_at", { withTimezone: true }),
+  },
+  (table) => ({
+    byLearnerPending: index("help_requests_by_learner_pending").on(
+      table.learnerId,
+      table.consumedAt,
+    ),
+  }),
+);
+
 export const progressEntries = pgTable(
   "progress_entries",
   {
