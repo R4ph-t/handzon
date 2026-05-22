@@ -9,7 +9,19 @@ import {
 import { getDb } from "../db/client.ts";
 import { progressEntries } from "../db/schema.ts";
 import { type McpTool, text } from "./protocol.ts";
-import { progressWriteTools } from "./writeTools.ts";
+import { progressWriteTools, verificationTools } from "./writeTools.ts";
+
+/**
+ * Pull the first <Checkpoint label="…"> from a step body so the
+ * agent can surface the prose criterion when there's no machine-
+ * verifiable spec to run. Returns undefined when no Checkpoint or
+ * no label attribute is present.
+ */
+function extractCheckpointLabel(body: string): string | undefined {
+  const m = /<Checkpoint\b[^>]*\blabel\s*=\s*(?:"([^"]+)"|'([^']+)'|\{`([^`]+)`\})/.exec(body);
+  if (!m) return undefined;
+  return m[1] ?? m[2] ?? m[3];
+}
 
 /**
  * Catalog read tools. No auth required beyond a valid bearer token —
@@ -103,6 +115,8 @@ export const catalogReadTools: McpTool[] = [
         };
       }
       const { stepSlug, order } = parseStepId(stepEntry.id);
+      const body = stepEntry.body ?? "";
+      const verifySpec = (stepEntry.data as { verify?: unknown }).verify;
       const payload = {
         tutorial,
         slug: stepSlug,
@@ -110,7 +124,12 @@ export const catalogReadTools: McpTool[] = [
         title: stepEntry.data.title,
         summary: stepEntry.data.summary,
         duration: stepEntry.data.duration,
-        source: stepEntry.body ?? "",
+        source: body,
+        verify: verifySpec ?? null,
+        // Prose-fallback: when no verify block is declared, surface the
+        // <Checkpoint label="…"> text so the agent can self-attest the
+        // criterion before calling complete_checkpoint.
+        checkpointCriterion: verifySpec ? null : (extractCheckpointLabel(body) ?? null),
       };
       return text(JSON.stringify(payload, null, 2));
     },
@@ -152,4 +171,5 @@ export const defaultTools: McpTool[] = [
   ...catalogReadTools,
   ...progressReadTools,
   ...progressWriteTools,
+  ...verificationTools,
 ];

@@ -1,6 +1,8 @@
+import { getStep } from "../../lib/content.ts";
 import { getDb } from "../db/client.ts";
 import { helpRequests } from "../db/schema.ts";
 import { writeProgressEntries } from "../progress.ts";
+import { type CheckObservation, evaluate } from "../verify/evaluator.ts";
 import { errorResult, type McpTool, text } from "./protocol.ts";
 
 const SCOPE = "progress:write";
@@ -275,3 +277,110 @@ export const progressWriteTools: McpTool[] = [
 export function toolError(message: string) {
   return errorResult(message);
 }
+
+/**
+ * Family D verification: agent reports observations, server scores.
+ * On pass, the same writeProgressEntries() path that
+ * complete_checkpoint uses fires + a kind:"verification" telemetry
+ * row lands. On fail, only the telemetry row lands and the verdict
+ * is returned to the agent. SSE fans the telemetry row to the open
+ * browser tab so <Checkpoint> can render an inline failure hint.
+ */
+export const verificationTools: McpTool[] = [
+  {
+    name: "submit_verification",
+    description:
+      "Submit observed values for the current step's verify checks. The server scores against the declared spec and (on pass) marks the matching checkpoint complete. On fail, returns the failing check + hint and does not write a checkpoint row.",
+    requiredScope: SCOPE,
+    inputSchema: {
+      type: "object",
+      properties: {
+        tutorial: { type: "string", minLength: 1 },
+        step: { type: "string", minLength: 1 },
+        observations: {
+          type: "array",
+          description:
+            "One observation per declared check, in order. Fields per kind: file_exists {exists}, file_contains {exists, body}, shell {exitCode, stdout}, http {status, responseBody}.",
+          items: { type: "object" },
+        },
+      },
+      required: ["tutorial", "step", "observations"],
+      additionalProperties: false,
+    },
+    handler: async (args, ctx) => {
+      const a = args as {
+        tutorial: string;
+        step: string;
+        observations: CheckObservation[];
+      };
+      const learnerId = requireLearner(ctx.learnerId);
+      const stepEntry = await getStep(a.tutorial, a.step);
+      if (!stepEntry) {
+        return errorResult(`No step "${a.step}" in "${a.tutorial}".`);
+      }
+      const spec = (stepEntry.data as { verify?: unknown }).verify as
+        | import("../../collections.ts").VerifySpec
+        | undefined;
+      if (!spec) {
+        return errorResult(
+          `Step ${a.tutorial}/${a.step} has no verify block. Use complete_checkpoint for prose-fallback verification.`,
+        );
+      }
+
+      const verdict = evaluate(spec, a.observations);
+      const scope = `${a.tutorial}/${a.step}`;
+      const ts = Date.now();
+
+      if (verdict.passed) {
+        await writeProgressEntries(learnerId, [
+          {
+            kind: "checkpoint",
+            scope,
+            key: spec.id,
+            value: { source: "verify", results: a.observations, ts },
+          },
+          {
+            kind: "verification",
+            scope,
+            key: spec.id,
+            value: { pass: true, ts },
+          },
+        ]);
+        return text(
+          JSON.stringify(
+            { passed: true, checkpointId: spec.id, message: "All checks passed." },
+            null,
+            2,
+          ),
+        );
+      }
+
+      await writeProgressEntries(learnerId, [
+        {
+          kind: "verification",
+          scope,
+          key: spec.id,
+          value: {
+            pass: false,
+            failingCheckIndex: verdict.failingCheckIndex,
+            reason: verdict.reason,
+            hint: verdict.hint,
+            ts,
+          },
+        },
+      ]);
+      return text(
+        JSON.stringify(
+          {
+            passed: false,
+            failingCheckIndex: verdict.failingCheckIndex,
+            reason: verdict.reason,
+            hint: verdict.hint,
+          },
+          null,
+          2,
+        ),
+      );
+    },
+  },
+];
