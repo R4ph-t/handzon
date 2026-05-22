@@ -1,3 +1,5 @@
+import type { AssistantContext } from "./context";
+
 /**
  * Reads the per-step JSON payload that TutorialLayout emits into
  * `<script id="tt-step-data" type="application/json">`. Family B
@@ -40,4 +42,33 @@ export function renderTemplate(template: string, data: StepData): string {
   return template.replace(/\{\{\s*(\w+)\s*\}\}/g, (raw, key) => {
     return key in map ? map[key] : raw;
   });
+}
+
+/**
+ * Construct a minimal AssistantContext from client-side step data
+ * for Family B touchpoints that need to call buildAssistantPrompt
+ * without the build-time context that ChatButton holds. Fields we
+ * don't know client-side (difficulty, tags, outline, prior steps,
+ * progress) come back empty; the intents that Family B uses
+ * (explainStep, recap) only read tutorial + currentStep.
+ */
+export function contextFromStepData(data: StepData): AssistantContext {
+  return {
+    tutorial: {
+      slug: data.tutorialSlug,
+      title: data.tutorialTitle,
+      description: "",
+      difficulty: "",
+      tags: [],
+    },
+    outline: [],
+    currentStep: {
+      slug: data.stepSlug,
+      title: data.stepTitle,
+      source: data.stepSource,
+    },
+    priorSteps: [],
+    progress: { completed: [], quizzes: [], checkpoints: [] },
+    references: [],
+  };
 }

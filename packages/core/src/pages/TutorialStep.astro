@@ -2,6 +2,7 @@
 import { render } from "astro:content";
 import TutorialLayout from "../layouts/TutorialLayout.astro";
 import ChatButton from "../components/ai/ChatButton.tsx";
+import OpenInAgent from "../components/ai/OpenInAgent.tsx";
 import SelectionAsk from "../components/ai/SelectionAsk.tsx";
 import StepHelp from "../components/ai/StepHelp.tsx";
 import { parseStepId } from "../lib/content.ts";
@@ -66,6 +67,8 @@ const initialContext = buildContext({
   {aiConfig.enabled && aiConfig.autoStepHelp && (
     <StepHelp client:visible stepTitle={currentStep.data.title} />
   )}
+  <OpenInAgent client:visible />
+
   {aiConfig.enabled && (
     <>
       <ChatButton client:idle config={aiConfig} context={initialContext} />

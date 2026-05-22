@@ -33,7 +33,7 @@ function header(ctx: AssistantContext): string {
   return [`Tutorial: ${ctx.tutorial.title}`, `Step: ${ctx.currentStep.title}`].join("\n");
 }
 
-function renderIntent(intent: AssistantIntent): string {
+function renderIntent(ctx: AssistantContext, intent: AssistantIntent): string {
   switch (intent.kind) {
     case "unstuck":
       return intent.topic
@@ -74,14 +74,20 @@ function renderIntent(intent: AssistantIntent): string {
       ].join("\n");
     }
     case "explainStep":
-      return `Walk me through what this step is asking me to do and why it matters.`;
+      return [
+        `Walk me through what this step is asking me to do and why it matters.`,
+        ``,
+        `Step content:`,
+        ``,
+        ctx.currentStep.source,
+      ].join("\n");
     case "recap":
       return `Give me a one-paragraph recap of what I've learned so far in this tutorial.`;
   }
 }
 
 function buildMarkdown(ctx: AssistantContext, intent: AssistantIntent): string {
-  return [header(ctx), "", renderIntent(intent)].join("\n");
+  return [header(ctx), "", renderIntent(ctx, intent)].join("\n");
 }
 
 /**
