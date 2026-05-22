@@ -13,7 +13,7 @@ import { users } from "../auth/schema.ts";
 
 // Re-export the Auth.js tables so consumers (and drizzle-kit) see one
 // schema barrel.
-export { users, accounts, sessions, verificationTokens } from "../auth/schema.ts";
+export { accounts, sessions, users, verificationTokens } from "../auth/schema.ts";
 
 export const learners = pgTable(
   "learners",

@@ -65,6 +65,13 @@ function diffState(prev: ProgressState, next: ProgressState): ProgressEntry[] {
       out.push({ kind: "checkpoint", scope: "global", key: id, value });
     }
   }
+  // Emit deletions so the server tombstones unchecked checkpoints; without
+  // this the next snapshot fetch would resurrect them from the DB.
+  for (const id of Object.keys(prev.checkpoints)) {
+    if (!next.checkpoints[id]) {
+      out.push({ kind: "checkpoint", scope: "global", key: id, value: null });
+    }
+  }
   for (const [k, value] of Object.entries(next.prefs)) {
     if ((prev.prefs as Record<string, unknown>)[k] !== value) {
       out.push({ kind: "pref", scope: "global", key: k, value });
@@ -150,6 +157,7 @@ export function createRemoteStore(): ProgressStore {
           } else if (e.kind === "quiz") {
             merged.quizzes[e.key] = e.value as ProgressState["quizzes"][string];
           } else if (e.kind === "checkpoint") {
+            if (e.value == null) continue;
             merged.checkpoints[e.key] = e.value as ProgressState["checkpoints"][string];
           } else if (e.kind === "pref") {
             (merged.prefs as Record<string, unknown>)[e.key] = e.value;

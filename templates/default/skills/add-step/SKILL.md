@@ -57,7 +57,7 @@ Show the author your component picks for the step (one line) and confirm before 
 
 Slugify the step title (`deploy-to-render`, kebab-case). The filename is `<NN>-<step-slug>.mdx` in the tutorial folder. Verify the prefix doesn't already exist.
 
-Write frontmatter and a useful skeleton — not just a `<Callout>`. Drop in *empty* instances of the components agreed in section 3 (only the ones for *this* step). Strip the comment hints below before saving — they're guidance, not output:
+Write frontmatter and a useful skeleton — not just a `<Callout>`. Drop in *empty* instances of the components agreed in section 3 (only the ones for *this* step). Any prose you write (intro sentence, `<Callout>` body, `<Recap>` items) must follow the `authoring-voice` rules — no em dashes, no AI tells, second person, present tense. Strip the comment hints below before saving — they're guidance, not output:
 
 ```mdx
 ---
@@ -105,8 +105,9 @@ Tell the author exactly what to do next:
 
 1. **Run `pnpm dev`** and open `http://localhost:4321/<tutorial-slug>/<step-slug>` to see the scaffold.
 2. **Write the body**, then replace the empty component placeholders with real content.
-3. **Companion skills** for the components they picked:
-   - `add-quiz`, `add-checkpoint`, `add-playground`, `add-mermaid-diagram`
+3. **Companion skills**:
+   - `authoring-voice` — Handzon's house voice rules. Invoke before writing the step's prose.
+   - `add-quiz`, `add-checkpoint`, `add-playground`, `add-mermaid-diagram` — for the components they picked.
 4. When the tutorial feels done, run `review-tutorial` — the pre-publish checklist.
 
 ## Don't

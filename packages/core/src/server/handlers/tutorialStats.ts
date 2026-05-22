@@ -29,9 +29,12 @@ let cache: CacheEntry | null = null;
  */
 export const GET: APIRoute = async () => {
   if (!process.env.DATABASE_URL) {
-    return json({ stats: [] satisfies TutorialStat[] }, {
-      headers: { "Cache-Control": "public, max-age=60" },
-    });
+    return json(
+      { stats: [] satisfies TutorialStat[] },
+      {
+        headers: { "Cache-Control": "public, max-age=60" },
+      },
+    );
   }
   const now = Date.now();
   if (cache && cache.expiresAt > now) {

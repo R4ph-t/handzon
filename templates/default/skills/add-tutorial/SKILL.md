@@ -85,7 +85,7 @@ src/content/tutorials/<slug>/
 
 Add `"gated": true` only if the author asked for it. See `AGENTS.md` for the full schema (`nextTutorial`, `cover`, `icon`, `ai`).
 
-**Each step `.mdx`** — frontmatter plus a useful skeleton, not just a `<Callout>` placeholder. Drop in empty instances of the components the outline agreed on for *this* step (don't include components from other steps):
+**Each step `.mdx`** — frontmatter plus a useful skeleton, not just a `<Callout>` placeholder. Drop in empty instances of the components the outline agreed on for *this* step (don't include components from other steps). Any prose you write in the skeleton (the intro sentence, the `<Callout>` body) must follow the `authoring-voice` rules — no em dashes, no AI tells, second person, present tense:
 
 ```mdx
 ---
@@ -128,6 +128,7 @@ Tell the author exactly what to do next, in this order:
 2. **Write step 1 first** — it's the easiest and unblocks the mental model for the rest.
 3. **Cover art is schema-only for now.** `_meta.json.cover` and `icon` are accepted by the schema but no page renders them yet. Don't promise the author it'll show up on tutorial cards or OG meta — it won't. Mention it as forward-compatible scaffolding only if they ask.
 4. **Companion skills** they'll likely want next:
+   - `authoring-voice` — Handzon's house voice rules (no em dashes, no AI tells, etc.). Invoke before writing any prose.
    - `add-step` — if the outline grows
    - `add-quiz` — to add the mid-tutorial quiz
    - `add-checkpoint` — for gated tutorials

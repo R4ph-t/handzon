@@ -1,13 +1,6 @@
 import * as Popover from "@radix-ui/react-popover";
 import { Check, ChevronDown, Search, X } from "lucide-react";
-import {
-  type KeyboardEvent,
-  type ReactNode,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { type KeyboardEvent, type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 
 export interface MultiSelectOption {
   value: string;
@@ -64,10 +57,7 @@ export default function MultiSelect({
   // Sort by count desc so "weighty" facets bubble up. Stable
   // alphabetical secondary sort keeps neighbours predictable.
   const sorted = useMemo(
-    () =>
-      [...options].sort(
-        (a, b) => b.count - a.count || a.label.localeCompare(b.label),
-      ),
+    () => [...options].sort((a, b) => b.count - a.count || a.label.localeCompare(b.label)),
     [options],
   );
 
@@ -158,11 +148,7 @@ export default function MultiSelect({
         </button>
       </Popover.Trigger>
       <Popover.Portal>
-        <Popover.Content
-          className="hz-ms-content"
-          align="start"
-          sideOffset={6}
-        >
+        <Popover.Content className="hz-ms-content" align="start" sideOffset={6}>
           {searchable && (
             <label className="hz-ms-search">
               <Search size={14} aria-hidden="true" />

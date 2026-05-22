@@ -61,11 +61,7 @@ export async function getOrCreateLearner(
   // Anonymous path — unchanged from pre-auth behaviour.
   let deviceId = cookies.get(COOKIE)?.value;
   if (deviceId) {
-    const found = await db
-      .select()
-      .from(learners)
-      .where(eq(learners.deviceId, deviceId))
-      .limit(1);
+    const found = await db.select().from(learners).where(eq(learners.deviceId, deviceId)).limit(1);
     if (found[0]) return { id: found[0].id, deviceId };
   }
   deviceId = randomDeviceId();

@@ -7,8 +7,7 @@ import pc from "picocolors";
  * SKILL.md files in the handzon repo. Bump the branch/path here when
  * the repo layout changes.
  */
-export const SKILLS_SOURCE =
-  "https://github.com/R4ph-t/handzon/tree/main/templates/default/skills";
+export const SKILLS_SOURCE = "https://github.com/R4ph-t/handzon/tree/main/templates/default/skills";
 
 interface SkillsOptions {
   yes?: boolean;

@@ -44,7 +44,9 @@ export default function ResumeRail({ tutorials }: Props) {
       <span className="rr-prefix">Continue</span>
       <span className="rr-title">{mostRecent.title}</span>
       <span className="rr-step">/ {mostRecent.step}</span>
-      <span className="rr-arrow" aria-hidden="true">→</span>
+      <span className="rr-arrow" aria-hidden="true">
+        →
+      </span>
     </a>
   );
 }

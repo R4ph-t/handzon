@@ -1,5 +1,5 @@
 import type { APIRoute } from "astro";
-import { eq, sql } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { z } from "zod";
 import { getOrCreateLearner } from "../auth.ts";
 import { getDb } from "../db/client.ts";
@@ -61,30 +61,53 @@ export const POST: APIRoute = async ({ cookies, request }) => {
   const learner = await getOrCreateLearner(cookies, request);
   const db = getDb();
   const now = new Date();
-  const rows = parsed.map((b) => ({
-    learnerId: learner.id,
-    kind: b.kind,
-    scope: b.scope,
-    key: b.key,
-    value: b.value,
-    updatedAt: now,
-  }));
-  await db
-    .insert(progressEntries)
-    .values(rows)
-    .onConflictDoUpdate({
-      target: [
-        progressEntries.learnerId,
-        progressEntries.kind,
-        progressEntries.scope,
-        progressEntries.key,
-      ],
-      set: {
-        // `excluded` is the row Postgres would have inserted — without
-        // this the SET was a no-op (`value = progress_entries.value`).
-        value: sql`excluded.value`,
-        updatedAt: sql`excluded.updated_at`,
-      },
-    });
-  return json({ written: rows.length });
+
+  // `value: null` is the tombstone signal for "this entry was undone"
+  // (e.g. unchecking a checkpoint). The `value` column is NOT NULL, so
+  // we DELETE these rows instead of upserting them.
+  const deletes = parsed.filter((b) => b.value === null);
+  const upserts = parsed.filter((b) => b.value !== null);
+
+  for (const d of deletes) {
+    await db
+      .delete(progressEntries)
+      .where(
+        and(
+          eq(progressEntries.learnerId, learner.id),
+          eq(progressEntries.kind, d.kind),
+          eq(progressEntries.scope, d.scope),
+          eq(progressEntries.key, d.key),
+        ),
+      );
+  }
+
+  if (upserts.length > 0) {
+    const rows = upserts.map((b) => ({
+      learnerId: learner.id,
+      kind: b.kind,
+      scope: b.scope,
+      key: b.key,
+      value: b.value,
+      updatedAt: now,
+    }));
+    await db
+      .insert(progressEntries)
+      .values(rows)
+      .onConflictDoUpdate({
+        target: [
+          progressEntries.learnerId,
+          progressEntries.kind,
+          progressEntries.scope,
+          progressEntries.key,
+        ],
+        set: {
+          // `excluded` is the row Postgres would have inserted — without
+          // this the SET was a no-op (`value = progress_entries.value`).
+          value: sql`excluded.value`,
+          updatedAt: sql`excluded.updated_at`,
+        },
+      });
+  }
+
+  return json({ written: parsed.length });
 };

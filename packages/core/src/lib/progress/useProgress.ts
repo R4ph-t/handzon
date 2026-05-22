@@ -8,6 +8,7 @@ interface ProgressApi {
   markStepIncomplete: (tutorial: string, step: string) => void;
   recordQuiz: (questionId: string, chosen: number[], correct: boolean) => void;
   recordCheckpoint: (checkpointId: string) => void;
+  removeCheckpoint: (checkpointId: string) => void;
   setPref: <K extends keyof ProgressState["prefs"]>(
     key: K,
     value: ProgressState["prefs"][K],
@@ -56,6 +57,13 @@ export function useProgress(): ProgressApi {
           ...s,
           checkpoints: { ...s.checkpoints, [checkpointId]: { ts: Date.now() } },
         })),
+      removeCheckpoint: (checkpointId: string) =>
+        store.set((s) => {
+          if (!s.checkpoints[checkpointId]) return s;
+          const next = { ...s.checkpoints };
+          delete next[checkpointId];
+          return { ...s, checkpoints: next };
+        }),
       setPref: <K extends keyof ProgressState["prefs"]>(key: K, value: ProgressState["prefs"][K]) =>
         store.set((s) => ({ ...s, prefs: { ...s.prefs, [key]: value } })),
       setLastVisited: (tutorial: string, step: string) =>

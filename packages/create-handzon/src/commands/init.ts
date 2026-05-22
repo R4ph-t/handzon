@@ -8,8 +8,8 @@ import pc from "picocolors";
 import { ask } from "../shared/ask";
 import { writeDevEnv, writeDevScripts } from "../shared/dev-config";
 import { replaceProjectName } from "../shared/render-template";
-import { installSkillsInteractive } from "./skills";
 import { isValidSlug, slugify } from "../shared/slugify";
+import { installSkillsInteractive } from "./skills";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -68,21 +68,21 @@ export async function runInit(opts: InitOptions = {}): Promise<void> {
 
   const assistantName = aiEnabled
     ? await ask(shouldPrompt, "Helper", () =>
-      p.text({ message: "Assistant name", placeholder: "Helper", defaultValue: "Helper" }),
-    )
+        p.text({ message: "Assistant name", placeholder: "Helper", defaultValue: "Helper" }),
+      )
     : "Helper";
 
   const byok = aiEnabled
     ? await ask(shouldPrompt, "required" as const, () =>
-      p.select({
-        message: "BYOK mode",
-        options: [
-          { value: "required", label: "required — learner provides their key" },
-          { value: "optional", label: "optional — you can also provide a server key" },
-          { value: "disabled", label: "disabled — no AI helper" },
-        ],
-      }),
-    )
+        p.select({
+          message: "BYOK mode",
+          options: [
+            { value: "required", label: "required — learner provides their key" },
+            { value: "optional", label: "optional — you can also provide a server key" },
+            { value: "disabled", label: "disabled — no AI helper" },
+          ],
+        }),
+      )
     : "disabled";
 
   const tier2 = await ask(shouldPrompt, false, () =>
@@ -97,8 +97,8 @@ export async function runInit(opts: InitOptions = {}): Promise<void> {
   // env vars and re-enabling the integration.
   const githubAuth = tier2
     ? await ask(shouldPrompt, false, () =>
-      p.confirm({ message: "Enable GitHub sign-in for learners?", initialValue: false }),
-    )
+        p.confirm({ message: "Enable GitHub sign-in for learners?", initialValue: false }),
+      )
     : false;
 
   const packageManager = await ask(shouldPrompt, "pnpm" as const, () =>
@@ -143,13 +143,7 @@ export async function runInit(opts: InitOptions = {}): Promise<void> {
   // skills/ + .cursor/ + .claude/ are intentionally excluded — they
   // ship to the user's AI agent on demand via `npx skills add`, not as
   // files inside the scaffold (see commands/skills.ts).
-  const EXCLUDED_SEGMENTS = new Set([
-    "node_modules",
-    ".astro",
-    "skills",
-    ".cursor",
-    ".claude",
-  ]);
+  const EXCLUDED_SEGMENTS = new Set(["node_modules", ".astro", "skills", ".cursor", ".claude"]);
   await cp(templateDir, targetDir, {
     recursive: true,
     // Preserve .cursor/skills + .claude/skills symlinks rather than
@@ -298,7 +292,7 @@ export type { AiConfig };
       // Requires git >= 2.28 (July 2020).
       const child = spawn("git", ["init", "-b", "main"], { cwd: targetDir, stdio: "ignore" });
       child.on("exit", (code) => (code === 0 ? res() : rej(new Error(`git init exited ${code}`))));
-    }).catch(() => { });
+    }).catch(() => {});
     s.stop("Git initialized");
   }
 
@@ -316,9 +310,9 @@ export type { AiConfig };
 
   p.outro(
     pc.green("Done!") +
-    `\n\n  cd ${slug}\n  ${packageManager} dev   ${pc.dim(`# ${devProcs}`)}\n\n  Then open http://localhost:4321` +
-    tier2Notice +
-    skillsHint,
+      `\n\n  cd ${slug}\n  ${packageManager} dev   ${pc.dim(`# ${devProcs}`)}\n\n  Then open http://localhost:4321` +
+      tier2Notice +
+      skillsHint,
   );
 }
 

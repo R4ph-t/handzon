@@ -3,9 +3,9 @@ import { KeyRound, Send, Settings, Sparkles, Trash2, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import type { AiConfig } from "../../types/ai";
 import { type ChatMessage, clearLearnerKey, loadLearnerKey, streamChat } from "../../lib/ai/client";
 import type { AssistantContext } from "../../lib/ai/context";
+import type { AiConfig } from "../../types/ai";
 import ByokSetup from "./ByokSetup";
 
 interface Props {
@@ -45,6 +45,11 @@ export default function ChatPanel({ open, onOpenChange, config, context }: Props
 
   // Keep the latest message in view as chunks stream in (and on every
   // send / clear). Without this, long responses scroll out of frame.
+  // The deps aren't read inside the effect — they're triggers, so the
+  // effect re-runs when a new chunk arrives or streaming flips. Biome's
+  // exhaustive-deps lint would have us remove them; that would break
+  // the autoscroll. Keep the suppression scoped to this single effect.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: messages + streaming are intentional triggers
   useEffect(() => {
     listRef.current?.scrollTo({ top: listRef.current.scrollHeight });
   }, [messages, streaming]);
@@ -162,8 +167,8 @@ export default function ChatPanel({ open, onOpenChange, config, context }: Props
                 <KeyRound size={22} aria-hidden="true" />
                 <h3>API key required</h3>
                 <p>
-                  {config.name} needs an API key to answer questions. Add one to get started —
-                  it's stored in this browser only.
+                  {config.name} needs an API key to answer questions. Add one to get started — it's
+                  stored in this browser only.
                 </p>
                 <button type="button" onClick={() => setByokOpen(true)}>
                   Set up key
@@ -197,7 +202,7 @@ export default function ChatPanel({ open, onOpenChange, config, context }: Props
                   <div className="chat-msg chat-msg-assistant">
                     <span className="chat-role">{config.name}</span>
                     <div className="chat-content">
-                      <span className="chat-thinking" aria-label="Thinking">
+                      <span className="chat-thinking" role="status" aria-label="Thinking">
                         <span /> <span /> <span />
                       </span>
                     </div>

@@ -5,8 +5,9 @@
  *   export const getStaticPaths = getTutorialLandingPaths;
  *   export const getStaticPaths = getTutorialStepPaths;
  */
-import { getStepsForTutorial, getTutorials, parseStepId } from "../lib/content.ts";
+
 import type { StepEntry, TutorialEntry } from "../lib/content.ts";
+import { getStepsForTutorial, getTutorials, parseStepId } from "../lib/content.ts";
 
 export async function getTutorialLandingPaths() {
   const tutorials = await getTutorials();

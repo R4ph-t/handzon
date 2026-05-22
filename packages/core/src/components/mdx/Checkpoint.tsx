@@ -27,12 +27,17 @@ function useRoute() {
 export default function Checkpoint({ label, id }: Props) {
   const reactId = useId();
   const checkpointId = id ?? `checkpoint:${reactId}:${label.slice(0, 40)}`;
-  const { state, recordCheckpoint, markStepComplete } = useProgress();
+  const { state, recordCheckpoint, removeCheckpoint, markStepComplete, markStepIncomplete } =
+    useProgress();
   const route = useRoute();
   const done = !!state.checkpoints[checkpointId];
 
   function onToggle() {
-    if (done) return;
+    if (done) {
+      removeCheckpoint(checkpointId);
+      if (route) markStepIncomplete(route.tutorial, route.step);
+      return;
+    }
     recordCheckpoint(checkpointId);
     if (route) markStepComplete(route.tutorial, route.step);
   }

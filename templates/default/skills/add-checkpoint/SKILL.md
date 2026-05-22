@@ -39,8 +39,8 @@ Good:
 
 - `"My dev server is running and the browser shows the Vite welcome screen."`
 - `"I see two TODOs in the list."`
-- `"My API responds to `curl localhost:8000/healthz` with `{\"status\":\"ok\"}`."`
-- `"`pnpm test` reports 3 passing tests."`
+- `'My API responds to `curl localhost:8000/healthz` with `{"status":"ok"}`.'` (note the **outer single quotes** so the inner double quotes don't need escaping — `\"` inside an MDX attribute breaks the build)
+- `` "`pnpm test` reports 3 passing tests." ``
 
 Bad:
 
@@ -108,3 +108,4 @@ Use `<step-area>/<concrete-outcome>` slug. Stable, won't collide, survives conte
 - Don't omit `id` in gated tutorials. Default positional ids drift when content is reordered.
 - Don't `import` Checkpoint — it's globally registered like every other MDX component.
 - Don't ask the reader to verify something the step didn't teach them to do. Checkpoints test the step's own work.
+- Don't escape quotes inside the `label` attribute with `\"`. MDX attribute strings don't support C-style escapes and the build will fail. Use outer single quotes (`label='...{"x":1}...'`) or a JSX expression. See `authoring-voice` section 2.

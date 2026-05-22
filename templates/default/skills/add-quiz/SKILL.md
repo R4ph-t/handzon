@@ -95,7 +95,7 @@ Use a `<tutorial-area>/<concept>` slug. Stable, human-readable, won't collide.
     "Nothing — it's a side-effect hook"
   ]}
   answer={1}
-  explanation="`useState` returns a 2-element array: the current value and a setter that triggers a re-render when called. Option 3 is tempting if you've used Vue's `ref()`, which does return a getter — React's mental model is different."
+  explanation="`useState` returns a 2-element array: the current value and a setter that triggers a re-render when called. Option 3 is tempting if you've used Vue's `ref()`, which does return a getter. React's mental model is different."
 />
 ```
 
@@ -111,3 +111,4 @@ Note: the distractors aren't filler — option 3 is the Vue-developer misconcept
 - Don't omit `id` for quizzes whose progress matters. Default ids drift when content is reordered.
 - Don't reach for `multi` unless "spot all of them" is genuinely the skill. Multi-select with one correct answer is almost always wrong.
 - Don't `import` Quiz — it's globally registered like every other MDX component.
+- Don't escape quotes inside `question` or `explanation` with `\"`. MDX attribute strings don't support C-style escapes and the build will fail. Use outer single quotes (`question='...'`) or a JSX expression. See `authoring-voice` section 2.

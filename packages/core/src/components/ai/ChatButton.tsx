@@ -1,7 +1,7 @@
 import { Sparkles } from "lucide-react";
 import { useState } from "react";
-import type { AiConfig } from "../../types/ai";
 import type { AssistantContext } from "../../lib/ai/context";
+import type { AiConfig } from "../../types/ai";
 import ChatPanel from "./ChatPanel";
 
 interface Props {

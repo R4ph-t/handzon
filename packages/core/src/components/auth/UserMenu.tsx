@@ -53,7 +53,7 @@ export default function UserMenu() {
         }
         const sess = (await sessRes.json()) as Session | null;
         const csrf = (await csrfRes.json()) as { csrfToken?: string } | null;
-        setSession(sess && sess.user ? sess : null);
+        setSession(sess?.user ? sess : null);
         setCsrfToken(csrf?.csrfToken ?? null);
       } catch {
         if (!cancelled) {
@@ -79,9 +79,9 @@ export default function UserMenu() {
   // long-form context.
   const fullLabel = user?.name ?? user?.email ?? "Signed in";
   const displayName = user
-    ? (user.name ? user.name.trim().split(/\s+/)[0] : null) ??
+    ? ((user.name ? user.name.trim().split(/\s+/)[0] : null) ??
       (user.email ? user.email.split("@")[0] : null) ??
-      "Signed in"
+      "Signed in")
     : "";
 
   return (
@@ -95,7 +95,9 @@ export default function UserMenu() {
               {fullLabel.trim().charAt(0).toUpperCase()}
             </span>
           )}
-          <span className="um-name" title={fullLabel}>{displayName}</span>
+          <span className="um-name" title={fullLabel}>
+            {displayName}
+          </span>
           <form method="post" action="/api/auth/signout">
             <input type="hidden" name="csrfToken" value={csrfToken} />
             <input type="hidden" name="callbackUrl" value={callbackUrl} />

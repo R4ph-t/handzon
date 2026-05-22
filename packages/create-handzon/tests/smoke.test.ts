@@ -22,22 +22,28 @@ test("findProjectRoot detects an Astro + tutorials repo", async () => {
 test("listTutorials + nextStepPrefix work on a fake repo", async () => {
   const dir = await mkdtemp(join(tmpdir(), "tt-"));
   try {
+    // Tutorial folders are slugs verbatim (no numeric prefix); see AGENTS.md.
+    // Each must have a _meta.json — folders without one are skipped.
     const tutsDir = join(dir, "src/content/tutorials");
-    await mkdir(join(tutsDir, "01-first"), { recursive: true });
-    await mkdir(join(tutsDir, "02-second"), { recursive: true });
+    await mkdir(join(tutsDir, "first"), { recursive: true });
+    await mkdir(join(tutsDir, "second"), { recursive: true });
     await writeFile(
-      join(tutsDir, "01-first/_meta.json"),
+      join(tutsDir, "first/_meta.json"),
       JSON.stringify({ title: "First", description: "Desc" }),
     );
-    await writeFile(join(tutsDir, "01-first/01-intro.mdx"), "---\ntitle: Intro\n---\n");
-    await writeFile(join(tutsDir, "01-first/02-second-step.mdx"), "---\ntitle: Step\n---\n");
+    await writeFile(
+      join(tutsDir, "second/_meta.json"),
+      JSON.stringify({ title: "Second", description: "Desc" }),
+    );
+    await writeFile(join(tutsDir, "first/01-intro.mdx"), "---\ntitle: Intro\n---\n");
+    await writeFile(join(tutsDir, "first/02-second-step.mdx"), "---\ntitle: Step\n---\n");
 
     const tuts = await listTutorials(dir);
     assert.equal(tuts.length, 2);
     assert.equal(tuts[0]!.slug, "first");
     assert.equal(tuts[1]!.slug, "second");
 
-    const nextPrefix = await nextStepPrefix(join(tutsDir, "01-first"));
+    const nextPrefix = await nextStepPrefix(join(tutsDir, "first"));
     assert.equal(nextPrefix, 3);
     assert.equal(pad2(3), "03");
   } finally {

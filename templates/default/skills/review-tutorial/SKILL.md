@@ -109,6 +109,24 @@ A tutorial that's mostly prose underuses the platform. For each step, scan for t
   - Labels are first-person, present-tense, sensory-verifiable. Reject `"I understand X"` and `"This makes sense"` — not verifiable.
   - One claim per checkpoint.
 
+### 4a. Voice and MDX-safety audit
+
+Run the `authoring-voice` skill against every step body. It covers punctuation (no em dashes), MDX traps that break the build, AI tells to cut, voice/POV conventions, and word-choice defaults. Three of those are mechanical and worth grepping for here:
+
+```bash
+# Em dashes. Banned outright.
+rg -n "—" src/content/tutorials/<slug>/
+
+# Backslash-escaped quotes in JSX attributes. These break the build with
+# "Unexpected character `\` in attribute name".
+rg -n '\\"' src/content/tutorials/<slug>/
+
+# Common AI tells.
+rg -nP "\b(let's dive in|in this section, we'll|it's important to note|it's worth mentioning|leverage|utilize|delve into|comprehensive|robust|seamless|elegant|powerful|in conclusion|to wrap up|imagine a world)\b" src/content/tutorials/<slug>/ -i
+```
+
+Em-dash hits and `\"` hits are both **must fix**. AI-tell hits are **recommended** unless they're inside a code block or quoted external content, in which case ignore. Anything `pnpm check` flags as an MDX error is also must-fix, by definition.
+
 ## 5. Polish
 
 - **No `TODO`, `XXX`, `FIXME`, or `TODO(author)`** anywhere in step bodies. Covered by 2a but worth a second pass after fixes.
@@ -132,11 +150,14 @@ Group everything into three buckets. Be honest about what's must-fix vs. taste.
 - MDX `import` statements
 - Quiz with no `explanation`
 - Unverifiable Checkpoint labels (`"I understand X"`)
+- Em dashes anywhere in step bodies (see `authoring-voice`)
+- Backslash-escaped quotes (`\"`) inside JSX attributes (breaks the build)
 - Anything that breaks the click-through in section 5
 - Leftover `TODO(author)` markers
 
 **Recommended:**
 - Component-fit fixes (bash → `<Terminal>`, file lists → `<FileTree>`, before/after → `<Diff>`)
+- AI-tell phrasing flagged by section 4a (`leverage`, `utilize`, `let's dive in`, etc.)
 - Adding explicit `id`s to Checkpoints and Quizzes in gated tutorials
 - Splitting steps longer than 10 minutes
 - Fixing `estimatedDuration` drift

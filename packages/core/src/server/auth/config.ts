@@ -10,8 +10,9 @@
  * GitHub is the only provider in 0.2; email/password and others are
  * out of scope (see plan: github-auth_d52529d5).
  */
-import { DrizzleAdapter } from "@auth/drizzle-adapter";
+
 import GitHub from "@auth/core/providers/github";
+import { DrizzleAdapter } from "@auth/drizzle-adapter";
 import { defineConfig } from "auth-astro";
 import { accounts, sessions, users, verificationTokens } from "./schema.ts";
 

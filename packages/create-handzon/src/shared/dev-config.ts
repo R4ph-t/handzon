@@ -112,7 +112,9 @@ export async function writeDevEnv(envPath: string, picks: Picks): Promise<void> 
     lines.push("");
     lines.push("# --- GitHub auth (Tier 2 only) ---");
     lines.push("# Register an OAuth App at https://github.com/settings/developers");
-    lines.push("# Authorization callback URL (local): http://localhost:4321/api/auth/callback/github");
+    lines.push(
+      "# Authorization callback URL (local): http://localhost:4321/api/auth/callback/github",
+    );
     lines.push("AUTH_SECRET=replace-me-openssl-rand-hex-32");
     lines.push("AUTH_TRUST_HOST=true");
     lines.push("GITHUB_CLIENT_ID=");

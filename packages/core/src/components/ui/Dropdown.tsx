@@ -65,21 +65,13 @@ export default function Dropdown<V extends string = string>({
         </Select.Trigger>
 
         <Select.Portal>
-          <Select.Content
-            className="hz-dd-content"
-            position="popper"
-            sideOffset={6}
-          >
+          <Select.Content className="hz-dd-content" position="popper" sideOffset={6}>
             <Select.ScrollUpButton className="hz-dd-scroll">
               <ChevronUp size={14} aria-hidden="true" />
             </Select.ScrollUpButton>
             <Select.Viewport className="hz-dd-viewport">
               {options.map((opt) => (
-                <Select.Item
-                  key={opt.value}
-                  value={opt.value}
-                  className="hz-dd-item"
-                >
+                <Select.Item key={opt.value} value={opt.value} className="hz-dd-item">
                   {opt.icon && <span className="hz-dd-icon">{opt.icon}</span>}
                   <Select.ItemText>{opt.label}</Select.ItemText>
                   <Select.ItemIndicator className="hz-dd-check">

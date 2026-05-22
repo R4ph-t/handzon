@@ -21,7 +21,12 @@ interface FilterState {
 
 function parseCsv(value: string | null): Set<string> {
   if (!value) return new Set();
-  return new Set(value.split(",").map((s) => s.trim()).filter(Boolean));
+  return new Set(
+    value
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean),
+  );
 }
 
 function readUrlState(): FilterState {
@@ -61,11 +66,9 @@ function applyFilters(state: FilterState) {
   let visible = 0;
   cards.forEach((card) => {
     const matchesQ = !q || card.dataset.search!.includes(q);
-    const matchesLevel =
-      state.levels.size === 0 || state.levels.has(card.dataset.difficulty ?? "");
+    const matchesLevel = state.levels.size === 0 || state.levels.has(card.dataset.difficulty ?? "");
     const cardTags = (card.dataset.tags ?? "").split(",");
-    const matchesTag =
-      state.tags.size === 0 || cardTags.some((t) => state.tags.has(t));
+    const matchesTag = state.tags.size === 0 || cardTags.some((t) => state.tags.has(t));
     const show = matchesQ && matchesLevel && matchesTag;
     if (show) {
       card.removeAttribute("data-filter-hidden");
@@ -95,12 +98,7 @@ function applyFilters(state: FilterState) {
   window.dispatchEvent(new CustomEvent("hz:filter-changed"));
 }
 
-export default function FilterBar({
-  difficulties,
-  tags,
-  difficultyCounts,
-  tagCounts,
-}: Props) {
+export default function FilterBar({ difficulties, tags, difficultyCounts, tagCounts }: Props) {
   const [state, setState] = useState<FilterState>(readUrlState);
 
   useEffect(() => {

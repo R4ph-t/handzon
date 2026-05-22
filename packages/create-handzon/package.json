@@ -1,6 +1,6 @@
 {
   "name": "create-handzon",
-  "version": "0.6.2",
+  "version": "0.6.3",
   "description": "Scaffold and grow hands-on, step-by-step tutorial sites built with Handzon.",
   "license": "MIT",
   "author": "r4ph_t",
@@ -32,6 +32,7 @@
   ],
   "scripts": {
     "build": "tsup",
+    "check": "tsc --noEmit",
     "dev": "tsup --watch",
     "test": "node --import tsx --test tests/*.test.ts",
     "prepublishOnly": "pnpm build"

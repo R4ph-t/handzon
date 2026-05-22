@@ -1,5 +1,31 @@
 # Changelog
 
+## 0.7.0 (`handzon-core`)
+
+**Checkpoints are now togglable.** Clicking a `<Checkpoint>` a second
+time unchecks the step, removes the checkpoint record, and re-locks
+the Next button on gated tutorials. Previously the click handler
+short-circuited when the checkpoint was already complete, so a
+mis-clicked step was permanent.
+
+### Added
+
+- `removeCheckpoint(id)` on `useProgress`.
+- `POST /api/progress` now treats `value: null` as a tombstone and
+  deletes the matching row. The remote progress store uses this to
+  sync unchecks across devices so a server snapshot fetch no longer
+  resurrects a locally-removed checkpoint.
+
+### Fixed
+
+- The streaming "thinking" indicator in the chat panel now has
+  `role="status"` so screen readers announce it as a live region.
+
+## 0.6.3 (`create-handzon` only)
+
+Republish so new scaffolds pin `handzon-core@^0.7.0`. No behavioral
+change to the CLI itself.
+
 ## 0.6.2 (`create-handzon` only)
 
 `init` now runs `git init -b main` instead of plain `git init`, so

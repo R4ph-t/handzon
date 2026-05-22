@@ -7,6 +7,7 @@
 // root) or via `tsx src/server.ts` from the package directly.
 import { resolve } from "node:path";
 import dotenv from "dotenv";
+
 dotenv.config({ path: resolve(process.cwd(), ".env") });
 
 import { serve } from "@hono/node-server";

@@ -40,6 +40,7 @@ export default function ActiveFilterChips({
   }
 
   return (
+    // biome-ignore lint/a11y/useSemanticElements: <fieldset> requires <legend> and carries form-control semantics; this row groups filter-removal buttons.
     <div className="active-filters" role="group" aria-label="Active filters">
       {q && (
         <button
@@ -79,11 +80,7 @@ export default function ActiveFilterChips({
           <X size={12} aria-hidden="true" />
         </button>
       ))}
-      <button
-        type="button"
-        className="active-filter-clear"
-        onClick={onClearAll}
-      >
+      <button type="button" className="active-filter-clear" onClick={onClearAll}>
         Clear all
       </button>
     </div>

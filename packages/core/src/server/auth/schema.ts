@@ -6,14 +6,7 @@
  * The `learners` row that maps a signed-in user to local progress lives
  * in `../db/schema.ts` — it adds a nullable `user_id` FK to `users` here.
  */
-import {
-  integer,
-  pgTable,
-  primaryKey,
-  text,
-  timestamp,
-  uuid,
-} from "drizzle-orm/pg-core";
+import { integer, pgTable, primaryKey, text, timestamp, uuid } from "drizzle-orm/pg-core";
 
 export const users = pgTable("users", {
   id: uuid("id").primaryKey().defaultRandom(),

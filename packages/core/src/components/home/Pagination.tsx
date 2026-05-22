@@ -19,9 +19,7 @@ interface Props {
  */
 function applyPagination(page: number, pageSize: number): number {
   const visibleByFilter = Array.from(
-    document.querySelectorAll<HTMLElement>(
-      "[data-search]:not([data-filter-hidden])",
-    ),
+    document.querySelectorAll<HTMLElement>("[data-search]:not([data-filter-hidden])"),
   );
   const start = (page - 1) * pageSize;
   const end = start + pageSize;
