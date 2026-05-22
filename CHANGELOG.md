@@ -1,5 +1,26 @@
 # Changelog
 
+## Unreleased (`handzon-core`)
+
+### Added — theming
+
+- Typography tokens for weights, tracking, leading, and the type
+  scale. New `--font-display`, `--font-weight-{body,strong,heading,display}`,
+  `--tracking-{display,heading}`, `--leading-{heading,body}`, and
+  `--text-{display,h1,h2,h3,h4,body}`, wired via
+  `var(--token, default)` fallbacks so untouched scaffolds render
+  identically and themed scaffolds override cleanly without
+  `!important`. See AGENTS.md for the full token table.
+
+### Added — layout
+
+- `BaseLayout` now exposes a named `head` slot, forwarded by every
+  page wrapper (`Home`, `TutorialLanding`, `TutorialStep`, and
+  `TutorialLayout`). Consumers can inject `<link rel="preload">` for
+  critical fonts, per-page OG images, JSON-LD structured data, or
+  verification meta without forking `BaseLayout`. The slot is optional
+  and collapses to nothing when unused.
+
 ## 0.8.0 (`handzon-core`)
 
 **Agentic tooling menu.** Substantial new surface that turns Handzon

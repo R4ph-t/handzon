@@ -26,6 +26,7 @@ const firstStepSlug = steps[0] ? parseStepId(steps[0].id).stepSlug : null;
   faviconUrl={faviconUrl}
   repoUrl={repoUrl}
 >
+  <slot name="head" slot="head" />
   <div class="landing">
     <a class="back" href="/">← All tutorials</a>
 

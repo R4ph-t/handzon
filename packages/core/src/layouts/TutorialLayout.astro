@@ -42,6 +42,7 @@ const stepSlugs = steps.map((s) => parseStepId(s.id).stepSlug);
   faviconUrl={faviconUrl}
   repoUrl={repoUrl}
 >
+  <slot name="head" slot="head" />
   <div class="layout">
     <div class="sidebar-wrap">
       <Sidebar tutorial={tutorial} steps={steps} currentStepSlug={currentStepSlug} />
@@ -177,22 +178,29 @@ const stepSlugs = steps.map((s) => parseStepId(s.id).stepSlug);
 
 <style>
   /* Draw the sidebar/main divider as a background line on the grid
-   * itself: 1px-thin vertical strip at the 280px column boundary,
+   * itself: 1px-thin vertical strip at the sidebar column boundary,
    * from the top of the layout to the bottom. The grid auto-stretches
    * to fit its content, so the line runs all the way down to the
    * footer regardless of step length — without piggybacking on the
-   * (sticky, viewport-height) sidebar's own border. */
+   * (sticky, viewport-height) sidebar's own border.
+   *
+   * `--sb-w` keeps the column track and the divider stop in lockstep
+   * so widening the sidebar at one breakpoint doesn't desync the line. */
   .layout {
+    --sb-w: 280px;
     display: grid;
-    grid-template-columns: 280px minmax(0, 1fr);
+    grid-template-columns: var(--sb-w) minmax(0, 1fr);
     min-height: 100dvh;
     background: linear-gradient(
       to right,
-      transparent 280px,
-      var(--color-border) 280px,
-      var(--color-border) 281px,
-      transparent 281px
+      transparent var(--sb-w),
+      var(--color-border) var(--sb-w),
+      var(--color-border) calc(var(--sb-w) + 1px),
+      transparent calc(var(--sb-w) + 1px)
     ) no-repeat;
+  }
+  @media (min-width: 1280px) {
+    .layout { --sb-w: 320px; }
   }
   .sidebar-wrap {
     position: sticky;

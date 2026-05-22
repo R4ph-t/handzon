@@ -60,6 +60,7 @@ for (const t of tutorials) {
   repoUrl={repoUrl}
   nav="userMenu"
 >
+  <slot name="head" slot="head" />
   <div class="home">
     <Hero title={hero?.title} subtitle={hero?.subtitle} logoUrl={logoUrl} />
 
@@ -238,7 +239,12 @@ for (const t of tutorials) {
   }
   .grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    /* Cap at 3 columns max: the lower-bound of each track is the larger
+     * of 280px or one-third of the row (minus the two 1rem gaps). On
+     * wide viewports the (100% - 2rem)/3 term wins and forces exactly
+     * 3 columns; on narrow viewports 280px wins and the grid wraps to
+     * 2 or 1 columns as usual. */
+    grid-template-columns: repeat(auto-fill, minmax(max(280px, (100% - 2rem) / 3), 1fr));
     gap: 1rem;
     margin-top: 0.75rem;
   }

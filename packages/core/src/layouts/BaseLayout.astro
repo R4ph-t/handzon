@@ -75,6 +75,12 @@ const desc = description ?? tagline;
     <meta property="og:title" content={pageTitle} />
     <meta property="og:description" content={desc} />
     <meta property="og:type" content="website" />
+    {/* Optional consumer-side <head> injections. Forwarded by every
+     * page wrapper (Home, TutorialLanding, TutorialStep / TutorialLayout)
+     * so scaffolds can preload fonts, attach per-page OG images, add
+     * JSON-LD structured data, or wire verification meta without
+     * forking BaseLayout. See README for usage. */}
+    <slot name="head" />
   </head>
   <body style={`--hz-page-max-width: ${resolvedMaxWidth}; --hz-page-padding-x: ${pagePaddingX}; --hz-nav-height: 3rem;`}>
     {nav === "full" && (

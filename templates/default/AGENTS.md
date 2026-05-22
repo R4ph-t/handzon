@@ -102,6 +102,31 @@ Available tokens (all CSS variables):
 
 All typography tokens have framework fallbacks via `var(--token, default)` — themes only need to declare the ones they want to change. Re-skinning to a thin display font, for example, is just `--font-weight-display: 300; --font-weight-heading: 400;` in the theme's `@theme {}` block — no `!important` required.
 
+## Customizing `<head>`
+
+`BaseLayout` exposes a named `head` slot, forwarded by every page wrapper (`HomePage`, `TutorialLanding`, `TutorialStep`, and `TutorialLayout`). Use it to inject:
+
+- `<link rel="preload">` for critical fonts to eliminate FOUT.
+- Per-page Open Graph images.
+- JSON-LD structured data.
+- Search Console or analytics verification tags.
+
+Example: preload a custom title font on the homepage.
+
+```astro
+---
+import HomePage from "handzon-core/pages/Home.astro";
+import roobertLight from "~/styles/fonts/Roobert-Light.woff2?url";
+---
+<HomePage {...siteProps}>
+  <Fragment slot="head">
+    <link rel="preload" href={roobertLight} as="font" type="font/woff2" crossorigin />
+  </Fragment>
+</HomePage>
+```
+
+Pages that don't pass `slot="head"` get the default `<head>` content unchanged.
+
 ## Asset placement
 
 - **Co-locate** screenshots/diagrams next to the MDX file that uses them: `src/content/tutorials/<slug>/assets/foo.png`, reference with `./assets/foo.png`. This is the default.

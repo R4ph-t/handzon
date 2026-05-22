@@ -63,6 +63,7 @@ const initialContext = buildContext({
   faviconUrl={faviconUrl}
   repoUrl={repoUrl}
 >
+  <slot name="head" slot="head" />
   <Content components={components} />
   {aiConfig.enabled && aiConfig.autoStepHelp && (
     <StepHelp client:visible stepTitle={currentStep.data.title} />
