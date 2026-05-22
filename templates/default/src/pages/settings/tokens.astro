@@ -1,0 +1,219 @@
+---
+import "~/styles/global.css";
+import BaseLayout from "handzon-core/layouts/BaseLayout.astro";
+import { getAuthedUser } from "handzon-core/server/auth/session.ts";
+import { isSameOrigin } from "handzon-core/server/http.ts";
+import {
+  createToken,
+  KNOWN_SCOPES,
+  listTokens,
+  revokeToken,
+  type Scope,
+} from "handzon-core/server/tokens.ts";
+import { site } from "~/config/site";
+
+const user = await getAuthedUser(Astro.request);
+
+// Action results surfaced to the rendered page: a freshly-minted
+// raw token (shown once) and any error from the latest POST.
+let mintedRaw: string | null = null;
+let mintedName: string | null = null;
+let formError: string | null = null;
+
+if (Astro.request.method === "POST") {
+  if (!isSameOrigin(Astro.request)) {
+    formError = "Cross-origin write rejected.";
+  } else if (!user) {
+    formError = "Sign in to manage tokens.";
+  } else {
+    const form = await Astro.request.formData();
+    const action = String(form.get("action") ?? "");
+    if (action === "create") {
+      const name = String(form.get("name") ?? "").trim();
+      const scopes = form
+        .getAll("scopes")
+        .map((s) => String(s))
+        .filter((s): s is Scope => (KNOWN_SCOPES as readonly string[]).includes(s));
+      if (!name) {
+        formError = "Name is required.";
+      } else if (scopes.length === 0) {
+        formError = "Pick at least one scope.";
+      } else {
+        const { raw } = await createToken({ userId: user.userId, name, scopes });
+        mintedRaw = raw;
+        mintedName = name;
+      }
+    } else if (action === "revoke") {
+      const tokenId = String(form.get("tokenId") ?? "");
+      if (tokenId) await revokeToken(user.userId, tokenId);
+    } else {
+      formError = "Unknown action.";
+    }
+  }
+}
+
+const tokens = user ? await listTokens(user.userId) : [];
+---
+<BaseLayout
+  title="Access tokens"
+  siteName={site.name}
+  tagline={site.tagline}
+  logoUrl={site.logo}
+  faviconUrl={site.favicon}
+  repoUrl={site.repoUrl}
+  pageMaxWidth="48rem"
+>
+  <main class="tokens-page">
+    <header>
+      <h1>Access tokens</h1>
+      <p class="muted">
+        Connect external agents (Cursor, Claude Code, etc.) to your progress on
+        this site via the MCP endpoint. Tokens are scoped — keep them safe; they
+        grant the same writes your browser session can make.
+      </p>
+    </header>
+
+    {!user && (
+      <div class="card">
+        <p>Sign in with GitHub to mint personal access tokens.</p>
+        <a class="btn" href="/api/auth/signin/github">Sign in with GitHub</a>
+      </div>
+    )}
+
+    {user && mintedRaw && (
+      <div class="card card-emph" role="status">
+        <h2>Token created</h2>
+        <p>
+          Here is your new token for <strong>{mintedName}</strong>. It will only be
+          shown once — copy it now.
+        </p>
+        <pre class="token">{mintedRaw}</pre>
+      </div>
+    )}
+
+    {user && formError && (
+      <div class="card card-err" role="alert">
+        <p>{formError}</p>
+      </div>
+    )}
+
+    {user && (
+      <section class="card">
+        <h2>Create a new token</h2>
+        <form method="POST">
+          <input type="hidden" name="action" value="create" />
+          <label>
+            <span>Name</span>
+            <input type="text" name="name" required maxlength="64" placeholder="Cursor on my laptop" />
+          </label>
+          <fieldset>
+            <legend>Scopes</legend>
+            {KNOWN_SCOPES.map((s) => (
+              <label class="check">
+                <input type="checkbox" name="scopes" value={s} />
+                <span>{s}</span>
+              </label>
+            ))}
+          </fieldset>
+          <button class="btn" type="submit">Create token</button>
+        </form>
+      </section>
+    )}
+
+    {user && (
+      <section class="card">
+        <h2>Your tokens ({tokens.length})</h2>
+        {tokens.length === 0 ? (
+          <p class="muted">No tokens yet.</p>
+        ) : (
+          <ul class="token-list">
+            {tokens.map((t) => (
+              <li>
+                <div class="token-row">
+                  <strong>{t.name}</strong>
+                  <span class="muted">
+                    {t.scopes.join(", ")}
+                    {" · "}
+                    created {t.createdAt.toISOString().slice(0, 10)}
+                    {t.lastUsedAt ? ` · last used ${t.lastUsedAt.toISOString().slice(0, 10)}` : " · never used"}
+                    {t.expiresAt ? ` · expires ${t.expiresAt.toISOString().slice(0, 10)}` : ""}
+                  </span>
+                </div>
+                <form method="POST" class="token-revoke">
+                  <input type="hidden" name="action" value="revoke" />
+                  <input type="hidden" name="tokenId" value={t.id} />
+                  <button class="btn btn-sm" type="submit">Revoke</button>
+                </form>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+    )}
+  </main>
+</BaseLayout>
+
+<style>
+  .tokens-page {
+    padding: 2rem 1.25rem 4rem;
+    display: grid;
+    gap: 1.25rem;
+  }
+  .muted { color: var(--color-muted); }
+  .card {
+    background: var(--color-surface);
+    border: var(--border-default) solid var(--color-border);
+    padding: 1rem 1.25rem;
+  }
+  .card-emph { border-left: var(--border-thick) solid var(--color-success); }
+  .card-err  { border-left: var(--border-thick) solid var(--color-danger, #ff4d4f); }
+  .card h2 { margin-top: 0; }
+  .token {
+    background: var(--color-bg);
+    border: var(--border-default) solid var(--color-border);
+    padding: 0.6rem 0.8rem;
+    font-family: var(--font-mono);
+    overflow-wrap: anywhere;
+  }
+  form { display: grid; gap: 0.75rem; }
+  label { display: grid; gap: 0.25rem; }
+  label > span { font-size: 0.8em; color: var(--color-muted); }
+  input[type="text"] {
+    background: var(--color-bg);
+    border: var(--border-default) solid var(--color-border);
+    padding: 0.45rem 0.6rem;
+    color: var(--color-fg);
+    font: inherit;
+  }
+  fieldset { border: var(--border-default) solid var(--color-border); padding: 0.65rem; }
+  .check { display: inline-flex; gap: 0.4rem; margin-right: 1rem; align-items: center; }
+  .btn {
+    display: inline-flex;
+    background: var(--color-accent);
+    color: var(--color-bg);
+    padding: 0.45rem 0.9rem;
+    border: 0;
+    font: inherit;
+    cursor: pointer;
+    text-decoration: none;
+    width: fit-content;
+  }
+  .btn-sm { padding: 0.3rem 0.6rem; font-size: 0.85em; }
+  .token-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 0.5rem;
+  }
+  .token-list li {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.75rem;
+    align-items: center;
+    border-bottom: 1px solid var(--color-border);
+    padding-bottom: 0.5rem;
+  }
+  .token-list li:last-child { border-bottom: 0; padding-bottom: 0; }
+  .token-row { display: grid; gap: 0.15rem; }
+</style>
