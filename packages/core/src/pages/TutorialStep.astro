@@ -3,6 +3,7 @@ import { render } from "astro:content";
 import TutorialLayout from "../layouts/TutorialLayout.astro";
 import ChatButton from "../components/ai/ChatButton.tsx";
 import SelectionAsk from "../components/ai/SelectionAsk.tsx";
+import StepHelp from "../components/ai/StepHelp.tsx";
 import { parseStepId } from "../lib/content.ts";
 import type { StepEntry, TutorialEntry } from "../lib/content.ts";
 import { mdxComponents } from "../lib/mdx-components.ts";
@@ -62,6 +63,9 @@ const initialContext = buildContext({
   repoUrl={repoUrl}
 >
   <Content components={components} />
+  {aiConfig.enabled && aiConfig.autoStepHelp && (
+    <StepHelp client:visible stepTitle={currentStep.data.title} />
+  )}
   {aiConfig.enabled && (
     <>
       <ChatButton client:idle config={aiConfig} context={initialContext} />
