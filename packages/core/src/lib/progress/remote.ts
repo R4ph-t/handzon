@@ -70,6 +70,14 @@ function diffState(prev: ProgressState, next: ProgressState): ProgressEntry[] {
   for (const id of Object.keys(prev.checkpoints)) {
     if (!next.checkpoints[id]) {
       out.push({ kind: "checkpoint", scope: "global", key: id, value: null });
+      // Family D: drop the matching kind:"verification" telemetry
+      // row so a re-attempt isn't pre-poisoned by the previous
+      // failure feedback. Scope comes from the feedback entry
+      // populated by SSE.
+      const feedback = prev.verificationFeedback[id];
+      if (feedback) {
+        out.push({ kind: "verification", scope: feedback.scope, key: id, value: null });
+      }
     }
   }
   for (const [k, value] of Object.entries(next.prefs)) {

@@ -16,10 +16,32 @@ export interface TutorialMarker {
   completed?: number;
 }
 
+/**
+ * Family D verification feedback delivered via SSE from
+ * `submit_verification` failures. Keyed by the checkpoint id (which
+ * equals `verify.id`). Carries the step scope so the diff can emit
+ * a tombstone with the right scope when the learner unchecks.
+ */
+export interface VerificationFeedbackEntry {
+  scope: StepKey;
+  pass: boolean;
+  failingCheckIndex?: number;
+  reason?: string;
+  hint?: string;
+  ts: number;
+}
+
 export type ProgressState = {
   steps: Record<StepKey, "incomplete" | "complete">;
   quizzes: Record<string, { chosen: number[]; correct: boolean; ts: number }>;
   checkpoints: Record<string, { ts: number }>;
+  /**
+   * Latest verification verdict per checkpoint id. `pass: true`
+   * entries hang around as evidence; the Family D UI only renders
+   * the inline hint block on `pass: false`. Cleared when the
+   * learner unchecks the matching checkpoint.
+   */
+  verificationFeedback: Record<string, VerificationFeedbackEntry>;
   prefs: {
     packageManager?: "npm" | "pnpm" | "yarn" | "bun";
     os?: "macos" | "linux" | "windows";
@@ -50,6 +72,7 @@ export const emptyState = (): ProgressState => ({
   steps: {},
   quizzes: {},
   checkpoints: {},
+  verificationFeedback: {},
   prefs: {},
   lastVisited: {},
   tutorials: {},

@@ -54,12 +54,23 @@ export const progressWriteTools: McpTool[] = [
         evidence?: Record<string, unknown>;
       };
       const learnerId = requireLearner(ctx.learnerId);
+      // Checkpoint rows use scope "global" to match the in-browser
+      // client (state.checkpoints is keyed by checkpoint id, not
+      // by step). Tutorial + step are part of the value payload
+      // for telemetry and for the SSE handler that wants to know
+      // which step the ack belongs to.
       await writeProgressEntries(learnerId, [
         {
           kind: "checkpoint",
-          scope: `${a.tutorial}/${a.step}`,
+          scope: "global",
           key: a.checkpointId,
-          value: { source: "mcp", evidence: a.evidence ?? null, ts: Date.now() },
+          value: {
+            source: "mcp",
+            tutorial: a.tutorial,
+            step: a.step,
+            evidence: a.evidence ?? null,
+            ts: Date.now(),
+          },
         },
       ]);
       return text(`Checkpoint ${a.checkpointId} marked complete.`);
@@ -82,9 +93,13 @@ export const progressWriteTools: McpTool[] = [
     handler: async (args, ctx) => {
       const a = args as { tutorial: string; step: string; checkpointId: string };
       const learnerId = requireLearner(ctx.learnerId);
+      // Uncheck also drops the matching kind:"verification" telemetry
+      // row so a re-attempt isn't pre-poisoned by the previous
+      // failure feedback.
       await writeProgressEntries(learnerId, [
+        { kind: "checkpoint", scope: "global", key: a.checkpointId, value: null },
         {
-          kind: "checkpoint",
+          kind: "verification",
           scope: `${a.tutorial}/${a.step}`,
           key: a.checkpointId,
           value: null,
@@ -335,9 +350,15 @@ export const verificationTools: McpTool[] = [
         await writeProgressEntries(learnerId, [
           {
             kind: "checkpoint",
-            scope,
+            scope: "global",
             key: spec.id,
-            value: { source: "verify", results: a.observations, ts },
+            value: {
+              source: "verify",
+              tutorial: a.tutorial,
+              step: a.step,
+              results: a.observations,
+              ts,
+            },
           },
           {
             kind: "verification",
