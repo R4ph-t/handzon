@@ -86,13 +86,106 @@ export function tutorialsLoader(): Loader {
   };
 }
 
-/** Glob loader for tutorial step `.mdx`/`.md` files. */
-export function stepsLoader() {
-  return glob({
+/**
+ * Glob loader for tutorial step `.mdx`/`.md` files.
+ *
+ * After the inner glob populates the store we walk every entry once
+ * and reject any step whose `verify.id` doesn't match a
+ * `<Checkpoint id="…">` in the MDX body. Catching this at load time
+ * means an author who renames a checkpoint id but forgets the
+ * frontmatter sees a loud build failure instead of silently broken
+ * verification at run time.
+ */
+export function stepsLoader(): Loader {
+  const inner = glob({
     pattern: "**/[0-9]*-*.{mdx,md}",
     base: `./${TUTORIALS_REL}`,
   });
+  return {
+    name: "handzon-steps",
+    load: async (args) => {
+      await inner.load(args);
+      const checkpointRe = /<Checkpoint\b[^>]*\bid\s*=\s*(?:"([^"]+)"|'([^']+)'|\{`([^`]+)`\})/g;
+      for (const value of args.store.values()) {
+        const verify = (value.data as { verify?: { id?: string } } | undefined)?.verify;
+        if (!verify?.id) continue;
+        const body = value.body ?? "";
+        const ids = new Set<string>();
+        checkpointRe.lastIndex = 0;
+        for (;;) {
+          const m = checkpointRe.exec(body);
+          if (m === null) break;
+          const id = m[1] ?? m[2] ?? m[3];
+          if (id) ids.add(id);
+        }
+        if (!ids.has(verify.id)) {
+          throw new Error(
+            `[handzon] step ${value.id}: verify.id "${verify.id}" has no matching <Checkpoint id="…"> in the step body. Either add a <Checkpoint id="${verify.id}" …/> or remove the verify block.`,
+          );
+        }
+      }
+    },
+  };
 }
+
+/**
+ * Schema for machine-verifiable checkpoint specs (Family D). Authors
+ * declare deterministic checks per step; the agent runs them on the
+ * learner's machine and POSTs observed values back to the server,
+ * which scores against the spec via the evaluator.
+ *
+ * `kind` is a discriminated union — only the fields valid for each
+ * check kind pass validation.
+ */
+export const verifyCheckSchema = z.discriminatedUnion("kind", [
+  z.object({
+    kind: z.literal("file_exists"),
+    path: z.string().min(1),
+    hint: z.string().optional(),
+  }),
+  z.object({
+    kind: z.literal("file_contains"),
+    path: z.string().min(1),
+    /** Regex matched against the file body. */
+    pattern: z.string().min(1),
+    hint: z.string().optional(),
+  }),
+  z.object({
+    kind: z.literal("shell"),
+    run: z.string().min(1),
+    expect: z
+      .object({
+        exitCode: z.number().int().optional(),
+        stdoutMatches: z.string().optional(),
+      })
+      .default({}),
+    hint: z.string().optional(),
+  }),
+  z.object({
+    kind: z.literal("http"),
+    url: z.string().min(1),
+    expect: z
+      .object({
+        status: z.number().int().optional(),
+        bodyIncludes: z.string().optional(),
+        bodyMatches: z.string().optional(),
+      })
+      .default({}),
+    hint: z.string().optional(),
+  }),
+]);
+
+export type VerifyCheck = z.infer<typeof verifyCheckSchema>;
+
+export const verifySchema = z.object({
+  /** Must match a <Checkpoint id> in the step's MDX. */
+  id: z.string().min(1),
+  /** Advisory cwd hint passed to the agent (e.g. "$LEARNER_PROJECT"). */
+  cwd: z.string().optional(),
+  checks: z.array(verifyCheckSchema).min(1),
+});
+
+export type VerifySpec = z.infer<typeof verifySchema>;
 
 /** Schema for tutorial step entries. */
 export const stepsSchema = z.object({
@@ -100,6 +193,7 @@ export const stepsSchema = z.object({
   duration: z.string().optional(),
   summary: z.string().optional(),
   ai: z.boolean().optional(),
+  verify: verifySchema.optional(),
 });
 
 /** Schema for tutorial entries. Pass through Astro's image() helper. */
