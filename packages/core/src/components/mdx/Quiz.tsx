@@ -1,5 +1,6 @@
 import { Check, X } from "lucide-react";
 import { useId, useState } from "react";
+import { dispatchAssist, useAiEnabled } from "../../lib/ai/assist";
 import { useProgress } from "../../lib/progress/useProgress";
 
 interface Props {
@@ -15,6 +16,7 @@ export default function Quiz({ question, options, answer, explanation, id, multi
   const reactId = useId();
   const questionId = id ?? `quiz:${reactId}:${question.slice(0, 40)}`;
   const { state, recordQuiz } = useProgress();
+  const aiEnabled = useAiEnabled();
 
   const previous = state.quizzes[questionId];
   const [chosen, setChosen] = useState<number[]>(previous?.chosen ?? []);
@@ -97,6 +99,22 @@ export default function Quiz({ question, options, answer, explanation, id, multi
         )}
       </div>
       {submitted && explanation && <p className="quiz-exp">{explanation}</p>}
+      {submitted && previous && !previous.correct && aiEnabled && (
+        <button
+          type="button"
+          className="hz-helpme"
+          onClick={() =>
+            dispatchAssist({
+              kind: "quizFix",
+              question,
+              chosen: previous.chosen.map((i) => options[i] ?? `(option ${i})`),
+              correct: Array.from(correctSet).map((i) => options[i] ?? `(option ${i})`),
+            })
+          }
+        >
+          Why is this wrong?
+        </button>
+      )}
     </fieldset>
   );
 }
