@@ -17,6 +17,11 @@ export {
   streamChat,
 } from "./lib/ai/client.ts";
 export { type AssistantContext, buildContext } from "./lib/ai/context.ts";
+export {
+  type AssistantIntent,
+  type AssistantPrompt,
+  buildAssistantPrompt,
+} from "./lib/ai/prompts.ts";
 // Content collection helpers (built on top of astro:content).
 export {
   getStep,
