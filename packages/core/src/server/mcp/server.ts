@@ -75,7 +75,7 @@ export async function dispatchMcp(
       }
     }
     if (tool.requiredScope) {
-      if (!scopes || !scopes.includes(tool.requiredScope)) {
+      if (!scopes?.includes(tool.requiredScope)) {
         return fail(body.id, -32001, `Missing required scope: ${tool.requiredScope}`);
       }
     }
