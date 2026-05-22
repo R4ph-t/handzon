@@ -52,3 +52,30 @@ export function useAiEnabled(): boolean {
   }, []);
   return enabled;
 }
+
+/**
+ * Reactive flag: is a specific tool (config.tools.X) enabled by the
+ * host page's aiConfig? Returns false until ChatButton publishes the
+ * tools manifest on mount. Family A islands that gate on a tool
+ * (Playground's "Ask AI to fix") use this in addition to
+ * useAiEnabled.
+ */
+export function useAiTool(name: string): boolean {
+  const enabled = useAiEnabled();
+  const [tools, setTools] = useState<Record<string, boolean>>({});
+  useEffect(() => {
+    function read() {
+      const raw = document.documentElement.dataset.handzonAiTools;
+      if (!raw) return;
+      try {
+        setTools(JSON.parse(raw));
+      } catch {
+        /* ignore */
+      }
+    }
+    read();
+    document.addEventListener(ASSIST_READY_EVENT, read);
+    return () => document.removeEventListener(ASSIST_READY_EVENT, read);
+  }, []);
+  return enabled && tools[name] === true;
+}

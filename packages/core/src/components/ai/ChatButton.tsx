@@ -26,11 +26,13 @@ export default function ChatButton({ config, context }: Props) {
   // before us and are waiting.
   useEffect(() => {
     document.documentElement.dataset.handzonAi = "ready";
+    document.documentElement.dataset.handzonAiTools = JSON.stringify(config.tools ?? {});
     document.dispatchEvent(new CustomEvent(ASSIST_READY_EVENT));
     return () => {
       delete document.documentElement.dataset.handzonAi;
+      delete document.documentElement.dataset.handzonAiTools;
     };
-  }, []);
+  }, [config.tools]);
 
   // Listen for touchpoint dispatches and open the panel with the
   // matching seedMessages.

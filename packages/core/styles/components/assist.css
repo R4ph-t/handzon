@@ -92,3 +92,10 @@
 .quiz .hz-helpme {
   margin-top: 0.4rem;
 }
+
+/* Playground toolbar: row sitting just under the Sandpack iframe */
+.playground-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 0.4rem;
+}
