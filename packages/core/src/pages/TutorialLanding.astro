@@ -59,7 +59,7 @@ const firstStepSlug = steps[0] ? parseStepId(steps[0].id).stepSlug : null;
 
       {tutorial.data.tags.length > 0 && (
         <div class="hero-tags" aria-label="Topics">
-          {tutorial.data.tags.map((tag) => (
+          {tutorial.data.tags.map((tag: string) => (
             <a class="hero-tag" href={`/?tag=${encodeURIComponent(tag)}`}>#{tag}</a>
           ))}
         </div>
@@ -69,7 +69,7 @@ const firstStepSlug = steps[0] ? parseStepId(steps[0].id).stepSlug : null;
     {tutorial.data.prerequisites.length > 0 && (
       <section class="block">
         <h2>Prerequisites</h2>
-        <ul class="prereqs">{tutorial.data.prerequisites.map((p) => <li>{p}</li>)}</ul>
+        <ul class="prereqs">{tutorial.data.prerequisites.map((p: string) => <li>{p}</li>)}</ul>
       </section>
     )}
 
