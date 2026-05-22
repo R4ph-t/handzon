@@ -11,6 +11,7 @@ import {
   type Scope,
 } from "handzon-core/server/tokens.ts";
 import { site } from "~/config/site";
+import EditorInstall from "./_EditorInstall.astro";
 
 const user = await getAuthedUser(Astro.request);
 
@@ -53,6 +54,17 @@ if (Astro.request.method === "POST") {
 }
 
 const tokens = user ? await listTokens(user.userId) : [];
+
+// MCP install context — passed to <EditorInstall>. The `mcp.json` server
+// key is slugified from `site.name` so two Handzon sites in the same
+// config don't collide on "handzon".
+const origin = Astro.url.origin;
+const mcpServerName =
+  site.name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "") || "handzon";
+const tokenPlaceholder = "hzn_pat_xxxxxxxxxxxxxxxxxxxxxxxx";
 ---
 <BaseLayout
   title="Access tokens"
@@ -67,9 +79,12 @@ const tokens = user ? await listTokens(user.userId) : [];
     <header>
       <h1>Access tokens</h1>
       <p class="muted">
-        Connect external agents (Cursor, Claude Code, etc.) to your progress on
-        this site via the MCP endpoint. Tokens are scoped — keep them safe; they
-        grant the same writes your browser session can make.
+        Use this site from Cursor, Claude Code, Codex, and other MCP-aware
+        editors. Mint a token, copy the one-liner into your editor's config
+        (or hit "Add to Cursor"), and your agent can browse tutorials, mark
+        checkpoints, record quiz results, and ping the in-browser tutor
+        without you leaving your editor. Tokens are scoped — keep them safe;
+        they grant the same writes your browser session can make.
       </p>
     </header>
 
@@ -85,9 +100,17 @@ const tokens = user ? await listTokens(user.userId) : [];
         <h2>Token created</h2>
         <p>
           Here is your new token for <strong>{mintedName}</strong>. It will only be
-          shown once — copy it now.
+          shown once — copy it now, or use one of the install paths below
+          (the token is already baked into every option).
         </p>
-        <pre class="token">{mintedRaw}</pre>
+        <pre class="token" data-copy>{mintedRaw}</pre>
+
+        <h3>Install in your editor</h3>
+        <EditorInstall
+          token={mintedRaw}
+          serverName={mcpServerName}
+          origin={origin}
+        />
       </div>
     )}
 
@@ -119,6 +142,43 @@ const tokens = user ? await listTokens(user.userId) : [];
         </form>
       </section>
     )}
+
+    <section class="card">
+      <h2>Connect your editor</h2>
+      <p class="muted">
+        Reference for wiring this site into an MCP-aware editor on a second
+        machine, or after you've lost the raw value of an existing token.
+        Replace <code>{tokenPlaceholder}</code> in the snippet with a token
+        from above (or mint a fresh one — the previous one keeps working).
+      </p>
+
+      <EditorInstall
+        token={tokenPlaceholder}
+        serverName={mcpServerName}
+        origin={origin}
+      />
+
+      <h3>What the agent can do</h3>
+      <ul class="tool-list">
+        <li>
+          <strong>Reads</strong> (any token, or no token):{" "}
+          <code>list_tutorials</code>, <code>get_tutorial</code>,{" "}
+          <code>get_step</code>, <code>get_progress</code>.
+        </li>
+        <li>
+          <strong>Writes</strong> (need <code>progress:write</code>):{" "}
+          <code>complete_checkpoint</code>, <code>uncheck_checkpoint</code>,{" "}
+          <code>complete_step</code>, <code>mark_step_incomplete</code>,{" "}
+          <code>record_quiz</code>, <code>set_last_visited</code>,{" "}
+          <code>set_preference</code>, <code>request_help</code>.
+        </li>
+      </ul>
+      <p class="muted">
+        <code>request_help</code> is the bridge — the editor agent can say
+        "the learner is stuck on X" and the message lands in the in-browser
+        tutor's inbox the next time you open the tab.
+      </p>
+    </section>
 
     {user && (
       <section class="card">
@@ -153,6 +213,75 @@ const tokens = user ? await listTokens(user.userId) : [];
   </main>
 </BaseLayout>
 
+<script>
+  // Flag the document as JS-ready so the editor-picker CSS can collapse
+  // the stacked no-JS fallback into a select + single-panel view. We do
+  // this first thing so the layout switch happens before paint settles.
+  document.documentElement.classList.add("js-ready");
+
+  // --- Editor install picker -------------------------------------------------
+  // Two <EditorInstall> instances on the page (post-mint success card +
+  // persistent reference). Keep their selects in sync, persist the last
+  // choice across reloads so a learner who picks "Codex" once doesn't
+  // have to pick it again next time they mint a token.
+  const STORAGE_KEY = "handzon-editor-pick";
+  const pickers = Array.from(document.querySelectorAll<HTMLElement>(".editor-picker"));
+  const stored = localStorage.getItem(STORAGE_KEY);
+  const initial =
+    stored && pickers.some((p) => p.querySelector(`[data-editor="${stored}"]`))
+      ? stored
+      : "cursor";
+
+  function showEditor(value: string): void {
+    for (const picker of pickers) {
+      const select = picker.querySelector<HTMLSelectElement>(".editor-select");
+      if (select) select.value = value;
+      for (const panel of picker.querySelectorAll<HTMLElement>(".editor-panel")) {
+        panel.toggleAttribute("hidden", panel.dataset.editor !== value);
+      }
+    }
+  }
+
+  showEditor(initial);
+  for (const picker of pickers) {
+    const select = picker.querySelector<HTMLSelectElement>(".editor-select");
+    select?.addEventListener("change", () => {
+      const value = select.value;
+      localStorage.setItem(STORAGE_KEY, value);
+      showEditor(value);
+    });
+  }
+
+  // --- Copy-to-clipboard for every snippet -----------------------------------
+  // Runs after the picker so newly-hidden panels still get their copy
+  // buttons (textContent works on hidden elements). Falls back to "Copy
+  // failed" if the Clipboard API is unavailable (insecure context).
+  for (const pre of document.querySelectorAll<HTMLPreElement>("pre[data-copy]")) {
+    const wrap = document.createElement("div");
+    wrap.className = "copy-wrap";
+    pre.parentNode?.insertBefore(wrap, pre);
+    wrap.appendChild(pre);
+
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "copy-btn";
+    btn.textContent = "Copy";
+    btn.addEventListener("click", async () => {
+      const text = pre.textContent ?? "";
+      try {
+        await navigator.clipboard.writeText(text);
+        btn.textContent = "Copied!";
+        setTimeout(() => {
+          btn.textContent = "Copy";
+        }, 1500);
+      } catch {
+        btn.textContent = "Copy failed";
+      }
+    });
+    wrap.appendChild(btn);
+  }
+</script>
+
 <style>
   .tokens-page {
     padding: 2rem 1.25rem 4rem;
@@ -168,6 +297,15 @@ const tokens = user ? await listTokens(user.userId) : [];
   .card-emph { border-left: var(--border-thick) solid var(--color-success); }
   .card-err  { border-left: var(--border-thick) solid var(--color-danger, #ff4d4f); }
   .card h2 { margin-top: 0; }
+  .card h3 { margin: 1.1rem 0 0.35rem; font-size: 1.05em; }
+  .card h4 { margin: 0.9rem 0 0.3rem; font-size: 0.95em; color: var(--color-muted); font-weight: 600; }
+  .card code {
+    background: var(--color-bg);
+    border: var(--border-default) solid var(--color-border);
+    padding: 0.05rem 0.3rem;
+    font-family: var(--font-mono);
+    font-size: 0.85em;
+  }
   .token {
     background: var(--color-bg);
     border: var(--border-default) solid var(--color-border);
@@ -175,6 +313,57 @@ const tokens = user ? await listTokens(user.userId) : [];
     font-family: var(--font-mono);
     overflow-wrap: anywhere;
   }
+  .snippet {
+    background: var(--color-bg);
+    border: var(--border-default) solid var(--color-border);
+    padding: 0.75rem 0.9rem;
+    margin: 0.3rem 0 0.6rem;
+    font-family: var(--font-mono);
+    font-size: 0.85em;
+    overflow-x: auto;
+    white-space: pre;
+  }
+  .tool-list { padding-left: 1.2rem; margin: 0.3rem 0 0.6rem; }
+  .tool-list li { margin-bottom: 0.35rem; }
+  /* Editor install picker.
+     Default (no JS): the <select> is hidden, every panel renders with
+     its <h4> label above it — a stacked, labeled fallback that still
+     lets the user copy whichever install path they want.
+     With JS: <html> gets `.js-ready`, the select appears, the per-panel
+     labels collapse, and only the active panel stays visible. */
+  .editor-picker { margin: 0.4rem 0 0.6rem; display: grid; gap: 0.4rem; }
+  .editor-picker-label { display: none; gap: 0.25rem; max-width: 22rem; }
+  html.js-ready .editor-picker-label { display: grid; }
+  .editor-select {
+    background: var(--color-bg);
+    border: var(--border-default) solid var(--color-border);
+    padding: 0.45rem 0.6rem;
+    color: var(--color-fg);
+    font: inherit;
+  }
+  .editor-label {
+    margin: 0.9rem 0 0.3rem;
+    font-size: 0.95em;
+    color: var(--color-muted);
+    font-weight: 600;
+  }
+  html.js-ready .editor-label { display: none; }
+  .editor-panel { display: block; }
+  .editor-panel[hidden] { display: none; }
+  .copy-wrap { position: relative; }
+  .copy-btn {
+    position: absolute;
+    top: 0.4rem;
+    right: 0.4rem;
+    background: var(--color-surface);
+    color: var(--color-fg);
+    border: var(--border-default) solid var(--color-border);
+    padding: 0.2rem 0.55rem;
+    font: inherit;
+    font-size: 0.75em;
+    cursor: pointer;
+  }
+  .copy-btn:hover { background: var(--color-bg); }
   form { display: grid; gap: 0.75rem; }
   label { display: grid; gap: 0.25rem; }
   label > span { font-size: 0.8em; color: var(--color-muted); }

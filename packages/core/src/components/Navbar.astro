@@ -12,15 +12,36 @@ import UserMenu from "./auth/UserMenu.astro";
 interface Props {
   logoUrl?: string;
   siteName?: string;
+  /**
+   * Intrinsic aspect ratio of the logo (in the image's native units —
+   * only the ratio matters). Forwarded to the <img> element's
+   * `width`/`height` attributes so the browser reserves the correct
+   * box before the SVG loads, preventing CLS in the navbar row.
+   * Defaults track the shipped `public/logo.svg`. Override both when
+   * the consumer swaps in a non-square logo.
+   */
+  logoWidth?: number;
+  logoHeight?: number;
 }
 
-const { logoUrl = "/logo.svg", siteName = "Handzon" } = Astro.props;
+const {
+  logoUrl = "/logo.svg",
+  siteName = "Handzon",
+  logoWidth = 76,
+  logoHeight = 58,
+} = Astro.props;
 ---
 <header class="hz-nav">
   <div class="hz-nav-inner">
     {logoUrl && (
       <a href="/" class="hz-nav-brand" aria-label={`${siteName} home`}>
-        <img src={logoUrl} alt={siteName} class="hz-nav-logo" />
+        <img
+          src={logoUrl}
+          alt={siteName}
+          class="hz-nav-logo"
+          width={logoWidth}
+          height={logoHeight}
+        />
       </a>
     )}
     <div class="hz-nav-actions">

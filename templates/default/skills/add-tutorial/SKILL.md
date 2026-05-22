@@ -44,6 +44,7 @@ Guidance:
 - **Embeddable video** → `<Embed url="..."/>`; **downloadable asset** → `<Download href="/downloads/..."/>`
 - **Runnable JS/TS** → `<Playground>` (v1: JS/TS only)
 - **Knowledge check** → at least one `<Quiz>` per tutorial, typically mid-tutorial
+- **Inline "stuck?" button** → `<HelpMe topic="..."/>` at a specific hard spot in a step when the tutorial has AI enabled (see `add-helpme`)
 - **Progress gate** → `<Checkpoint label="..."/>` at the end of every step when `gated: true`
 - **End-of-step summary** → `<Recap items={[...]}/>` on every step
 
@@ -83,7 +84,7 @@ src/content/tutorials/<slug>/
 }
 ```
 
-Add `"gated": true` only if the author asked for it. See `AGENTS.md` for the full schema (`nextTutorial`, `cover`, `icon`, `ai`).
+Add `"gated": true` only if the author asked for it. See `AGENTS.md` for the full schema (`nextTutorial`, `cover`, `icon`, `ai`). For per-tutorial AI assistant overrides (`ai.tone`, `ai.persona`, `ai.byok`, `ai.disabledSkills`, etc.), defer to the `configure-ai-assistant` skill — don't stub the block here, it inherits sensible defaults from `src/config/ai.ts` until the author has an opinion.
 
 **Each step `.mdx`** — frontmatter plus a useful skeleton, not just a `<Callout>` placeholder. Drop in empty instances of the components the outline agreed on for *this* step (don't include components from other steps). Any prose you write in the skeleton (the intro sentence, the `<Callout>` body) must follow the `authoring-voice` rules — no em dashes, no AI tells, second person, present tense:
 
@@ -132,7 +133,8 @@ Tell the author exactly what to do next, in this order:
    - `add-step` — if the outline grows
    - `add-quiz` — to add the mid-tutorial quiz
    - `add-checkpoint` — for gated tutorials
-   - `add-playground`, `add-mermaid-diagram` — interactive blocks
+   - `add-playground`, `add-mermaid-diagram`, `add-helpme` — interactive blocks
+   - `configure-ai-assistant` — shape the tutor's tone, persona, BYOK, disabled skills for this tutorial
    - `wire-ai-references` — feed the AI assistant external docs
    - `review-tutorial` — the pre-publish checklist
 

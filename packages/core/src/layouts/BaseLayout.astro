@@ -18,6 +18,15 @@ interface Props {
   nav?: "full" | "userMenu" | "none";
   /** Logo URL passed to Navbar (when nav === "full"). */
   logoUrl?: string;
+  /**
+   * Intrinsic logo aspect ratio (in the image's native units, ratio
+   * only). Forwarded to the Navbar's <img> as `width`/`height` so the
+   * browser reserves correct box size before the SVG arrives,
+   * preventing CLS in the navbar row. Override both for non-square
+   * logos.
+   */
+  logoWidth?: number;
+  logoHeight?: number;
   /** Favicon URL injected into <head>. */
   faviconUrl?: string;
   /** Show the site footer ("Built with Handzon" + repo link). */
@@ -48,6 +57,8 @@ const {
   tagline = "Hands-on tutorials",
   nav = "full",
   logoUrl = "/logo.svg",
+  logoWidth = 76,
+  logoHeight = 58,
   faviconUrl = "/favicon.svg",
   showFooter = true,
   repoUrl,
@@ -84,7 +95,12 @@ const desc = description ?? tagline;
   </head>
   <body style={`--hz-page-max-width: ${resolvedMaxWidth}; --hz-page-padding-x: ${pagePaddingX}; --hz-nav-height: 3rem;`}>
     {nav === "full" && (
-      <Navbar logoUrl={logoUrl} siteName={siteName} />
+      <Navbar
+        logoUrl={logoUrl}
+        siteName={siteName}
+        logoWidth={logoWidth}
+        logoHeight={logoHeight}
+      />
     )}
     {nav === "userMenu" && (
       <div class="hz-topbar">

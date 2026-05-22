@@ -1,4 +1,12 @@
-@theme {
+/*
+ * `@theme static` (not plain `@theme`) so every declared token is
+ * emitted to the output stylesheet regardless of whether a Tailwind
+ * utility class consumes it. Many of these tokens are read only via
+ * raw `var(--token)` inside component CSS (--ec-bg, --ec-border,
+ * --shadow-raised, etc.); without `static`, Tailwind's tree-shaking
+ * drops them and the var() falls through to its fallback.
+ */
+@theme static {
   /* Surfaces */
   --color-bg:          oklch(0% 0 0);
   --color-fg:          oklch(96% 0 0);

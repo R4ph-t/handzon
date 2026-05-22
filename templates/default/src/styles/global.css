@@ -1,5 +1,18 @@
-/* Active theme. Swap this one line to switch the look. */
-@import "./themes/brutalist-dark.css";
+/*
+ * Order matters. handzon-core's global.css pulls in Tailwind, which
+ * emits its own `@theme` namespace defaults (--font-weight-*, --text-*,
+ * --leading-*, --tracking-*, etc.) at import time. The active theme
+ * MUST come after, so user-supplied tokens override Tailwind's
+ * defaults instead of the other way round.
+ *
+ * Note: theme files must use `@theme static {}` for any token consumed
+ * only via `var(--token)` (i.e., not as a Tailwind utility class).
+ * Plain `@theme {}` blocks are tree-shaken — Tailwind only emits a
+ * variable when a corresponding utility class is generated.
+ */
 
 /* Handzon framework styles (tailwind + base + component styles). */
 @import "handzon-core/styles/global.css";
+
+/* Active theme. Swap this one line to switch the look. */
+@import "./themes/brutalist-dark.css";

@@ -8,17 +8,36 @@ interface Props {
    * to hide the logo entirely.
    */
   logoUrl?: string;
+  /**
+   * Intrinsic aspect ratio of the logo, supplied as the SVG/image's
+   * native width and height (any unit — only the ratio matters). The
+   * browser uses these to reserve the correct box size before the
+   * image loads, preventing CLS as surrounding text reflows. Defaults
+   * track the shipped `public/logo.svg` (`viewBox="10 20 76 58"`).
+   * Override both when swapping in a non-square logo.
+   */
+  logoWidth?: number;
+  logoHeight?: number;
 }
 const {
   title = "Handzon.",
   subtitle = "Step-by-step tutorials.",
   logoUrl = "/logo.svg",
+  logoWidth = 76,
+  logoHeight = 58,
 } = Astro.props;
 ---
 <header class="hero">
   <h1 class="hero-headline">
     {logoUrl && (
-      <img class="hero-logo" src={logoUrl} alt="" aria-hidden="true" />
+      <img
+        class="hero-logo"
+        src={logoUrl}
+        alt=""
+        aria-hidden="true"
+        width={logoWidth}
+        height={logoHeight}
+      />
     )}
     <span>{title}</span>
   </h1>

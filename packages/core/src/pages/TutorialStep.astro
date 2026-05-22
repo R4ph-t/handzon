@@ -20,6 +20,8 @@ interface Props {
   siteName?: string;
   tagline?: string;
   logoUrl?: string;
+  logoWidth?: number;
+  logoHeight?: number;
   faviconUrl?: string;
   repoUrl?: string;
 }
@@ -32,6 +34,8 @@ const {
   siteName,
   tagline,
   logoUrl,
+  logoWidth,
+  logoHeight,
   faviconUrl,
   repoUrl,
 } = Astro.props;
@@ -60,6 +64,8 @@ const initialContext = buildContext({
   siteName={siteName}
   tagline={tagline}
   logoUrl={logoUrl}
+  logoWidth={logoWidth}
+  logoHeight={logoHeight}
   faviconUrl={faviconUrl}
   repoUrl={repoUrl}
 >

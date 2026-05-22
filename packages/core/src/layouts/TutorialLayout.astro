@@ -14,6 +14,8 @@ interface Props {
   siteName?: string;
   tagline?: string;
   logoUrl?: string;
+  logoWidth?: number;
+  logoHeight?: number;
   faviconUrl?: string;
   repoUrl?: string;
 }
@@ -27,6 +29,8 @@ const {
   siteName,
   tagline,
   logoUrl,
+  logoWidth,
+  logoHeight,
   faviconUrl,
   repoUrl,
 } = Astro.props;
@@ -39,6 +43,8 @@ const stepSlugs = steps.map((s) => parseStepId(s.id).stepSlug);
   siteName={siteName}
   tagline={tagline}
   logoUrl={logoUrl}
+  logoWidth={logoWidth}
+  logoHeight={logoHeight}
   faviconUrl={faviconUrl}
   repoUrl={repoUrl}
 >
@@ -209,7 +215,17 @@ const stepSlugs = steps.map((s) => parseStepId(s.id).stepSlug);
   }
   .main {
     padding: 2rem clamp(1rem, 4vw, 3rem);
+    /* 80ch is the upper end of comfortable prose width; on wide
+     * viewports we trade a little of that for code-block headroom so
+     * fenced blocks wrap less aggressively. Capped at 92ch — past
+     * that body prose starts to feel like a magazine column. */
     max-width: 80ch;
+  }
+  @media (min-width: 1280px) {
+    .main { max-width: 88ch; }
+  }
+  @media (min-width: 1600px) {
+    .main { max-width: 92ch; }
   }
   .crumb {
     font-family: var(--font-mono);

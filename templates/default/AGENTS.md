@@ -87,7 +87,9 @@ Fenced code blocks use **Expressive Code**. Inherited features:
 
 ## Theming contract
 
-**Never hardcode colors, radii, or fonts.** Use Tailwind utilities backed by the theme tokens in `src/styles/themes/`. Tokens live in a single `@theme {}` block per theme file; switch themes by editing one `@import` line in `src/styles/global.css`.
+**Never hardcode colors, radii, or fonts.** Use Tailwind utilities backed by the theme tokens in `src/styles/themes/`. Tokens live in a single `@theme static {}` block per theme file; switch themes by editing one `@import` line in `src/styles/global.css`.
+
+> **Two non-obvious rules.** First, theme files MUST use `@theme static {}`, not plain `@theme {}`. Tailwind v4 tree-shakes plain `@theme` — a token only gets emitted if a utility class is generated for it, which means tokens consumed only via raw `var(--token)` in component CSS (most of `--font-weight-*`, `--text-*`, `--tracking-*`, `--leading-*`, `--ec-*`, `--shadow-*`) silently disappear from the build. `static` forces every declared token to be emitted. Second, `src/styles/global.css` must import `handzon-core/styles/global.css` BEFORE the theme — handzon-core brings in Tailwind, which emits Tailwind's own namespace defaults; the theme has to come after to win the cascade.
 
 Available tokens (all CSS variables):
 
@@ -100,7 +102,7 @@ Available tokens (all CSS variables):
 - Type tracking + leading: `--tracking-display` (-0.025em, hero + landing/step `h1`), `--tracking-heading` (-0.015em, `.prose h1`-`h6`), `--leading-heading` (1.2), `--leading-body` (1.65)
 - Type scale: `--text-display` (`clamp(2.25rem, 5vw, 3.75rem)`, hero), `--text-h1` (1.875rem, `.prose h1`), `--text-h2` (1.4rem), `--text-h3` (1.15rem), `--text-h4` (1rem), `--text-body` (1rem)
 
-All typography tokens have framework fallbacks via `var(--token, default)` — themes only need to declare the ones they want to change. Re-skinning to a thin display font, for example, is just `--font-weight-display: 300; --font-weight-heading: 400;` in the theme's `@theme {}` block — no `!important` required.
+All typography tokens have framework fallbacks via `var(--token, default)` — themes only need to declare the ones they want to change. Re-skinning to a thin display font, for example, is just `--font-weight-display: 300; --font-weight-heading: 400;` in the theme's `@theme static {}` block — no `!important` required.
 
 ## Customizing `<head>`
 

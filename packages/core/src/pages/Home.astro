@@ -12,6 +12,8 @@ interface Props {
   tagline?: string;
   hero?: { title?: string; subtitle?: string };
   logoUrl?: string;
+  logoWidth?: number;
+  logoHeight?: number;
   faviconUrl?: string;
   repoUrl?: string;
   showResumeRail?: boolean;
@@ -25,6 +27,8 @@ const {
   tagline = "Hands-on tutorials",
   hero,
   logoUrl,
+  logoWidth,
+  logoHeight,
   faviconUrl,
   repoUrl,
   showResumeRail = true,
@@ -56,13 +60,21 @@ for (const t of tutorials) {
   siteName={siteName}
   tagline={tagline}
   logoUrl={logoUrl}
+  logoWidth={logoWidth}
+  logoHeight={logoHeight}
   faviconUrl={faviconUrl}
   repoUrl={repoUrl}
   nav="userMenu"
 >
   <slot name="head" slot="head" />
   <div class="home">
-    <Hero title={hero?.title} subtitle={hero?.subtitle} logoUrl={logoUrl} />
+    <Hero
+      title={hero?.title}
+      subtitle={hero?.subtitle}
+      logoUrl={logoUrl}
+      logoWidth={logoWidth}
+      logoHeight={logoHeight}
+    />
 
     {showResumeRail && (
       <ResumeRail client:load tutorials={compactTutorials} />

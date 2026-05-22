@@ -8,11 +8,22 @@ interface Props {
   siteName?: string;
   tagline?: string;
   logoUrl?: string;
+  logoWidth?: number;
+  logoHeight?: number;
   faviconUrl?: string;
   repoUrl?: string;
 }
 
-const { tutorial, siteName, tagline, logoUrl, faviconUrl, repoUrl } = Astro.props;
+const {
+  tutorial,
+  siteName,
+  tagline,
+  logoUrl,
+  logoWidth,
+  logoHeight,
+  faviconUrl,
+  repoUrl,
+} = Astro.props;
 const steps = await getStepsForTutorial(tutorial.id);
 const duration = tutorial.data.estimatedDuration ?? sumDurations(steps) ?? "";
 const firstStepSlug = steps[0] ? parseStepId(steps[0].id).stepSlug : null;
@@ -23,6 +34,8 @@ const firstStepSlug = steps[0] ? parseStepId(steps[0].id).stepSlug : null;
   siteName={siteName}
   tagline={tagline}
   logoUrl={logoUrl}
+  logoWidth={logoWidth}
+  logoHeight={logoHeight}
   faviconUrl={faviconUrl}
   repoUrl={repoUrl}
 >

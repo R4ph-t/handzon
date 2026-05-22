@@ -1,0 +1,185 @@
+---
+/**
+ * Editor install picker for /settings/tokens.
+ *
+ * Used twice on the page:
+ *   1. In the post-mint success card, with the freshly-issued PAT
+ *      baked into every variant (one-copy install for the dominant
+ *      moment).
+ *   2. As a persistent reference below the tokens list, with the
+ *      `hzn_pat_…` placeholder for learners coming back later.
+ *
+ * Variants:
+ *   - Cursor:             `cursor://` deeplink (one-click) + remote JSON
+ *   - VS Code:            `vscode:mcp/install` deeplink + `code --add-mcp`
+ *   - VS Code Insiders:   `vscode-insiders:mcp/install` deeplink
+ *   - Claude Code (CLI):  `claude mcp add` one-liner
+ *   - Codex (CLI):        `codex mcp add` + shell `export` (env-var-based)
+ *   - Claude Desktop:     stdio bridge JSON via `handzon-mcp` wrapper
+ *   - Other / generic:    raw remote `mcp.json`
+ *
+ * No-JS fallback: panels render unhidden on first paint. A tiny inline
+ * script flips `<html>` to `.js-ready`, which CSS uses to hide all but
+ * the active panel and reveal the `<select>`. Without JS you see all
+ * options stacked with their `<h4>` labels — ugly but functional.
+ */
+export interface Props {
+  /** The PAT to bake into snippets / deeplinks. Use `hzn_pat_…` for the persistent (placeholder) variant. */
+  token: string;
+  /** mcp.json server key. Slugified site name in practice; "handzon" by default. */
+  serverName: string;
+  /** Site origin, e.g. `https://handzon.onrender.com`. Used by the stdio bridge `--site` arg. */
+  origin: string;
+}
+
+const { token, serverName, origin } = Astro.props;
+const endpoint = `${origin}/api/mcp`;
+
+const remoteJson = JSON.stringify(
+  {
+    mcpServers: {
+      [serverName]: {
+        url: endpoint,
+        headers: { Authorization: `Bearer ${token}` },
+      },
+    },
+  },
+  null,
+  2,
+);
+
+const stdioJson = JSON.stringify(
+  {
+    mcpServers: {
+      [serverName]: {
+        command: "npx",
+        args: ["-y", "handzon-mcp@latest", "--site", origin, "--token", token],
+      },
+    },
+  },
+  null,
+  2,
+);
+
+// Cursor: base64(JSON of just transport); name carried by query param.
+const cursorTransport = {
+  url: endpoint,
+  headers: { Authorization: `Bearer ${token}` },
+};
+const cursorB64 = Buffer.from(JSON.stringify(cursorTransport), "utf8").toString("base64");
+const cursorDeeplink = `cursor://anysphere.cursor-deeplink/mcp/install?name=${encodeURIComponent(
+  serverName,
+)}&config=${encodeURIComponent(cursorB64)}`;
+
+// VS Code: URL-encoded JSON, name lives inside the JSON, type required.
+const vscodeConfig = {
+  name: serverName,
+  type: "http",
+  url: endpoint,
+  headers: { Authorization: `Bearer ${token}` },
+};
+const vscodeQuery = encodeURIComponent(JSON.stringify(vscodeConfig));
+const vscodeDeeplink = `vscode:mcp/install?${vscodeQuery}`;
+const vscodeInsidersDeeplink = `vscode-insiders:mcp/install?${vscodeQuery}`;
+const vscodeCli = `code --add-mcp '${JSON.stringify(vscodeConfig)}'`;
+
+// Claude Code CLI: --header form works across all 2.x versions.
+// `add-json` is newer (2.1.1+) but has a Windows bug, so we keep the
+// classic form here.
+const claudeCodeCli = `claude mcp add --transport http ${serverName} ${endpoint} --header "Authorization: Bearer ${token}"`;
+
+// Codex CLI: deliberately env-var-based — the config file stores the
+// env var NAME, not the value, so the token never lands in plaintext
+// inside config.toml. The user has to export it from their shell init.
+const codexCli = `codex mcp add ${serverName} --url ${endpoint} --bearer-token-env-var HANDZON_PAT`;
+const codexEnvExport = `export HANDZON_PAT="${token}"`;
+---
+
+<div class="editor-picker">
+  <label class="editor-picker-label">
+    <span>Install in</span>
+    <select class="editor-select" name="editor">
+      <option value="cursor" selected>Cursor</option>
+      <option value="vscode">VS Code</option>
+      <option value="vscode-insiders">VS Code Insiders</option>
+      <option value="claude-code">Claude Code (CLI)</option>
+      <option value="codex">Codex (CLI)</option>
+      <option value="claude-desktop">Claude Desktop</option>
+      <option value="other">Other / raw mcp.json</option>
+    </select>
+  </label>
+
+  <h4 class="editor-label" data-for="cursor">Cursor</h4>
+  <div class="editor-panel" data-editor="cursor">
+    <p class="muted">
+      One click — opens Cursor's MCP install prompt with the server and
+      token already filled in.
+    </p>
+    <p>
+      <a class="btn" href={cursorDeeplink}>Add to Cursor</a>
+    </p>
+    <p class="muted">
+      Or paste into <code>~/.cursor/mcp.json</code> (or{" "}
+      <code>.cursor/mcp.json</code> in your project):
+    </p>
+    <pre class="snippet" data-copy>{remoteJson}</pre>
+  </div>
+
+  <h4 class="editor-label" data-for="vscode">VS Code</h4>
+  <div class="editor-panel" data-editor="vscode">
+    <p class="muted">One click — opens VS Code's MCP install prompt.</p>
+    <p>
+      <a class="btn" href={vscodeDeeplink}>Add to VS Code</a>
+    </p>
+    <p class="muted">Or run in your terminal (uses the <code>code</code> CLI):</p>
+    <pre class="snippet" data-copy>{vscodeCli}</pre>
+  </div>
+
+  <h4 class="editor-label" data-for="vscode-insiders">VS Code Insiders</h4>
+  <div class="editor-panel" data-editor="vscode-insiders">
+    <p>
+      <a class="btn" href={vscodeInsidersDeeplink}>Add to VS Code Insiders</a>
+    </p>
+  </div>
+
+  <h4 class="editor-label" data-for="claude-code">Claude Code (CLI)</h4>
+  <div class="editor-panel" data-editor="claude-code">
+    <p class="muted">Run in your terminal:</p>
+    <pre class="snippet" data-copy>{claudeCodeCli}</pre>
+  </div>
+
+  <h4 class="editor-label" data-for="codex">Codex (CLI)</h4>
+  <div class="editor-panel" data-editor="codex">
+    <p class="muted">
+      1. Register the server in <code>~/.codex/config.toml</code>:
+    </p>
+    <pre class="snippet" data-copy>{codexCli}</pre>
+    <p class="muted">
+      2. Export the token where your shell can find it (add to{" "}
+      <code>~/.zshrc</code> / <code>~/.bashrc</code>). Codex stores only
+      the env var <em>name</em> in its config file, never the token
+      itself — so the secret stays out of files you might commit.
+    </p>
+    <pre class="snippet" data-copy>{codexEnvExport}</pre>
+  </div>
+
+  <h4 class="editor-label" data-for="claude-desktop">Claude Desktop</h4>
+  <div class="editor-panel" data-editor="claude-desktop">
+    <p class="muted">
+      Paste into{" "}
+      <code>~/Library/Application Support/Claude/claude_desktop_config.json</code>{" "}
+      on macOS. Uses the <code>handzon-mcp</code> npx wrapper (Claude
+      Desktop has no native remote-MCP support yet).
+    </p>
+    <pre class="snippet" data-copy>{stdioJson}</pre>
+  </div>
+
+  <h4 class="editor-label" data-for="other">Other / raw mcp.json</h4>
+  <div class="editor-panel" data-editor="other">
+    <p class="muted">
+      Generic remote MCP config for any client that supports the
+      standard <code>mcp.json</code> shape (HTTP transport + bearer auth).
+    </p>
+    <pre class="snippet" data-copy>{remoteJson}</pre>
+  </div>
+</div>

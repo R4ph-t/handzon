@@ -1,4 +1,9 @@
-@theme {
+/*
+ * `@theme static` so var()-only consumers (--ec-bg, --shadow-raised,
+ * etc.) survive Tailwind v4's utility-driven tree-shaking. See the
+ * matching note in brutalist-dark.css.
+ */
+@theme static {
   --color-bg:          oklch(98% 0.01 240);
   --color-fg:          oklch(20% 0.02 240);
   --color-muted:       oklch(50% 0.02 240);

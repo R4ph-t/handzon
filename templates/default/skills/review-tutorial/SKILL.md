@@ -146,11 +146,47 @@ Em-dash hits and `\"` hits are both **must fix**. AI-tell hits are **recommended
 - **All co-located assets are referenced.** `ls <slug>/assets/` and grep each filename in the tutorial; orphans should be deleted or used.
 - **Cover/icon caveat.** `_meta.json.cover` and `icon` are schema-declared but **no page currently renders them**. Don't flag a missing cover as a bug; it's currently inert. If they're set, leave them — they're forward-compatible scaffolding.
 - **AI references resolve.** If `_meta.json.ai.references` lists files, verify each exists.
+- **AI sanity (only if `_meta.json.ai.enabled` is true or omitted).** See section 5a below.
 - **Manual click-through.** Run `pnpm dev`, open `http://localhost:4321/<slug>`, click Next through every step. Confirm:
   - Gated tutorials: Next disables until the checkpoint is toggled, then enables.
   - Tabs remember selection across steps.
   - All embeds/playgrounds actually load.
   - Mermaid diagrams render.
+
+### 5a. AI assistant audit
+
+Skip this whole section if `_meta.json.ai.enabled` is explicitly `false`. Otherwise the tutor is live and worth a sanity pass — most failure modes here are silent (no build error, just bad UX).
+
+Read `_meta.json.ai` and confirm:
+
+- **Persona matches surface text.** If `greeting` says "I'm Postgrid, your SQL pair" but `name` is `"Helper"` or unset, the chat header and the greeting disagree. Either match them or drop the greeting.
+- **Tone fits the audience.** Beginner tutorials usually want `socratic` or `encouraging`; advanced reference tutorials usually want `direct`. Flag a mismatch with `difficulty`.
+- **`disabledSkills` names are real.** Each entry must match a `name` in `packages/ai/src/skills.ts`. Typos silently do nothing — there's no build-time validation.
+
+```bash
+# List the disabledSkills entries (jq optional; eyeball them otherwise).
+jq -r '.ai.disabledSkills // [] | .[]' src/content/tutorials/<slug>/_meta.json
+# Cross-check against the real names.
+rg -n '^\s*name:' packages/ai/src/skills.ts
+```
+
+- **`disabledSkills` matches reality.** If the tutorial has no `<Playground>`, `review-my-code` is doing nothing useful — flag for consideration. If it's not `gated: true`, `help-with-checkpoint` is dead weight. If the tutorial has no local install steps, `debug-environment` should usually go.
+- **BYOK matches deployment intent.** If `byok` is `"optional"` or `"disabled"`, confirm with the author that the corresponding provider env var (`ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, etc.) will be set in production. Wrong setting + missing key = a chat panel that silently demands the learner paste their own key.
+- **`includeFutureSteps` is intentional.** Default `false` (no spoilers). If it's `true`, the tutorial should be reference-style or a recipe collection — flag otherwise.
+- **`<HelpMe />` placement.** Inline `<HelpMe />` and the global `autoStepHelp` footer can stack visually. If `autoStepHelp` is on in `src/config/ai.ts`, flag any step whose final non-`<Recap>` component is `<HelpMe />`:
+
+```bash
+# Steps that end with <HelpMe /> right before <Recap> — likely stacking with autoStepHelp.
+rg -nP '<HelpMe[^>]*/>\s*\n+\s*<Recap' src/content/tutorials/<slug>/
+```
+
+- **`<HelpMe topic="...">` is specific.** Grep for generic topics and flag them:
+
+```bash
+rg -nP '<HelpMe[^>]*topic="(this|this part|this step|the above|above)"' src/content/tutorials/<slug>/
+```
+
+- **AI references budget.** Sum the byte counts of files listed in `ai.references`. The runtime budget is `aiDefaults.contextBudgetTokens` (8000 tokens by default; ~32 KB of text). If references comfortably exceed that, the assistant will see a truncated view — flag for trimming or splitting.
 
 ## 6. Report findings
 
@@ -167,6 +203,9 @@ Group everything into three buckets. Be honest about what's must-fix vs. taste.
 - Backslash-escaped quotes (`\"`) inside JSX attributes (breaks the build)
 - Anything that breaks the click-through in section 5
 - Leftover `TODO(author)` markers
+- AI references that don't resolve to real files
+- `disabledSkills` entries that don't match a real skill name (silent no-op)
+- `byok: "optional"` or `"disabled"` without a corresponding provider env var planned in production
 
 **Recommended:**
 - Component-fit fixes (bash → `<Terminal>`, file lists → `<FileTree>`, before/after → `<Diff>`)
@@ -176,11 +215,17 @@ Group everything into three buckets. Be honest about what's must-fix vs. taste.
 - Splitting steps longer than 10 minutes
 - Fixing `estimatedDuration` drift
 - Adding `<Tabs group="...">` for multi-platform variants
+- Persona / tone / greeting misalignment in `_meta.json.ai` (see `configure-ai-assistant`)
+- `disabledSkills` that doesn't match the tutorial's shape (e.g. `review-my-code` enabled with no `<Playground>`)
+- Inline `<HelpMe />` stacking with the global `autoStepHelp` footer
+- Generic `topic=""` strings on `<HelpMe />`
+- `ai.references` collectively exceeding `contextBudgetTokens`
 
 **FYI (not blocking):**
 - Cover/icon set but not yet rendered by any page
 - Style/voice nits
 - Suggestions for additional Quizzes or Playgrounds
+- `includeFutureSteps: true` on a story-arc tutorial (verify it's deliberate)
 
 Present the report grouped this way. **Don't auto-fix without asking** — the author may have reasons for some choices (e.g. deliberately keeping a step prose-heavy because it's a conceptual interlude). Surface the findings, propose fixes for the must-fix bucket, and ask before applying recommendations.
 
@@ -191,3 +236,4 @@ Present the report grouped this way. **Don't auto-fix without asking** — the a
 - Don't flag `_meta.json.cover` or `icon` as missing or broken. They're inert by design right now (TODO in `packages/core/src/collections.ts`).
 - Don't pad the report. If the tutorial is clean, say so in one line. A 30-finding report on a 4-step tutorial means most findings are taste.
 - Don't skip section 3a on gated tutorials. The silent-skip bug is the single most common production issue.
+- Don't skip section 5a if the tutorial has the assistant enabled. Most AI failure modes here are silent (no build error, just bad learner UX).

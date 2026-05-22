@@ -44,6 +44,7 @@ Don't ship a prose-heavy step. Before writing the file, pick the components that
 - **Embeddable video** → `<Embed url="..."/>`; **downloadable asset** → `<Download href="/downloads/..."/>`
 - **Runnable JS/TS** → `<Playground>` (v1: JS/TS only)
 - **Knowledge check** → `<Quiz>` — useful mid-tutorial or when introducing a tricky concept
+- **Inline "stuck?" escape hatch** → `<HelpMe topic="..."/>` — drop next to a specific hard spot (gnarly diff, tricky regex, opaque terminal output) when the tutorial has AI enabled. Don't put one at the *end* of every step — that's `autoStepHelp` territory (see `add-helpme`).
 - **End-of-step summary** → `<Recap items={[...]}/>` — **every step**
 - **Progress gate** → `<Checkpoint label="..."/>` — **every step, before the `<Recap>`, when the tutorial is `gated: true`**
 
@@ -59,11 +60,13 @@ Slugify the step title (`deploy-to-render`, kebab-case). The filename is `<NN>-<
 
 Write frontmatter and a useful skeleton — not just a `<Callout>`. Drop in *empty* instances of the components agreed in section 3 (only the ones for *this* step). Any prose you write (intro sentence, `<Callout>` body, `<Recap>` items) must follow the `authoring-voice` rules — no em dashes, no AI tells, second person, present tense. Strip the comment hints below before saving — they're guidance, not output:
 
+**About `summary`.** It does double duty: the landing page uses it as a teaser *and* the AI assistant uses it when summarising prior steps in its context window. Write one sentence that names the concrete outcome, not the topic. Good: *"Wire the form to a server action that writes to Postgres."* Bad: *"Learning about server actions."*
+
 ```mdx
 ---
 title: <Step title>
 duration: <e.g. 5 min>
-summary: <One-line teaser; surfaces on the landing page and in AI context>
+summary: <One-line outcome; doubles as landing teaser and AI step context>
 ---
 
 In this step you'll <one sentence describing the step's outcome>.
@@ -107,7 +110,8 @@ Tell the author exactly what to do next:
 2. **Write the body**, then replace the empty component placeholders with real content.
 3. **Companion skills**:
    - `authoring-voice` — Handzon's house voice rules. Invoke before writing the step's prose.
-   - `add-quiz`, `add-checkpoint`, `add-playground`, `add-mermaid-diagram` — for the components they picked.
+   - `add-quiz`, `add-checkpoint`, `add-playground`, `add-mermaid-diagram`, `add-helpme` — for the components they picked.
+   - `configure-ai-assistant` — only if this step exposes a need to tune the tutor (different tone, disabled skill, etc.). Otherwise inherit the tutorial's existing `_meta.json.ai`.
 4. When the tutorial feels done, run `review-tutorial` — the pre-publish checklist.
 
 ## Don't
