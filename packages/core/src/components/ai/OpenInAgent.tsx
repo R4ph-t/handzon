@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { buildAssistantPrompt } from "../../lib/ai/prompts";
 import { contextFromStepData, readStepData, type StepData } from "../../lib/ai/stepData";
+import CopyStep from "./CopyStep";
 
 interface Props {
   /** Hide a specific agent from the row. All four shown by default. */
@@ -48,6 +49,7 @@ export default function OpenInAgent({ hide = [] }: Props) {
           {agent.label}
         </a>
       ))}
+      <CopyStep />
     </div>
   );
 }
