@@ -1,5 +1,114 @@
 # Changelog
 
+## 0.8.0 (`handzon-core`)
+
+**Agentic tooling menu.** Substantial new surface that turns Handzon
+from "a tutorial site with an in-app tutor" into "a tutorial site
+that any AI agent can drive". Three families of features, layered
+so authors can opt in to whichever they want.
+
+### Added — in-app tutor touchpoints (gated on `aiConfig.enabled`)
+
+- `<HelpMe topic="..." />` MDX block — author-placed inline trigger
+  that opens the tutor pre-seeded with `{ kind: "unstuck", topic }`.
+- `<CopyPrompt template="..." />` MDX block — author-templated prompt
+  with `{{stepSource}}` / `{{tutorialTitle}}` placeholders; renders a
+  "Copy prompt" button. Works whether the in-app tutor is enabled or
+  not (Family B).
+- Quiz "Why is this wrong?" affordance on incorrect submissions.
+- Checkpoint "Stuck?" nudge — delayed via IntersectionObserver +
+  timer, one-shot per step.
+- Selection-anchored "Ask about this" floating button inside the
+  tutorial article.
+- Playground "Ask AI to fix" toolbar button — finally wires the
+  previously-unused `tools.suggestPlaygroundEdit` flag.
+- Auto step-footer "Stuck on this step?" via the new
+  `aiConfig.autoStepHelp` opt-in.
+- Per-step "Open in Cursor / Claude / ChatGPT / VS Code" deep-link
+  row; "Copy step as Markdown" button.
+- `buildAssistantPrompt(context, intent)` shared primitive at
+  `lib/ai/prompts.ts` that backs every touchpoint above. Same input
+  shape renders to chat seed messages, copyable Markdown, and deep
+  links.
+
+### Added — per-user MCP (Family C)
+
+- Remote HTTP MCP endpoint mounted at `/api/mcp/` (in the scaffold
+  template) with JSON-RPC transport. Read tools (`list_tutorials`,
+  `get_tutorial`, `get_step`, `get_progress`, `get_progress_summary`)
+  and write tools (`complete_checkpoint`, `uncheck_checkpoint`,
+  `complete_step`, `mark_step_incomplete`, `record_quiz`,
+  `set_last_visited`, `set_preference`).
+- Personal Access Token auth via the new `learner_api_tokens` table
+  (`hzn_pat_…` format, SHA-256 hashed, with scopes). New
+  `resolveBearerLearner(request)` in `server/auth.ts`.
+- SSE live-sync at `/api/progress/events`. Both cookie POST and MCP
+  writes fan out via a per-learner `EventTarget`; `useProgress`
+  subscribes via `EventSource`. MCP writes update the open browser
+  tab instantly.
+- "Help bridge" — `help_requests` table + `request_help` MCP tool.
+  `ChatPanel` reads its pending inbox on open and prepends as a user
+  turn. "I'm stuck" in Cursor surfaces inside the browser tutor on
+  tab focus.
+
+### Added — machine-verifiable checkpoints (Family D)
+
+- `verify` step frontmatter: declared `file_exists` / `file_contains`
+  / `shell` / `http` checks per step, with per-check `hint` strings.
+  Build-time validation rejects a step whose `verify.id` doesn't
+  match a `<Checkpoint id>` in the same MDX body.
+- Deterministic evaluator at `server/verify/evaluator.ts` — pure
+  function from `(spec, agent-reported results)` to
+  `{ passed, failingCheckIndex?, hint? }`. The agent posts observed
+  values; the server decides pass/fail.
+- `submit_verification` MCP tool that runs the evaluator and calls
+  `complete_checkpoint` on pass.
+- Inline failure feedback under `<Checkpoint>` — a
+  `.checkpoint-feedback` block hydrated from a new
+  `state.verificationFeedback[stepKey]` field, fed by the SSE
+  channel. Clears on next pass or step nav.
+- `kind: "verification"` telemetry rows per submission for authors
+  to mine; tombstone-cleaned on `removeCheckpoint`.
+
+### Schema migrations
+
+- `0003_learner_api_tokens.sql` — PAT storage.
+- `0004_help_requests.sql` — help bridge inbox.
+
+## 0.7.0 (`create-handzon`)
+
+New scaffolds gain the full agentic surface from `handzon-core@0.8.0`.
+CLI source itself is unchanged; the bundled template ships:
+
+- `/settings/tokens` page — create / list / revoke Personal Access
+  Tokens. Tokens are shown once at mint time.
+- `/api/mcp/index.ts` — mounts the remote MCP endpoint.
+- `/api/progress/events.ts` — SSE handler for live progress sync.
+- `/[tutorial]/llms.txt.ts` — per-tutorial `llms.txt` endpoint
+  concatenating step source for bring-your-own-agent users.
+- New `add-verify-checks` skill with a matrix for picking the right
+  check kind per outcome and rules for writing failure-cause hints.
+  `add-checkpoint` cross-references it; `review-tutorial` warns on
+  gated steps lacking `verify.checks`.
+- Drizzle migrations 0003 / 0004 (PAT + help requests).
+
+The template's `workspace:*` references to `handzon-core` and
+`handzon-ai` are rewritten by the CLI's `tsup` build to `^0.8.0` and
+`^0.2.0` respectively, so fresh scaffolds pin the matching releases.
+
+## 0.1.0 (`handzon-mcp`, new package)
+
+Initial release. A thin stdio↔HTTP wrapper that proxies to a deployed
+Handzon site's remote MCP endpoint. For agents whose MCP client
+doesn't yet support remote HTTP/SSE transport.
+
+```
+npx handzon-mcp --site https://<your-tutorial-site> --token hzn_pat_...
+```
+
+Implemented as a single executable JS file (`packages/mcp-stdio/src/
+index.js`). No build step, no dependencies beyond Node 22.
+
 ## 0.7.0 (`handzon-core`)
 
 **Checkpoints are now togglable.** Clicking a `<Checkpoint>` a second
