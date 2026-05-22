@@ -1,6 +1,7 @@
 import { and, eq, sql } from "drizzle-orm";
 import { getDb } from "./db/client.ts";
 import { progressEntries } from "./db/schema.ts";
+import { publishLearner } from "./progressBus.ts";
 
 export type ProgressKind =
   | "step"
@@ -76,6 +77,10 @@ export async function writeProgressEntries(
         },
       });
   }
+
+  // Fan out to any open SSE subscriber for this learner so the
+  // browser tab catches MCP-driven writes without a polling loop.
+  publishLearner(learnerId, entries);
 
   return entries.length;
 }

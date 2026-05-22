@@ -96,6 +96,39 @@ function diffState(prev: ProgressState, next: ProgressState): ProgressEntry[] {
 }
 
 /**
+ * Apply one server-side progress entry to a mutable state object.
+ * Shared by the initial snapshot fetch and the SSE per-event path.
+ * Mutates in place — callers replace the store atom after batching.
+ */
+function applyEntryInto(state: ProgressState, e: ProgressEntry): void {
+  if (e.kind === "step") {
+    state.steps[`${e.scope}/${e.key}` as `${string}/${string}`] = e.value as
+      | "incomplete"
+      | "complete";
+  } else if (e.kind === "quiz") {
+    state.quizzes[e.key] = e.value as ProgressState["quizzes"][string];
+  } else if (e.kind === "checkpoint") {
+    if (e.value == null) {
+      delete state.checkpoints[e.key];
+      return;
+    }
+    state.checkpoints[e.key] = e.value as ProgressState["checkpoints"][string];
+  } else if (e.kind === "pref") {
+    (state.prefs as Record<string, unknown>)[e.key] = e.value;
+  } else if (e.kind === "lastVisited") {
+    const v = e.value as unknown;
+    state.lastVisited[e.scope] =
+      typeof v === "string" ? { step: v, ts: 0 } : (v as { step: string; ts: number });
+  } else if (e.kind === "tutorial") {
+    const v = (e.value as { ts?: number }) ?? {};
+    const marker = state.tutorials[e.scope] ?? {};
+    if (e.key === "started") marker.started = v.ts;
+    else if (e.key === "completed") marker.completed = v.ts;
+    state.tutorials[e.scope] = marker;
+  }
+}
+
+/**
  * Same shape as the local store, but mirrors writes to /api/progress with
  * debounced batching and an offline queue.
  */
@@ -149,31 +182,7 @@ export function createRemoteStore(): ProgressStore {
           entries: Array<{ kind: string; scope: string; key: string; value: unknown }>;
         };
         const merged: ProgressState = { ...emptyState(), ...state };
-        for (const e of entries) {
-          if (e.kind === "step") {
-            merged.steps[`${e.scope}/${e.key}` as `${string}/${string}`] = e.value as
-              | "incomplete"
-              | "complete";
-          } else if (e.kind === "quiz") {
-            merged.quizzes[e.key] = e.value as ProgressState["quizzes"][string];
-          } else if (e.kind === "checkpoint") {
-            if (e.value == null) continue;
-            merged.checkpoints[e.key] = e.value as ProgressState["checkpoints"][string];
-          } else if (e.kind === "pref") {
-            (merged.prefs as Record<string, unknown>)[e.key] = e.value;
-          } else if (e.kind === "lastVisited") {
-            // Tolerate both new ({step, ts}) and legacy (string) shapes.
-            const v = e.value as unknown;
-            merged.lastVisited[e.scope] =
-              typeof v === "string" ? { step: v, ts: 0 } : (v as { step: string; ts: number });
-          } else if (e.kind === "tutorial") {
-            const v = (e.value as { ts?: number }) ?? {};
-            const marker = merged.tutorials[e.scope] ?? {};
-            if (e.key === "started") marker.started = v.ts;
-            else if (e.key === "completed") marker.completed = v.ts;
-            merged.tutorials[e.scope] = marker;
-          }
-        }
+        for (const e of entries) applyEntryInto(merged, e);
         state = merged;
         writeStorage(state);
         for (const fn of subscribers) fn(state);
@@ -181,6 +190,30 @@ export function createRemoteStore(): ProgressStore {
         // ignore — local data still drives the UI
       }
     })();
+
+    // Live sync: subscribe to per-learner SSE so MCP-driven writes
+    // (or another tab via the cookie POST) show up immediately. The
+    // standard EventSource auto-reconnects on transient drops.
+    if (typeof EventSource !== "undefined") {
+      try {
+        const es = new EventSource("/api/progress/events", { withCredentials: true });
+        es.addEventListener("message", (ev) => {
+          try {
+            const entry = JSON.parse(ev.data) as ProgressEntry;
+            const next: ProgressState = { ...state };
+            applyEntryInto(next, entry);
+            state = next;
+            writeStorage(state);
+            for (const fn of subscribers) fn(state);
+            channel?.postMessage({ type: "set", state });
+          } catch (e) {
+            console.warn("[handzon] sse parse failed:", e);
+          }
+        });
+      } catch {
+        // ignore — polling-via-mount still keeps things eventually consistent
+      }
+    }
   }
 
   return {
