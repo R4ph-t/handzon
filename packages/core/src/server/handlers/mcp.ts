@@ -2,7 +2,7 @@ import type { APIRoute } from "astro";
 import { resolveBearerLearner } from "../auth.ts";
 import type { JsonRpcRequest } from "../mcp/protocol.ts";
 import { type DispatchOptions, dispatchMcp } from "../mcp/server.ts";
-import { catalogReadTools } from "../mcp/tools.ts";
+import { defaultTools } from "../mcp/tools.ts";
 
 const MAX_BODY_BYTES = 64 * 1024;
 
@@ -16,7 +16,7 @@ const MAX_BODY_BYTES = 64 * 1024;
  * clients ping before issuing JSON-RPC.
  */
 export function createMcpHandler(
-  opts: DispatchOptions = { tools: catalogReadTools, resolveAuth: resolveBearerLearner },
+  opts: DispatchOptions = { tools: defaultTools, resolveAuth: resolveBearerLearner },
 ): {
   GET: APIRoute;
   POST: APIRoute;

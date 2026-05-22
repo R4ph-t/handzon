@@ -1,3 +1,4 @@
+import { eq } from "drizzle-orm";
 import {
   getStep,
   getStepsForTutorial,
@@ -5,7 +6,10 @@ import {
   getTutorials,
   parseStepId,
 } from "../../lib/content.ts";
+import { getDb } from "../db/client.ts";
+import { progressEntries } from "../db/schema.ts";
 import { type McpTool, text } from "./protocol.ts";
+import { progressWriteTools } from "./writeTools.ts";
 
 /**
  * Catalog read tools. No auth required beyond a valid bearer token —
@@ -111,4 +115,41 @@ export const catalogReadTools: McpTool[] = [
       return text(JSON.stringify(payload, null, 2));
     },
   },
+];
+
+/**
+ * Authenticated read tools. Available to any valid bearer token (no
+ * `requiredScope` because reading your own progress is implicit in
+ * holding a PAT for the account).
+ */
+export const progressReadTools: McpTool[] = [
+  {
+    name: "get_progress",
+    description: "Return every progress entry for the authenticated learner.",
+    inputSchema: { type: "object", properties: {}, additionalProperties: false },
+    handler: async (_args, ctx) => {
+      if (!ctx.learnerId) {
+        return {
+          content: [{ type: "text", text: "No resolved learner — bearer token required." }],
+          isError: true,
+        };
+      }
+      const db = getDb();
+      const rows = await db
+        .select()
+        .from(progressEntries)
+        .where(eq(progressEntries.learnerId, ctx.learnerId));
+      return text(JSON.stringify({ entries: rows }, null, 2));
+    },
+  },
+];
+
+/**
+ * Default tool bundle the scaffold mounts. Order matters for the
+ * tools/list response — clients usually surface them in array order.
+ */
+export const defaultTools: McpTool[] = [
+  ...catalogReadTools,
+  ...progressReadTools,
+  ...progressWriteTools,
 ];
