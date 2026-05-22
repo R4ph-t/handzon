@@ -1,0 +1,10 @@
+---
+import CopyPromptIsland from "./CopyPrompt.tsx";
+
+interface Props {
+  template: string;
+  label?: string;
+}
+const props = Astro.props as Props;
+---
+<CopyPromptIsland client:visible {...props} />

@@ -1,5 +1,6 @@
 import Callout from "../components/mdx/Callout.astro";
 import Checkpoint from "../components/mdx/Checkpoint.astro";
+import CopyPrompt from "../components/mdx/CopyPrompt.astro";
 import Diff from "../components/mdx/Diff.astro";
 import Download from "../components/mdx/Download.astro";
 import Embed from "../components/mdx/Embed.astro";
@@ -45,5 +46,6 @@ export function mdxComponents() {
     Checkpoint,
     Playground,
     HelpMe,
+    CopyPrompt,
   };
 }
