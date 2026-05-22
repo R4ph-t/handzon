@@ -2,6 +2,7 @@
 import { render } from "astro:content";
 import TutorialLayout from "../layouts/TutorialLayout.astro";
 import ChatButton from "../components/ai/ChatButton.tsx";
+import SelectionAsk from "../components/ai/SelectionAsk.tsx";
 import { parseStepId } from "../lib/content.ts";
 import type { StepEntry, TutorialEntry } from "../lib/content.ts";
 import { mdxComponents } from "../lib/mdx-components.ts";
@@ -62,6 +63,9 @@ const initialContext = buildContext({
 >
   <Content components={components} />
   {aiConfig.enabled && (
-    <ChatButton client:idle config={aiConfig} context={initialContext} />
+    <>
+      <ChatButton client:idle config={aiConfig} context={initialContext} />
+      <SelectionAsk client:idle />
+    </>
   )}
 </TutorialLayout>
