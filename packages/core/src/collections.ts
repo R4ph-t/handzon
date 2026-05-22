@@ -121,6 +121,11 @@ export function tutorialsSchema({ image }: { image: () => import("astro/zod").Zo
     estimatedDuration: z.string().optional(),
     prerequisites: z.array(z.string()).default([]),
     nextTutorial: z.string().optional(),
+    // TODO(handzon): `cover` and `icon` are accepted by the schema for
+    // forward compatibility, but no page currently renders them
+    // (Home cards, TutorialLanding, OG meta all ignore them). Wire them
+    // up in TutorialCard and BaseLayout's OG tags before promoting
+    // cover art in author-facing docs and skills.
     cover: image().optional(),
     icon: z.union([z.string(), image()]).optional(),
     steps: z.array(z.string()).optional(),

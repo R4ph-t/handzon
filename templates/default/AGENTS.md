@@ -44,7 +44,7 @@ Listed tutorials appear first, in array order. Anything not listed is appended a
 | `estimatedDuration` | no       | shown on landing + cards; auto-summed from steps if omitted |
 | `prerequisites`     | no       | bulleted list on the landing page |
 | `nextTutorial`      | no       | slug of follow-up tutorial; renders "Continue learning" card |
-| `cover` / `icon`    | no       | optimized via sharp; paths relative to the folder |
+| `cover` / `icon`    | no       | **schema-declared but not yet rendered.** Astro processes the image via sharp if you reference one, but no page currently displays it. Safe to set for forward-compatibility; don't expect it on screen yet. |
 | `gated`             | no       | when `true`, every step must register a Checkpoint to advance |
 | `ai`                | no       | per-tutorial assistant overrides (see "AI config" below) |
 

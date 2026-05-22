@@ -1,27 +1,158 @@
 ---
 name: review-tutorial
-description: Editorial pass on a tutorial before publishing.
-triggers: ["review", "edit pass", "publish check"]
+description: Pre-publish editorial pass for a Handzon tutorial. Runs mechanical anti-pattern checks (grep), structural checks (gating, recap, quiz coverage), content checks (component fit, prose-heavy detection), and reports findings grouped by severity.
+triggers: ["review", "review tutorial", "edit pass", "publish check", "audit tutorial", "pre-publish", "qa tutorial"]
 ---
 
-Read the tutorial top-to-bottom and check each item below.
+Use this before merging or publishing a tutorial. The goal is to catch the silent failure modes (gating bugs, drifted ids, anti-patterns) before a reader hits them, then surface a focused fix list — not to rewrite the tutorial.
 
-**Structure**
-- [ ] Every step has a `title`, optional `duration`, and optional `summary` in frontmatter.
-- [ ] Every step ends with a `<Recap>`.
-- [ ] Every step ends with a `<Checkpoint>` if the tutorial is gated.
-- [ ] At least one `<Quiz>` per tutorial.
+If the author asks for a quick sanity check, do sections 1–3 and stop. The full pass (sections 1–6) is for "we're about to ship this".
 
-**Content**
-- [ ] First sentence of step 1 sets context. ("In this step you'll …")
-- [ ] No step is longer than ~10 minutes of reading.
-- [ ] Code blocks have `title="..."` where the file matters.
-- [ ] Terminal output uses `<Terminal>` rather than a fenced block with line breaks.
-- [ ] Multi-platform commands use `<Tabs group="...">` so selection persists.
+## 1. Read the tutorial first
 
-**Polish**
-- [ ] Run `pnpm check` — no Astro/TS errors.
-- [ ] No `TODO`, `XXX`, or `FIXME` left in the body.
-- [ ] All co-located assets are referenced; no orphans in `./assets/`.
-- [ ] `_meta.json.estimatedDuration` matches the sum of step `duration` values (or is omitted).
-- [ ] Open the tutorial in `pnpm dev` and click through every step.
+Before checking anything, load the whole thing into your head:
+
+1. **Pick the tutorial.** If unclear, list folders under `src/content/tutorials/` and ask.
+2. **Load `<slug>/_meta.json`.** Note: `gated`, `estimatedDuration`, `difficulty`, `prerequisites`, `nextTutorial`. The gated flag drives most of section 3.
+3. **List the step files** (`ls <slug>/*.mdx`) and read each top-to-bottom.
+4. **Check for orphan assets** — files under `<slug>/assets/` that no step references.
+
+Keep a running list of findings as you go. Don't fix anything yet; you'll group findings by severity in section 6.
+
+## 2. Mechanical checks (run these first)
+
+These are grep-able anti-patterns. Run them from the repo root; pipe them into the findings list.
+
+```bash
+# 2a. Leftover TODOs/FIXMEs/XXX/scaffold markers in the tutorial body.
+rg -n "TODO\(author\)|TODO|FIXME|XXX" src/content/tutorials/<slug>/
+
+# 2b. MDX `import` statements — components are globally registered; imports are always wrong.
+rg -n "^import\s" src/content/tutorials/<slug>/
+
+# 2c. Bash fences with $ prompts — these should be <Terminal> instead.
+rg -n '^\$ ' src/content/tutorials/<slug>/ -g '*.mdx'
+
+# 2d. Two consecutive fenced code blocks (likely a missed <Diff> opportunity).
+rg -nP '^```\w+\n(.+\n)+```\n\n```\w+' --multiline src/content/tutorials/<slug>/
+
+# 2e. Hardcoded color/radius/font values — should use theme tokens.
+rg -n "style=\{\{[^}]*(color|background|borderRadius|fontFamily)" src/content/tutorials/<slug>/
+```
+
+Then run the build:
+
+```bash
+pnpm check   # Astro + TS errors
+```
+
+If anything from 2a–2e or `pnpm check` fails, it's a **must fix** finding.
+
+## 3. Structural checks
+
+For each step, verify:
+
+- **Frontmatter** — `title` is present. `duration` and `summary` are optional but recommended.
+- **Ends with `<Recap items={[...]}/>`.** Missing recap is a must-fix.
+- **First step sets context.** Step 1's first sentence should orient the reader ("In this step you'll …"). No code in step 1; that belongs in step 2+.
+- **Last step is the payoff.** Whatever the anchor artifact is — running, deployed, tested. If the last step is conceptual recap instead of action, the tutorial buries the lede.
+
+For the tutorial as a whole:
+
+- **At least one `<Quiz>`.** Tutorials without a comprehension check feel like blog posts.
+- **`_meta.json.estimatedDuration` matches the sum of step `duration` values** (or is omitted entirely — auto-summed at build). If set and drifted, flag for fix.
+- **`prerequisites` is honest.** If step 1 assumes Docker but `prerequisites` doesn't list it, that's a barrier you can't see from the inside.
+
+### 3a. Gated-tutorial audit (only if `_meta.json.gated: true`)
+
+This is the highest-impact section. The gating mechanic requires **both** `gated: true` *and* a `<Checkpoint>` per step. A step with no checkpoint silently un-gates itself — no build error.
+
+```bash
+# Find every step file that lacks a <Checkpoint>.
+for f in src/content/tutorials/<slug>/*.mdx; do
+  rg -q '<Checkpoint' "$f" || echo "MISSING CHECKPOINT: $f"
+done
+```
+
+Then within gated tutorials, audit:
+
+- **One `<Checkpoint>` per step.** `markStepComplete` fires on first toggle, so multiple checkpoints don't compose — the others are decorative. More than one is a must-fix or a redesign.
+- **Every `<Checkpoint>` in a gated tutorial has an explicit `id`.** Default ids include React's positional `useId`, so inserting any MDX component above a checkpoint invalidates the reader's previous completion. Find checkpoints missing `id`:
+
+```bash
+rg -nP '<Checkpoint(?![^>]*\bid=)' src/content/tutorials/<slug>/
+```
+
+- **Every `<Quiz>` whose progress matters has an explicit `id`.** Same drift problem:
+
+```bash
+rg -nP '<Quiz(?![^>]*\bid=)' src/content/tutorials/<slug>/
+```
+
+## 4. Content & component-fit checks
+
+A tutorial that's mostly prose underuses the platform. For each step, scan for these anti-patterns:
+
+- **Prose-heavy step.** 3+ consecutive paragraphs of running text with no component is a smell. The fix is *not* to add a `<Callout>` for show — it's to reach for the component that actually fits (`<FileTree>`, `<Diff>`, `<Terminal>`, `<Tabs>`, `<Playground>`).
+- **Code fence anti-patterns:**
+  - Bash fence with `$` prompts → should be `<Terminal entries={[{command, output}]}>`.
+  - Code fence listing file paths with slashes → should be `<FileTree paths={[...]}/>`.
+  - Two consecutive fences showing before/after → should be `<Diff before={...} after={...}/>`.
+- **Code fences missing `title="..."`** when the file matters. Without a filename, the reader doesn't know where to paste it.
+- **Multi-platform commands without `<Tabs group="...">`.** npm/pnpm/yarn variants, mac/linux/windows, SQLite/Postgres — these need tabs so the reader's selection persists across steps. Also check the `group` value is consistent across the tutorial (a tutorial that uses `group="pkg"` in step 2 and `group="package-manager"` in step 4 loses persistence).
+- **No step longer than ~10 minutes of reading.** Sum the `duration` frontmatter; flag anything >10. Suggest splitting.
+- **`<Quiz>` quality:**
+  - Every Quiz has an `explanation`. The explanation is the most valuable part; missing is a must-fix.
+  - No "all of the above" or "none of the above" options — quiz anti-patterns.
+  - Distractors should be plausible misconceptions, not jokes.
+- **`<Checkpoint>` quality:**
+  - Labels are first-person, present-tense, sensory-verifiable. Reject `"I understand X"` and `"This makes sense"` — not verifiable.
+  - One claim per checkpoint.
+
+## 5. Polish
+
+- **No `TODO`, `XXX`, `FIXME`, or `TODO(author)`** anywhere in step bodies. Covered by 2a but worth a second pass after fixes.
+- **All co-located assets are referenced.** `ls <slug>/assets/` and grep each filename in the tutorial; orphans should be deleted or used.
+- **Cover/icon caveat.** `_meta.json.cover` and `icon` are schema-declared but **no page currently renders them**. Don't flag a missing cover as a bug; it's currently inert. If they're set, leave them — they're forward-compatible scaffolding.
+- **AI references resolve.** If `_meta.json.ai.references` lists files, verify each exists.
+- **Manual click-through.** Run `pnpm dev`, open `http://localhost:4321/<slug>`, click Next through every step. Confirm:
+  - Gated tutorials: Next disables until the checkpoint is toggled, then enables.
+  - Tabs remember selection across steps.
+  - All embeds/playgrounds actually load.
+  - Mermaid diagrams render.
+
+## 6. Report findings
+
+Group everything into three buckets. Be honest about what's must-fix vs. taste.
+
+**Must fix before publish:**
+- Build errors (`pnpm check`)
+- Missing `<Checkpoint>` in any step of a gated tutorial
+- Missing `<Recap>` in any step
+- MDX `import` statements
+- Quiz with no `explanation`
+- Unverifiable Checkpoint labels (`"I understand X"`)
+- Anything that breaks the click-through in section 5
+- Leftover `TODO(author)` markers
+
+**Recommended:**
+- Component-fit fixes (bash → `<Terminal>`, file lists → `<FileTree>`, before/after → `<Diff>`)
+- Adding explicit `id`s to Checkpoints and Quizzes in gated tutorials
+- Splitting steps longer than 10 minutes
+- Fixing `estimatedDuration` drift
+- Adding `<Tabs group="...">` for multi-platform variants
+
+**FYI (not blocking):**
+- Cover/icon set but not yet rendered by any page
+- Style/voice nits
+- Suggestions for additional Quizzes or Playgrounds
+
+Present the report grouped this way. **Don't auto-fix without asking** — the author may have reasons for some choices (e.g. deliberately keeping a step prose-heavy because it's a conceptual interlude). Surface the findings, propose fixes for the must-fix bucket, and ask before applying recommendations.
+
+## Don't
+
+- Don't rewrite the tutorial. This is a review, not a rewrite. Surface findings, propose fixes, ask first.
+- Don't auto-fix must-fix issues without showing the author what changed. Build errors and missing checkpoints get a fix proposal, not a silent edit.
+- Don't flag `_meta.json.cover` or `icon` as missing or broken. They're inert by design right now (TODO in `packages/core/src/collections.ts`).
+- Don't pad the report. If the tutorial is clean, say so in one line. A 30-finding report on a 4-step tutorial means most findings are taste.
+- Don't skip section 3a on gated tutorials. The silent-skip bug is the single most common production issue.
