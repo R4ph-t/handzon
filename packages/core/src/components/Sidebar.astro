@@ -120,18 +120,32 @@ const slug = tutorial.id;
   .sb-steps li + li {
     border-top: var(--border-default) solid var(--color-border);
   }
+  /* Two-row layout: duration sits flush-right on its own tight row
+   * above the title. The checkbox sits in the title row only (not
+   * spanning) so it vertically aligns with the name's center,
+   * independent of whether a duration row is present above. The first
+   * column of the duration row is empty and collapses harmlessly. */
   .sb-steps a {
     display: grid;
-    grid-template-columns: 18px 1fr auto;
+    grid-template-columns: 18px 1fr;
+    grid-template-areas:
+      ".     dur"
+      "check name";
     align-items: center;
-    gap: 0.6rem;
-    padding: 0.6rem 1rem;
+    column-gap: 0.6rem;
+    row-gap: 0;
+    /* Heavier bottom padding counter-balances the duration row above
+     * so the title feels visually centered in the row. */
+    padding: 0.5rem 1rem 0.95rem;
     color: var(--color-fg);
     text-decoration: none;
     font-size: 0.92em;
     font-weight: 500;
     letter-spacing: -0.005em;
   }
+  .sb-check { grid-area: check; }
+  .sb-name { grid-area: name; line-height: 1.25; }
+  .sb-dur { grid-area: dur; justify-self: end; line-height: 1; }
   .sb-steps a:hover {
     background: var(--color-surface);
     color: var(--color-fg);
