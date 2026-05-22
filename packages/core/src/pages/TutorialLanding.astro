@@ -188,10 +188,11 @@ const firstStepSlug = steps[0] ? parseStepId(steps[0].id).stepSlug : null;
   }
   .hero-tag:hover { color: var(--color-accent); }
   h1 {
+    font-family: var(--font-display, var(--font-sans));
     font-size: clamp(2.1rem, 4.5vw, 3rem);
-    font-weight: 800;
+    font-weight: var(--font-weight-display, 800);
     margin: 0 0 0.75rem;
-    letter-spacing: -0.025em;
+    letter-spacing: var(--tracking-display, -0.025em);
     line-height: 1.05;
   }
   .desc {

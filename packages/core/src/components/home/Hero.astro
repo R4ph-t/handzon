@@ -35,9 +35,10 @@ const {
     align-items: center;
     gap: clamp(0.6rem, 1.2vw, 1rem);
     margin: 0 0 0.75rem;
-    font-size: clamp(2.25rem, 5vw, 3.75rem);
-    font-weight: 700;
-    letter-spacing: -0.025em;
+    font-family: var(--font-display, var(--font-sans));
+    font-size: var(--text-display, clamp(2.25rem, 5vw, 3.75rem));
+    font-weight: var(--font-weight-display, 700);
+    letter-spacing: var(--tracking-display, -0.025em);
     line-height: 1.05;
   }
   /* Logo height tracks the heading's cap-height (~0.72em of the

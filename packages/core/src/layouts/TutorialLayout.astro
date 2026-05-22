@@ -211,10 +211,11 @@ const stepSlugs = steps.map((s) => parseStepId(s.id).stepSlug);
     color: var(--color-muted);
   }
   .step-title {
+    font-family: var(--font-display, var(--font-sans));
     font-size: clamp(1.75rem, 3vw, 2.25rem);
-    font-weight: 700;
+    font-weight: var(--font-weight-display, 700);
     margin: 0.3rem 0 0.5rem;
-    letter-spacing: -0.02em;
+    letter-spacing: var(--tracking-display, -0.02em);
     line-height: 1.15;
   }
   .step-dur {

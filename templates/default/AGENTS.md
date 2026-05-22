@@ -95,7 +95,12 @@ Available tokens (all CSS variables):
 - Intent: `--color-accent`, `--color-accent-fg`, `--color-info`, `--color-tip`, `--color-warn`, `--color-danger`, `--color-success`
 - Geometry: `--radius-{sm,md,lg}`, `--border-{default,thick}`
 - Shadow: `--shadow-raised`, `--shadow-press`
-- Type: `--font-sans`, `--font-mono`
+- Type families: `--font-sans`, `--font-mono`, `--font-display` (hero/page-title family; defaults to `var(--font-sans)`)
+- Type weights: `--font-weight-body` (400), `--font-weight-strong` (700, used by `<strong>` and table headers), `--font-weight-heading` (700, `.prose h1`-`h6`), `--font-weight-display` (700, `.hero-headline` + landing/step page `h1`)
+- Type tracking + leading: `--tracking-display` (-0.025em, hero + landing/step `h1`), `--tracking-heading` (-0.015em, `.prose h1`-`h6`), `--leading-heading` (1.2), `--leading-body` (1.65)
+- Type scale: `--text-display` (`clamp(2.25rem, 5vw, 3.75rem)`, hero), `--text-h1` (1.875rem, `.prose h1`), `--text-h2` (1.4rem), `--text-h3` (1.15rem), `--text-h4` (1rem), `--text-body` (1rem)
+
+All typography tokens have framework fallbacks via `var(--token, default)` — themes only need to declare the ones they want to change. Re-skinning to a thin display font, for example, is just `--font-weight-display: 300; --font-weight-heading: 400;` in the theme's `@theme {}` block — no `!important` required.
 
 ## Asset placement
 

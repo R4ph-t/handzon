@@ -25,6 +25,8 @@ The whole theming system is a single `@theme {}` block of CSS variables. To cust
 
 **Common overrides:**
 - `--color-accent` — most visible single change
-- `--font-sans` / `--font-mono`
+- `--font-sans` / `--font-mono` / `--font-display` — split the display family from the body family if your title font (e.g. Roobert Light) doesn't ship the same weights as your body font
+- `--font-weight-display` / `--font-weight-heading` — drop these to `300`/`400` when shipping a light display font so the browser doesn't faux-bold it
+- `--tracking-display` / `--text-display` — fine-tune hero tracking and size
 - `--radius-md` to soften the brutalism
 - `--shadow-raised: none` to drop the hard offset shadows
