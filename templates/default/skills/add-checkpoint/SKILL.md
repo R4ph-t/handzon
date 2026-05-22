@@ -98,6 +98,8 @@ For gated tutorials, pass an explicit `id`:
 
 Use `<step-area>/<concrete-outcome>` slug. Stable, won't collide, survives content edits.
 
+For machine-verifiable gating (an agent on the learner's machine runs declared checks and the checkpoint ticks automatically on pass), see `add-verify-checks`. The `verify.id` in frontmatter must match this `<Checkpoint id>`.
+
 ## 7. Don't
 
 - Don't ship a gated tutorial with steps that have no `<Checkpoint>`. Gating fails silently for those steps. Use `review-tutorial` to audit before publishing.
