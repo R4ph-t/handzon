@@ -107,10 +107,16 @@ const claudeCodeCli = `claude mcp add --transport http ${serverName} ${endpoint}
 // inside config.toml. The user has to export it from their shell init.
 const codexCli = `codex mcp add ${serverName} --url ${endpoint} --bearer-token-env-var HANDZON_PAT`;
 const codexEnvExport = `export HANDZON_PAT="${token}"`;
+const firstPrompt = "Use the Handzon MCP server to start the react-todo tutorial in this blank workspace.";
 ---
 
 <div class="editor-picker">
   <EditorPicker client:load options={editorOptions} />
+
+  <div class="prose first-prompt">
+    <p>After installing the server, try this from an empty project:</p>
+    <Code code={firstPrompt} lang="text" title="First prompt" />
+  </div>
 
   <h4 class="editor-label" data-for="cursor">Cursor</h4>
   <div class="editor-panel prose" data-editor="cursor">

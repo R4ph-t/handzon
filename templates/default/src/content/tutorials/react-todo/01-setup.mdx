@@ -2,6 +2,23 @@
 title: Set up the project
 duration: 5 min
 summary: Scaffold a Vite + React + TypeScript app and verify hot reload.
+verify:
+  id: setup/vite-running
+  cwd: "$LEARNER_PROJECT"
+  checks:
+    - kind: file_exists
+      path: package.json
+      hint: "Did the Vite create command finish inside the tutorial workspace?"
+    - kind: file_contains
+      path: package.json
+      pattern: '"vite"'
+      hint: "The project does not look like a Vite app. Re-run the create command from the starter instructions."
+    - kind: http
+      url: "http://localhost:5173"
+      expect:
+        status: 200
+        bodyIncludes: 'id="root"'
+      hint: "Start the dev server with `pnpm dev` from the `todo` directory."
 ---
 
 You'll boot the dev server and confirm hot reload before writing a line of TODO code.
@@ -69,7 +86,7 @@ Your project tree should look like this:
   explanation="Vite uses 5173 unless overridden via `server.port` in vite.config.ts."
 />
 
-<Checkpoint label="My dev server is running and the browser shows the Vite + React welcome screen." />
+<Checkpoint id="setup/vite-running" label="My dev server is running and the browser shows the Vite + React welcome screen." />
 
 <Recap items={[
   "Scaffolded a Vite + React + TypeScript project",

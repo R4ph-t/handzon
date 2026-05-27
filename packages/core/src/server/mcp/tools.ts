@@ -9,6 +9,7 @@ import {
 import { getDb } from "../db/client.ts";
 import { progressEntries } from "../db/schema.ts";
 import { type McpTool, text } from "./protocol.ts";
+import { createStartTutorialTool } from "./startTutorial.ts";
 import { progressWriteTools, verificationTools } from "./writeTools.ts";
 
 /**
@@ -72,6 +73,7 @@ export const catalogReadTools: McpTool[] = [
         difficulty: tutorial.data.difficulty,
         tags: tutorial.data.tags,
         gated: tutorial.data.gated,
+        starter: tutorial.data.starter ?? null,
         steps: steps.map((s) => {
           const { stepSlug, order } = parseStepId(s.id);
           return {
@@ -86,6 +88,32 @@ export const catalogReadTools: McpTool[] = [
       return text(JSON.stringify(payload, null, 2));
     },
   },
+  createStartTutorialTool(async (slug) => {
+    const tutorial = await getTutorialBySlug(slug);
+    if (!tutorial) return null;
+    const steps = await getStepsForTutorial(slug);
+    return {
+      tutorial: {
+        slug: tutorial.id,
+        title: tutorial.data.title,
+        description: tutorial.data.description,
+        difficulty: tutorial.data.difficulty,
+        tags: tutorial.data.tags,
+        starter: tutorial.data.starter,
+      },
+      steps: steps.map((s) => {
+        const { stepSlug, order } = parseStepId(s.id);
+        return {
+          slug: stepSlug,
+          order,
+          title: s.data.title,
+          summary: s.data.summary,
+          duration: s.data.duration,
+          verify: s.data.verify ?? null,
+        };
+      }),
+    };
+  }),
   {
     name: "get_step",
     description: "Return one step's full Markdown source + metadata.",

@@ -214,18 +214,25 @@ const stepSlugs = steps.map((s) => parseStepId(s.id).stepSlug);
     height: calc(100dvh - var(--hz-nav-height, 3rem));
   }
   .main {
-    padding: 2rem clamp(1rem, 4vw, 3rem);
-    /* 80ch is the upper end of comfortable prose width; on wide
-     * viewports we trade a little of that for code-block headroom so
-     * fenced blocks wrap less aggressively. Capped at 92ch — past
-     * that body prose starts to feel like a magazine column. */
+    padding: 2rem clamp(1rem, 4vw, 4rem);
+    /* Keep tutorial pages roomy enough for code-heavy components. Prose
+     * itself is constrained below so paragraphs do not become too wide. */
+    max-width: 86ch;
+  }
+  .main > .prose {
+    max-width: 100%;
+  }
+  .main > .prose > :where(p, ul, ol, blockquote, h2, h3, h4, h5, h6) {
     max-width: 80ch;
   }
   @media (min-width: 1280px) {
-    .main { max-width: 88ch; }
+    .main { max-width: 104ch; }
   }
   @media (min-width: 1600px) {
-    .main { max-width: 92ch; }
+    .main { max-width: 118ch; }
+  }
+  @media (min-width: 1920px) {
+    .main { max-width: 128ch; }
   }
   .crumb {
     font-family: var(--font-mono);

@@ -86,9 +86,10 @@ const GITHUB_ICON_PATH =
       <p>
         Use this site from Cursor, Claude Code, Codex, and other MCP-aware
         editors. Mint a token, copy the one-liner into your editor's config
-        (or hit "Add to Cursor"), and your agent can browse tutorials, mark
-        checkpoints, record quiz results, and ping the in-browser tutor
-        without you leaving your editor. Tokens are scoped — keep them
+        (or hit "Add to Cursor"), and your agent can start tutorials from a
+        blank workspace, browse steps, mark checkpoints, record quiz results,
+        and ping the in-browser tutor without you leaving your editor. Tokens
+        are scoped — keep them
         safe; they grant the same writes your browser session can make.
       </p>
     </header>
@@ -180,14 +181,16 @@ const GITHUB_ICON_PATH =
           <li>
             <strong>Reads</strong> (any token, or no token):{" "}
             <code>list_tutorials</code>, <code>get_tutorial</code>,{" "}
-            <code>get_step</code>, <code>get_progress</code>.
+            <code>start_tutorial</code>, <code>get_step</code>,{" "}
+            <code>get_progress</code>.
           </li>
           <li>
             <strong>Writes</strong> (need <code>progress:write</code>):{" "}
             <code>complete_checkpoint</code>, <code>uncheck_checkpoint</code>,{" "}
             <code>complete_step</code>, <code>mark_step_incomplete</code>,{" "}
             <code>record_quiz</code>, <code>set_last_visited</code>,{" "}
-            <code>set_preference</code>, <code>request_help</code>.
+            <code>set_preference</code>, <code>request_help</code>,{" "}
+            <code>submit_verification</code>.
           </li>
         </ul>
         <p>

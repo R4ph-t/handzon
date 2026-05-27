@@ -136,6 +136,9 @@ importers:
       astro:
         specifier: ^6.3.5
         version: 6.3.5(@types/node@25.9.1)(@upstash/redis@1.38.0)(jiti@2.7.0)(lightningcss@1.32.0)(rollup@4.60.4)(tsx@4.22.3)(yaml@2.9.0)
+      tsx:
+        specifier: ^4.22.3
+        version: 4.22.3
       typescript:
         specifier: ^6.0.3
         version: 6.0.3
@@ -161,6 +164,8 @@ importers:
       typescript:
         specifier: ^6.0.3
         version: 6.0.3
+
+  packages/mcp-stdio: {}
 
   templates/default:
     dependencies:

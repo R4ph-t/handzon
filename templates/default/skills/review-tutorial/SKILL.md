@@ -13,7 +13,7 @@ If the author asks for a quick sanity check, do sections 1–3 and stop. The ful
 Before checking anything, load the whole thing into your head:
 
 1. **Pick the tutorial.** If unclear, list folders under `src/content/tutorials/` and ask.
-2. **Load `<slug>/_meta.json`.** Note: `gated`, `estimatedDuration`, `difficulty`, `prerequisites`, `nextTutorial`. The gated flag drives most of section 3.
+2. **Load `<slug>/_meta.json`.** Note: `gated`, `estimatedDuration`, `difficulty`, `prerequisites`, `nextTutorial`, and `starter`. The gated flag drives most of section 3.
 3. **List the step files** (`ls <slug>/*.mdx`) and read each top-to-bottom.
 4. **Check for orphan assets** — files under `<slug>/assets/` that no step references.
 
@@ -62,6 +62,7 @@ For the tutorial as a whole:
 - **At least one `<Quiz>`.** Tutorials without a comprehension check feel like blog posts.
 - **`_meta.json.estimatedDuration` matches the sum of step `duration` values** (or is omitted entirely — auto-summed at build). If set and drifted, flag for fix.
 - **`prerequisites` is honest.** If step 1 assumes Docker but `prerequisites` doesn't list it, that's a barrier you can't see from the inside.
+- **Starter metadata matches step 1.** If the first step tells the learner to clone a repo, run `npm create`, run `pnpm create`, or scaffold an app, `_meta.json.starter` should exist so MCP-aware agents can start from a blank workspace. If `starter` exists, confirm its `targetDir`, `openPath`, and commands match the first step.
 
 ### 3a. Gated-tutorial audit (only if `_meta.json.gated: true`)
 
@@ -187,6 +188,7 @@ rg -nP '<HelpMe[^>]*topic="(this|this part|this step|the above|above)"' src/cont
 ```
 
 - **AI references budget.** Sum the byte counts of files listed in `ai.references`. The runtime budget is `aiDefaults.contextBudgetTokens` (8000 tokens by default; ~32 KB of text). If references comfortably exceed that, the assistant will see a truncated view — flag for trimming or splitting.
+- **MCP starter sanity.** If `_meta.json.starter` exists, call or inspect `start_tutorial` for this slug and confirm the returned commands are local-only, safe to run from a blank workspace, and point at the real first step.
 
 ## 6. Report findings
 
@@ -212,6 +214,7 @@ Group everything into three buckets. Be honest about what's must-fix vs. taste.
 - AI-tell phrasing flagged by section 4a (`leverage`, `utilize`, `let's dive in`, etc.)
 - Adding explicit `id`s to Checkpoints and Quizzes in gated tutorials
 - Adding `verify.checks` to gated steps with machine-observable outcomes (see `add-verify-checks`)
+- Adding `_meta.json.starter` when step 1 clones, scaffolds, or initializes a project (see `wire-tutorial-starter`)
 - Splitting steps longer than 10 minutes
 - Fixing `estimatedDuration` drift
 - Adding `<Tabs group="...">` for multi-platform variants

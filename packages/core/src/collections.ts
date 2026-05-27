@@ -187,6 +187,35 @@ export const verifySchema = z.object({
 
 export type VerifySpec = z.infer<typeof verifySchema>;
 
+export const starterSchema = z.discriminatedUnion("kind", [
+  z
+    .object({
+      kind: z.literal("git"),
+      repo: z.string().url(),
+      ref: z.string().min(1).optional(),
+      subdir: z.string().min(1).optional(),
+      targetDir: z.string().min(1).optional(),
+      setupCommands: z.array(z.string().min(1)).default([]),
+      devCommand: z.string().min(1).optional(),
+      openPath: z.string().min(1).optional(),
+      notes: z.array(z.string().min(1)).default([]),
+    })
+    .strict(),
+  z
+    .object({
+      kind: z.literal("command"),
+      initCommand: z.string().min(1),
+      targetDir: z.string().min(1).optional(),
+      setupCommands: z.array(z.string().min(1)).default([]),
+      devCommand: z.string().min(1).optional(),
+      openPath: z.string().min(1).optional(),
+      notes: z.array(z.string().min(1)).default([]),
+    })
+    .strict(),
+]);
+
+export type StarterSpec = z.infer<typeof starterSchema>;
+
 /** Schema for tutorial step entries. */
 export const stepsSchema = z.object({
   title: z.string(),
@@ -226,6 +255,7 @@ export function tutorialsSchema({ image }: { image: () => import("astro/zod").Zo
     gated: z.boolean().default(false),
     showProgress: z.boolean().default(true),
     feedbackUrl: z.string().url().optional(),
+    starter: starterSchema.optional(),
     ai: z
       .object({
         enabled: z.boolean().optional(),

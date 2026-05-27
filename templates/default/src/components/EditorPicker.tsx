@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
 import Dropdown, { type DropdownOption } from "handzon-core/components/ui/Dropdown.tsx";
+import { useEffect, useState } from "react";
 
 /**
  * Picker control for /settings/tokens. Wraps the project-wide Dropdown
@@ -42,11 +42,10 @@ export default function EditorPicker({ options, defaultValue = "cursor" }: Props
   // both read storage and both apply visibility (idempotent).
   useEffect(() => {
     const stored = localStorage.getItem(STORAGE_KEY);
-    const initial =
-      stored && options.some((o) => o.value === stored) ? stored : defaultValue;
+    const initial = stored && options.some((o) => o.value === stored) ? stored : defaultValue;
     setValue(initial);
     applyPanelVisibility(initial);
-  }, []);
+  }, [defaultValue, options]);
 
   // Cross-instance sync: when the OTHER picker on the page changes, mirror
   // it here so the dropdowns don't disagree. Skip the event we just fired
@@ -64,17 +63,8 @@ export default function EditorPicker({ options, defaultValue = "cursor" }: Props
     setValue(next);
     localStorage.setItem(STORAGE_KEY, next);
     applyPanelVisibility(next);
-    document.dispatchEvent(
-      new CustomEvent(CHANGE_EVENT, { detail: { value: next } }),
-    );
+    document.dispatchEvent(new CustomEvent(CHANGE_EVENT, { detail: { value: next } }));
   }
 
-  return (
-    <Dropdown
-      label="Install in"
-      value={value}
-      onChange={onChange}
-      options={options}
-    />
-  );
+  return <Dropdown label="Install in" value={value} onChange={onChange} options={options} />;
 }

@@ -5,6 +5,17 @@
   "difficulty": "beginner",
   "estimatedDuration": "30 min",
   "prerequisites": ["Basic JavaScript", "Familiarity with HTML"],
+  "starter": {
+    "kind": "command",
+    "initCommand": "pnpm create vite todo --template react-ts",
+    "targetDir": "todo",
+    "openPath": "todo",
+    "setupCommands": ["pnpm install"],
+    "devCommand": "pnpm dev",
+    "notes": [
+      "Run commands from a blank workspace. The tutorial uses pnpm as the MCP bootstrap path."
+    ]
+  },
   "ai": {
     "tone": "socratic"
   }

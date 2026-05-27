@@ -16,6 +16,7 @@ Skip any question the author has already answered. Otherwise ask them in order, 
 2. **Learning outcome** — finish the sentence: *"By the end of this tutorial, the reader can ___."* Single concrete capability. If they give you something vague ("learn about X"), push back once and ask for the action verb.
 3. **Anchor artifact** — what will the reader have *built* or *done* by the end? A running app, a passing test suite, a deployed service, a query they wrote? This becomes the title of the final step.
 4. **Target length** — ~10 min (3 steps), ~20 min (4–5 steps), or ~40 min (6+ steps)?
+5. **Workspace start** — blank workspace, starter repo, or create-app command? If the tutorial should work from Cursor, Claude Code, Codex, or another MCP-aware agent, use `wire-tutorial-starter` after the outline is approved.
 
 Optionally ask about prerequisites and tags only if they aren't obvious from the answers above.
 
@@ -84,7 +85,7 @@ src/content/tutorials/<slug>/
 }
 ```
 
-Add `"gated": true` only if the author asked for it. See `AGENTS.md` for the full schema (`nextTutorial`, `cover`, `icon`, `ai`). For per-tutorial AI assistant overrides (`ai.tone`, `ai.persona`, `ai.byok`, `ai.disabledSkills`, etc.), defer to the `configure-ai-assistant` skill — don't stub the block here, it inherits sensible defaults from `src/config/ai.ts` until the author has an opinion.
+Add `"gated": true` only if the author asked for it. If the author chose a starter repo or create-app command, add a `starter` block using `wire-tutorial-starter` so MCP-aware agents can start the tutorial from a blank workspace. See `AGENTS.md` for the full schema (`nextTutorial`, `cover`, `icon`, `ai`). For per-tutorial AI assistant overrides (`ai.tone`, `ai.persona`, `ai.byok`, `ai.disabledSkills`, etc.), defer to the `configure-ai-assistant` skill — don't stub the block here, it inherits sensible defaults from `src/config/ai.ts` until the author has an opinion.
 
 **Each step `.mdx`** — frontmatter plus a useful skeleton, not just a `<Callout>` placeholder. Drop in empty instances of the components the outline agreed on for *this* step (don't include components from other steps). Any prose you write in the skeleton (the intro sentence, the `<Callout>` body) must follow the `authoring-voice` rules — no em dashes, no AI tells, second person, present tense:
 
@@ -135,6 +136,7 @@ Tell the author exactly what to do next, in this order:
    - `add-checkpoint` — for gated tutorials
    - `add-playground`, `add-mermaid-diagram`, `add-helpme` — interactive blocks
    - `configure-ai-assistant` — shape the tutor's tone, persona, BYOK, disabled skills for this tutorial
+   - `wire-tutorial-starter` — make MCP-aware agents clone or initialize the learner workspace
    - `wire-ai-references` — feed the AI assistant external docs
    - `review-tutorial` — the pre-publish checklist
 
