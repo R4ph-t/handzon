@@ -73,7 +73,7 @@ const GITHUB_ICON_PATH =
   "M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.55v-2.02c-3.2.7-3.88-1.36-3.88-1.36-.52-1.33-1.28-1.68-1.28-1.68-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.03 1.76 2.7 1.25 3.36.96.1-.74.4-1.25.72-1.54-2.55-.29-5.24-1.27-5.24-5.66 0-1.25.45-2.27 1.18-3.07-.12-.29-.51-1.45.11-3.03 0 0 .96-.31 3.15 1.17a10.94 10.94 0 0 1 5.76 0c2.19-1.48 3.15-1.17 3.15-1.17.62 1.58.23 2.74.11 3.03.74.8 1.18 1.82 1.18 3.07 0 4.4-2.69 5.37-5.25 5.65.41.35.78 1.04.78 2.11v3.13c0 .3.21.66.79.55C20.71 21.39 24 17.08 24 12 24 5.65 18.85.5 12 .5z";
 ---
 <BaseLayout
-  title="Access tokens"
+  title="MCP setup"
   siteName={site.name}
   tagline={site.tagline}
   logoUrl={site.logo}
@@ -82,22 +82,38 @@ const GITHUB_ICON_PATH =
 >
   <main class="tokens-page">
     <header class="prose">
-      <h1>Access tokens</h1>
+      <h1>MCP setup</h1>
       <p>
-        Use this site from Cursor, Claude Code, Codex, and other MCP-aware
-        editors. Mint a token, copy the one-liner into your editor's config
-        (or hit "Add to Cursor"), and your agent can start tutorials from a
-        blank workspace, browse steps, mark checkpoints, record quiz results,
-        and ping the in-browser tutor without you leaving your editor. Tokens
-        are scoped — keep them
-        safe; they grant the same writes your browser session can make.
+        Connect this tutorial site to Cursor, Claude Code, Codex, Claude
+        Desktop, or any other MCP-aware editor. Your agent can start tutorials
+        from a blank workspace, browse steps, mark checkpoints, record quiz
+        results, and send help requests to the in-browser tutor.
       </p>
     </header>
+
+    <section class="card">
+      <h2>How it works</h2>
+      <div class="prose">
+        <ol>
+          <li>Create a scoped personal access token for this site.</li>
+          <li>Install the site's MCP server in your editor.</li>
+          <li>
+            Ask your agent to use the Handzon MCP server while you work through
+            a tutorial.
+          </li>
+        </ol>
+        <p>
+          Tokens are scoped. A token with <code>progress:write</code> can make
+          the same progress updates your browser session can make, so treat it
+          like a password.
+        </p>
+      </div>
+    </section>
 
     {!user && (
       <section class="card">
         <div class="prose">
-          <p>Sign in with GitHub to mint personal access tokens.</p>
+          <p>Sign in with GitHub to create a token and unlock one-click setup.</p>
         </div>
         <SignInButton provider="github">
           <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true">
@@ -114,7 +130,7 @@ const GITHUB_ICON_PATH =
         <div class="prose">
           <p>
             Here is your new token for <strong>{mintedName}</strong>. It will
-            only be shown once — copy it now, or use one of the install paths
+            only be shown once. Copy it now, or use one of the install paths
             below (the token is already baked into every option).
           </p>
         </div>
@@ -137,7 +153,15 @@ const GITHUB_ICON_PATH =
 
     {user && (
       <section class="card">
-        <h2>Create a new token</h2>
+        <h2>1. Create a token</h2>
+        <div class="prose">
+          <p>
+            Pick the smallest scope that fits your workflow. Use
+            <code>progress:read</code> for browsing tutorial state, and add
+            <code>progress:write</code> when your agent should mark progress or
+            submit verification results.
+          </p>
+        </div>
         <form method="POST" class="create-token-form">
           <input type="hidden" name="action" value="create" />
           <label>
@@ -159,13 +183,13 @@ const GITHUB_ICON_PATH =
     )}
 
     <section class="card">
-      <h2>Connect your editor</h2>
+      <h2>2. Connect your editor</h2>
       <div class="prose">
         <p>
-          Reference for wiring this site into an MCP-aware editor on a second
-          machine, or after you've lost the raw value of an existing token.
-          Replace <code>{tokenPlaceholder}</code> in the snippet with a token
-          from above (or mint a fresh one — the previous one keeps working).
+          Choose your editor to get the right install command or config block.
+          If you already have a token, replace <code>{tokenPlaceholder}</code>{" "}
+          in the snippet with that value. If you lost the raw token value,
+          create a fresh token above.
         </p>
       </div>
 
@@ -194,7 +218,7 @@ const GITHUB_ICON_PATH =
           </li>
         </ul>
         <p>
-          <code>request_help</code> is the bridge — the editor agent can say
+          <code>request_help</code> is the bridge. The editor agent can say
           "the learner is stuck on X" and the message lands in the in-browser
           tutor's inbox the next time you open the tab.
         </p>
@@ -203,7 +227,7 @@ const GITHUB_ICON_PATH =
 
     {user && (
       <section class="card">
-        <h2>Your tokens ({tokens.length})</h2>
+        <h2>Manage tokens ({tokens.length})</h2>
         {tokens.length === 0 ? (
           <p class="muted">No tokens yet.</p>
         ) : (
