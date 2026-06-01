@@ -13,6 +13,10 @@
 interface Props {
   /** Primary credit label — the site owner. */
   siteName?: string;
+  /** Primary footer credit label. Defaults to `siteName`, but can be
+   *  shorter (for example `render.com`) without changing page titles,
+   *  nav labels, or Open Graph metadata. */
+  siteCreditLabel?: string;
   /** Primary credit link. When set, the footer leads with this credit
    *  and demotes the Handzon link to a secondary side link. */
   siteUrl?: string;
@@ -24,6 +28,7 @@ interface Props {
 
 const {
   siteName = "Handzon",
+  siteCreditLabel = siteName,
   siteUrl,
   repoUrl = "https://github.com/R4ph-t/handzon",
   year = new Date().getFullYear(),
@@ -35,7 +40,7 @@ const {
       <span class="hz-footer-credit">
         © {year}
         <a class="hz-footer-link" href={siteUrl} target="_blank" rel="noopener">
-          {siteName}
+          {siteCreditLabel}
           <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M7 17 17 7" />
             <path d="M7 7h10v10" />

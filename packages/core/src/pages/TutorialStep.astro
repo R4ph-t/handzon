@@ -25,6 +25,7 @@ interface Props {
   faviconUrl?: string;
   repoUrl?: string;
   siteUrl?: string;
+  siteCreditLabel?: string;
   /** Set false to drop the built-in footer and supply your own. */
   showFooter?: boolean;
 }
@@ -42,6 +43,7 @@ const {
   faviconUrl,
   repoUrl,
   siteUrl,
+  siteCreditLabel,
   showFooter = true,
 } = Astro.props;
 const { stepSlug } = parseStepId(currentStep.id);
@@ -74,6 +76,7 @@ const initialContext = buildContext({
   faviconUrl={faviconUrl}
   repoUrl={repoUrl}
   siteUrl={siteUrl}
+  siteCreditLabel={siteCreditLabel}
   showFooter={showFooter}
 >
   <slot name="head" slot="head" />

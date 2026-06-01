@@ -17,6 +17,7 @@ interface Props {
   faviconUrl?: string;
   repoUrl?: string;
   siteUrl?: string;
+  siteCreditLabel?: string;
   /** Set false to drop the built-in footer and supply your own. */
   showFooter?: boolean;
   showResumeRail?: boolean;
@@ -35,6 +36,7 @@ const {
   faviconUrl,
   repoUrl,
   siteUrl,
+  siteCreditLabel,
   showFooter = true,
   showResumeRail = true,
   emptyStateCommand = "pnpm handzon:new",
@@ -70,6 +72,7 @@ for (const t of tutorials) {
   faviconUrl={faviconUrl}
   repoUrl={repoUrl}
   siteUrl={siteUrl}
+  siteCreditLabel={siteCreditLabel}
   showFooter={showFooter}
   nav="userMenu"
 >

@@ -38,6 +38,8 @@ interface Props {
    *  When set, the footer leads with the site credit and demotes the
    *  Handzon link to a secondary side link. */
   siteUrl?: string;
+  /** Primary footer credit label. Defaults to siteName. */
+  siteCreditLabel?: string;
   /**
    * Width of the page's content column. Drives the navbar + footer
    * alignment via the --hz-page-max-width CSS custom property so the
@@ -68,6 +70,7 @@ const {
   showFooter = true,
   repoUrl,
   siteUrl,
+  siteCreditLabel,
   // Default to a full-width navbar + footer with a small consistent
   // inset, matching the tutorial step page. Pages with a centred
   // column (home grid, tutorial landing) keep their own content
@@ -118,13 +121,17 @@ const desc = description ?? tagline;
     <div class="hz-page">
       <slot />
     </div>
-    {/* Footer is fully overridable: pass `slot="footer"` from any page
-        wrapper to replace it entirely. With no override, the default
-        Footer renders, configurable via siteName/siteUrl/repoUrl. */}
-    {/* Footer content is configurable via siteName/siteUrl/repoUrl. For
+    {/* Footer content is configurable via siteName/siteCreditLabel/siteUrl/repoUrl. For
         a fully custom footer, a scaffold can pass showFooter={false} and
         render its own markup in the page body. */}
-    {showFooter && <Footer siteName={siteName} siteUrl={siteUrl} repoUrl={repoUrl} />}
+    {showFooter && (
+      <Footer
+        siteName={siteName}
+        siteCreditLabel={siteCreditLabel}
+        siteUrl={siteUrl}
+        repoUrl={repoUrl}
+      />
+    )}
     <script>
       // Render any <pre class="mermaid"> blocks emitted by rehype-mermaid.
       if (document.querySelector("pre.mermaid")) {

@@ -14,6 +14,7 @@ interface Props {
   faviconUrl?: string;
   repoUrl?: string;
   siteUrl?: string;
+  siteCreditLabel?: string;
   /** Set false to drop the built-in footer and supply your own. */
   showFooter?: boolean;
 }
@@ -28,6 +29,7 @@ const {
   faviconUrl,
   repoUrl,
   siteUrl,
+  siteCreditLabel,
   showFooter = true,
 } = Astro.props;
 const steps = await getStepsForTutorial(tutorial.id);
@@ -45,6 +47,7 @@ const firstStepSlug = steps[0] ? parseStepId(steps[0].id).stepSlug : null;
   faviconUrl={faviconUrl}
   repoUrl={repoUrl}
   siteUrl={siteUrl}
+  siteCreditLabel={siteCreditLabel}
   showFooter={showFooter}
 >
   <slot name="head" slot="head" />
