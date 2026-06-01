@@ -1,5 +1,6 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import { withBase } from "../lib/base.ts";
 import { getStepsForTutorial, parseStepId, sumDurations } from "../lib/content.ts";
 import type { TutorialEntry } from "../lib/content.ts";
 
@@ -41,7 +42,7 @@ const firstStepSlug = steps[0] ? parseStepId(steps[0].id).stepSlug : null;
 >
   <slot name="head" slot="head" />
   <div class="landing">
-    <a class="back" href="/">← All tutorials</a>
+    <a class="back" href={withBase("/")}>← All tutorials</a>
 
     <header class="hero">
       <div class="hero-meta">
@@ -55,7 +56,7 @@ const firstStepSlug = steps[0] ? parseStepId(steps[0].id).stepSlug : null;
 
       <div class="hero-actions">
         {firstStepSlug && (
-          <a class="cta" href={`/${tutorial.id}/${firstStepSlug}`} data-tutorial-slug={tutorial.id}>
+          <a class="cta" href={withBase(`/${tutorial.id}/${firstStepSlug}`)} data-tutorial-slug={tutorial.id}>
             <span class="cta-label">Start tutorial</span>
             <span class="cta-arrow" aria-hidden="true">→</span>
           </a>
@@ -73,7 +74,7 @@ const firstStepSlug = steps[0] ? parseStepId(steps[0].id).stepSlug : null;
       {tutorial.data.tags.length > 0 && (
         <div class="hero-tags" aria-label="Topics">
           {tutorial.data.tags.map((tag: string) => (
-            <a class="hero-tag" href={`/?tag=${encodeURIComponent(tag)}`}>#{tag}</a>
+            <a class="hero-tag" href={withBase(`/?tag=${encodeURIComponent(tag)}`)}>#{tag}</a>
           ))}
         </div>
       )}
@@ -93,7 +94,7 @@ const firstStepSlug = steps[0] ? parseStepId(steps[0].id).stepSlug : null;
           const { stepSlug } = parseStepId(s.id);
           return (
             <li>
-              <a href={`/${tutorial.id}/${stepSlug}`}>
+              <a href={withBase(`/${tutorial.id}/${stepSlug}`)}>
                 <span class="step-num">{String(i + 1).padStart(2, "0")}</span>
                 <span class="step-body">
                   <strong>{s.data.title}</strong>
@@ -111,6 +112,7 @@ const firstStepSlug = steps[0] ? parseStepId(steps[0].id).stepSlug : null;
 
   <script>
     // Resume from last visited if we have one.
+    import { withBase } from "../lib/base.ts";
     import { getStore } from "../lib/progress/local.ts";
     const cta = document.querySelector<HTMLAnchorElement>("[data-tutorial-slug]");
     if (cta) {
@@ -119,7 +121,7 @@ const firstStepSlug = steps[0] ? parseStepId(steps[0].id).stepSlug : null;
       const step = typeof last === "string" ? last : last?.step;
       if (step) {
         cta.textContent = `Continue from "${step}" →`;
-        cta.setAttribute("href", `/${slug}/${step}`);
+        cta.setAttribute("href", withBase(`/${slug}/${step}`));
       }
     }
   </script>

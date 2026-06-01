@@ -2,6 +2,7 @@
 import Footer from "../components/Footer.astro";
 import Navbar from "../components/Navbar.astro";
 import UserMenu from "../components/auth/UserMenu.astro";
+import { withBase } from "../lib/base";
 
 interface Props {
   title?: string;
@@ -80,7 +81,7 @@ const desc = description ?? tagline;
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="icon" type="image/svg+xml" href={faviconUrl} />
+    <link rel="icon" type="image/svg+xml" href={withBase(faviconUrl)} />
     <title>{pageTitle}</title>
     <meta name="description" content={desc} />
     <meta property="og:title" content={pageTitle} />

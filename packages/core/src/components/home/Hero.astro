@@ -1,4 +1,6 @@
 ---
+import { withBase } from "../../lib/base";
+
 interface Props {
   title?: string;
   subtitle?: string;
@@ -32,7 +34,7 @@ const {
     {logoUrl && (
       <img
         class="hero-logo"
-        src={logoUrl}
+        src={withBase(logoUrl)}
         alt=""
         aria-hidden="true"
         width={logoWidth}

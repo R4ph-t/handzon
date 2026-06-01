@@ -5,6 +5,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { type ChatMessage, clearLearnerKey, loadLearnerKey, streamChat } from "../../lib/ai/client";
 import type { AssistantContext } from "../../lib/ai/context";
+import { withBase } from "../../lib/base";
 import type { AiConfig } from "../../types/ai";
 import ByokSetup from "./ByokSetup";
 
@@ -130,7 +131,7 @@ export default function ChatPanel({ open, onOpenChange, config, context, initial
     inboxRef.current = true;
     void (async () => {
       try {
-        const res = await fetch("/api/help-inbox");
+        const res = await fetch(withBase("/api/help-inbox"));
         if (!res.ok) return;
         const data = (await res.json()) as {
           requests?: Array<{ query: string; tutorialSlug: string; stepSlug: string }>;

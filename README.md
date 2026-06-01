@@ -74,6 +74,35 @@ pnpm build
 pnpm preview
 ```
 
+### Serving under a subpath
+
+By default a Handzon site is served at the root of its domain. To host it under
+a subpath instead (for example `example.com/tutorials`), set Astro's `base` in
+`astro.config.mjs`:
+
+```js
+export default defineConfig({
+  base: "/tutorials",
+  // ...
+});
+```
+
+Astro prefixes its own routes and `_astro/*` assets automatically, and
+`handzon-core` threads the same base through its hand-written links, asset
+URLs, and same-origin `/api/...` calls, so navigation, progress sync, and the
+AI inbox keep working. Two more changes complete the setup:
+
+- In `render.yaml` (Tier 2), set `healthCheckPath: /tutorials/healthz`. The
+  platform health check hits the service directly, so it needs the prefix.
+- If the site sits behind a reverse proxy on another domain, make sure the
+  proxy preserves the prefix (forwards `/tutorials/...` unchanged rather than
+  stripping it). Served directly on its own domain, the site lives at
+  `your-host/tutorials/` with no extra work.
+
+Asset props such as `logoUrl` and `faviconUrl` stay root-relative
+(`/logo.svg`); core prefixes them at render. Absolute values (`https://`,
+protocol-relative `//`, or `data:` URLs) pass through untouched.
+
 ## Repository Development
 
 This repository is the Handzon monorepo. Use it when you want to change the CLI,

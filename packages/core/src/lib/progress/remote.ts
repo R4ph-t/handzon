@@ -1,3 +1,4 @@
+import { withBase } from "../base";
 import {
   CHANNEL_NAME,
   emptyState,
@@ -181,7 +182,7 @@ export function createRemoteStore(): ProgressStore {
     const pending = readPending();
     if (pending.length === 0) return;
     try {
-      const res = await fetch("/api/progress", {
+      const res = await fetch(withBase("/api/progress"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(pending),
@@ -204,7 +205,7 @@ export function createRemoteStore(): ProgressStore {
     // On first mount, pull the server's snapshot and merge in.
     void (async () => {
       try {
-        const res = await fetch("/api/progress", { credentials: "same-origin" });
+        const res = await fetch(withBase("/api/progress"), { credentials: "same-origin" });
         if (!res.ok) return;
         const { entries } = (await res.json()) as {
           entries: Array<{ kind: string; scope: string; key: string; value: unknown }>;
@@ -224,7 +225,7 @@ export function createRemoteStore(): ProgressStore {
     // standard EventSource auto-reconnects on transient drops.
     if (typeof EventSource !== "undefined") {
       try {
-        const es = new EventSource("/api/progress/events", { withCredentials: true });
+        const es = new EventSource(withBase("/api/progress/events"), { withCredentials: true });
         es.addEventListener("message", (ev) => {
           try {
             const entry = JSON.parse(ev.data) as ProgressEntry;

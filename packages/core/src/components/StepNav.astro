@@ -1,4 +1,5 @@
 ---
+import { withBase } from "../lib/base";
 import type { StepEntry } from "../lib/content";
 import { parseStepId } from "../lib/content";
 
@@ -20,18 +21,18 @@ const nextSlug = next ? parseStepId(next.id).stepSlug : null;
 <nav class="step-nav" data-gated={gated && hasCheckpoint ? "true" : "false"} data-step-key={`${tutorialSlug}/${currentStepSlug}`}>
   <div>
     {prev && (
-      <a class="sn-prev" href={`/${tutorialSlug}/${prevSlug}`}>
+      <a class="sn-prev" href={withBase(`/${tutorialSlug}/${prevSlug}`)}>
         ← {prev.data.title}
       </a>
     )}
   </div>
   <div>
     {next ? (
-      <a class="sn-next" href={`/${tutorialSlug}/${nextSlug}`} data-next-link="true">
+      <a class="sn-next" href={withBase(`/${tutorialSlug}/${nextSlug}`)} data-next-link="true">
         {hasCheckpoint ? "Continue" : "Next"}: {next.data.title} →
       </a>
     ) : (
-      <a class="sn-next sn-done" href={`/${tutorialSlug}`}>
+      <a class="sn-next sn-done" href={withBase(`/${tutorialSlug}`)}>
         Finish tutorial →
       </a>
     )}

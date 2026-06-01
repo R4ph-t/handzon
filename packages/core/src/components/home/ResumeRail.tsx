@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { withBase } from "../../lib/base";
 import { useProgressAfterMount } from "../../lib/progress/useProgress";
 
 interface Tutorial {
@@ -40,7 +41,7 @@ export default function ResumeRail({ tutorials }: Props) {
   if (!state || !mostRecent) return null;
 
   return (
-    <a className="resume-rail" href={`/${mostRecent.slug}/${mostRecent.step}`}>
+    <a className="resume-rail" href={withBase(`/${mostRecent.slug}/${mostRecent.step}`)}>
       <span className="rr-prefix">Continue</span>
       <span className="rr-title">{mostRecent.title}</span>
       <span className="rr-step">/ {mostRecent.step}</span>

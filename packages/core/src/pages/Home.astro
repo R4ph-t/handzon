@@ -164,6 +164,7 @@ for (const t of tutorials) {
     // mount; Cache-Control: max-age=60 on the response handles SPA-like
     // navigations. Failures are silent — cards just show no numbers,
     // which is the desired state on Tier 1 anyway.
+    import { withBase } from "../lib/base.ts";
     type Stat = { slug: string; started: number; completed: number };
     function fmt(n: number): string {
       if (n < 1000) return String(n);
@@ -178,7 +179,7 @@ for (const t of tutorials) {
     }
     async function hydrateStats() {
       try {
-        const res = await fetch("/api/tutorials/stats", { credentials: "same-origin" });
+        const res = await fetch(withBase("/api/tutorials/stats"), { credentials: "same-origin" });
         if (!res.ok) return;
         const data = (await res.json()) as { stats: Stat[] };
         for (const stat of data.stats) {

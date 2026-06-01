@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { withBase } from "../../lib/base";
 
 /**
  * Client-only auth menu. Fetches `/api/auth/session` + `/api/auth/csrf`
@@ -41,8 +42,8 @@ export default function UserMenu() {
     (async () => {
       try {
         const [sessRes, csrfRes] = await Promise.all([
-          fetch("/api/auth/session", { credentials: "same-origin" }),
-          fetch("/api/auth/csrf", { credentials: "same-origin" }),
+          fetch(withBase("/api/auth/session"), { credentials: "same-origin" }),
+          fetch(withBase("/api/auth/csrf"), { credentials: "same-origin" }),
         ]);
         if (cancelled) return;
         // 404 → auth-astro integration not wired in this scaffold.
@@ -71,7 +72,7 @@ export default function UserMenu() {
   if (session === undefined || !csrfToken) return null;
 
   const user = session?.user;
-  const callbackUrl = typeof window !== "undefined" ? window.location.href : "/";
+  const callbackUrl = typeof window !== "undefined" ? window.location.href : withBase("/");
 
   // Compact label for the topbar: first word of `name`, falling back
   // to the local part of `email`, falling back to a generic. Full name
@@ -100,7 +101,7 @@ export default function UserMenu() {
           </span>
           <a
             className="um-btn um-btn-icon"
-            href="/settings/tokens"
+            href={withBase("/settings/tokens")}
             title="Access tokens for editor MCP"
           >
             <svg
@@ -119,7 +120,7 @@ export default function UserMenu() {
             </svg>
             <span className="sr-only">Access tokens</span>
           </a>
-          <form method="post" action="/api/auth/signout">
+          <form method="post" action={withBase("/api/auth/signout")}>
             <input type="hidden" name="csrfToken" value={csrfToken} />
             <input type="hidden" name="callbackUrl" value={callbackUrl} />
             <button type="submit" className="um-btn um-btn-icon" title="Sign out">
@@ -143,7 +144,7 @@ export default function UserMenu() {
           </form>
         </>
       ) : (
-        <form method="post" action="/api/auth/signin/github">
+        <form method="post" action={withBase("/api/auth/signin/github")}>
           <input type="hidden" name="csrfToken" value={csrfToken} />
           <input type="hidden" name="callbackUrl" value={callbackUrl} />
           <button type="submit" className="um-btn">

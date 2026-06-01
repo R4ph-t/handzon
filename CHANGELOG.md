@@ -2,6 +2,20 @@
 
 ## Unreleased (`handzon-core`)
 
+### Added — base path support
+
+- Core is now base-path aware. A new `withBase()` helper
+  (`handzon-core/lib/base.ts`) prefixes every hand-written internal
+  link, asset URL, and same-origin `/api/...` call (progress sync,
+  tutorial stats, AI help inbox, auth session/csrf, sign-in/out forms)
+  with `import.meta.env.BASE_URL`. Set `base` in a scaffold's
+  `astro.config.mjs` (e.g. `base: "/tutorials"`) and the whole app,
+  including client-side fetches, navigation, and logo/favicon assets,
+  honors the subpath. Backward compatible: with no `base`, `BASE_URL`
+  is `/` and `withBase` is an identity transform, so root deploys are
+  unchanged. Absolute and protocol-relative asset/link values pass
+  through untouched. See README "Serving under a subpath".
+
 ### Added — theming
 
 - Typography tokens for weights, tracking, leading, and the type

@@ -19,3 +19,8 @@ triggers: ["deploy", "render", "ship", "go live"]
 - `staticPublishPath: ./dist` is correct because the Astro build outputs to `dist/`.
 - Tier 2's `buildCommand` runs `pnpm db:migrate` before `pnpm build` so a fresh deploy can't outpace the schema.
 - The `@astrojs/node` adapter must run in `mode: 'standalone'` and bind to `0.0.0.0:$PORT` — both already wired in `astro.config.mjs`.
+
+**Serving under a subpath (e.g. /tutorials)**
+1. Set `base: "/tutorials"` in `astro.config.mjs`. Astro prefixes its routes and `_astro/*` assets; `handzon-core` prefixes its own links and `/api/...` calls via the same base, so nothing else in the app needs editing.
+2. Set `healthCheckPath: /tutorials/healthz` in the Blueprint (the health check bypasses any proxy and hits the service directly).
+3. If a reverse proxy on another domain fronts the site, make sure it preserves the prefix (`/tutorials/...` forwarded unchanged, not stripped). Direct on its own domain, the site just lives at `your-host/tutorials/`.

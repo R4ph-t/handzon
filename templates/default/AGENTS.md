@@ -193,6 +193,10 @@ progress too, so a learner can roam without re-doing work.
 
 For multi-step authoring procedures, see the skills under `skills/` — each one is a short numbered procedure you can follow or have an agent follow.
 
+## Serving under a subpath
+
+To host the site under a subpath (e.g. `example.com/tutorials`) instead of a domain root, set `base: "/tutorials"` in `astro.config.mjs`. Astro prefixes its routes and `_astro/*` assets, and `handzon-core` prefixes its own links and same-origin `/api/...` calls through the same base. Also set `healthCheckPath` in the Blueprint to include the prefix, and ensure any fronting reverse proxy preserves the prefix rather than stripping it. See the `deploy-to-render` skill for the full recipe.
+
 ## Don't
 
 - Don't `import` MDX components — they're globally registered.

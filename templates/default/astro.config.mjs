@@ -25,6 +25,7 @@ try {
 // SSR-only API routes in static output (directory/file path collisions).
 export default defineConfig({
   site: process.env.SITE_URL ?? "http://localhost:4321",
+  base: "/tutorials",
   output: "server",
   adapter: (await import("@astrojs/node")).default({ mode: "standalone" }),
   server: {

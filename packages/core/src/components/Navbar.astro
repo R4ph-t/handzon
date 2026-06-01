@@ -7,6 +7,7 @@
  * homepage. Sticky so it stays available as users scroll long
  * tutorial steps.
  */
+import { withBase } from "../lib/base";
 import UserMenu from "./auth/UserMenu.astro";
 
 interface Props {
@@ -33,10 +34,10 @@ const {
 ---
 <header class="hz-nav">
   <div class="hz-nav-inner">
-    <a href="/" class="hz-nav-brand" aria-label={`${siteName} home`}>
+    <a href={withBase("/")} class="hz-nav-brand" aria-label={`${siteName} home`}>
       {logoUrl && (
         <img
-          src={logoUrl}
+          src={withBase(logoUrl)}
           alt=""
           aria-hidden="true"
           class="hz-nav-logo"
