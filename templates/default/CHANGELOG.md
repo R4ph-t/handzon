@@ -1,5 +1,12 @@
 # **PROJECT_NAME**
 
+## 0.1.3
+
+### Patch Changes
+
+- Updated dependencies [e86c625]
+  - handzon-core@0.12.0
+
 ## 0.1.2
 
 ### Patch Changes
