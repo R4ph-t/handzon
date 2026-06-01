@@ -1,5 +1,14 @@
 # handzon-core
 
+## 0.11.0
+
+### Minor Changes
+
+- Overridable footer. The footer is no longer a hardcoded "Built with Handzon" line:
+
+  - The default `Footer` now accepts an optional `siteUrl` (threaded from page wrappers and `BaseLayout`). When set, the footer leads with the site owner's credit — `© {year} {siteName}` linked to `siteUrl` — and demotes "Built with Handzon" to a quieter secondary link on the side. Omit `siteUrl` and the footer is unchanged, so existing scaffolds keep their current footer.
+  - `showFooter` is now threaded through every page wrapper (`Home`, `TutorialLanding`, `TutorialStep`, `TutorialLayout`), so a scaffold can pass `showFooter={false}` to drop the built-in footer entirely and render its own markup for full control.
+
 ## 0.10.0
 
 ### Minor Changes

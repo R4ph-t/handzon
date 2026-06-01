@@ -121,11 +121,10 @@ const desc = description ?? tagline;
     {/* Footer is fully overridable: pass `slot="footer"` from any page
         wrapper to replace it entirely. With no override, the default
         Footer renders, configurable via siteName/siteUrl/repoUrl. */}
-    {showFooter && (
-      <slot name="footer">
-        <Footer siteName={siteName} siteUrl={siteUrl} repoUrl={repoUrl} />
-      </slot>
-    )}
+    {/* Footer content is configurable via siteName/siteUrl/repoUrl. For
+        a fully custom footer, a scaffold can pass showFooter={false} and
+        render its own markup in the page body. */}
+    {showFooter && <Footer siteName={siteName} siteUrl={siteUrl} repoUrl={repoUrl} />}
     <script>
       // Render any <pre class="mermaid"> blocks emitted by rehype-mermaid.
       if (document.querySelector("pre.mermaid")) {

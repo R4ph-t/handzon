@@ -14,6 +14,8 @@ interface Props {
   faviconUrl?: string;
   repoUrl?: string;
   siteUrl?: string;
+  /** Set false to drop the built-in footer and supply your own. */
+  showFooter?: boolean;
 }
 
 const {
@@ -26,6 +28,7 @@ const {
   faviconUrl,
   repoUrl,
   siteUrl,
+  showFooter = true,
 } = Astro.props;
 const steps = await getStepsForTutorial(tutorial.id);
 const duration = tutorial.data.estimatedDuration ?? sumDurations(steps) ?? "";
@@ -42,9 +45,9 @@ const firstStepSlug = steps[0] ? parseStepId(steps[0].id).stepSlug : null;
   faviconUrl={faviconUrl}
   repoUrl={repoUrl}
   siteUrl={siteUrl}
+  showFooter={showFooter}
 >
   <slot name="head" slot="head" />
-  {Astro.slots.has("footer") && <slot name="footer" slot="footer" />}
   <div class="landing">
     <a class="back" href={withBase("/")}>← All tutorials</a>
 
