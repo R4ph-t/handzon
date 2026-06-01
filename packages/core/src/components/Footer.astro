@@ -1,44 +1,72 @@
 ---
 /**
- * Site footer. A single quiet line at the bottom of every page,
- * crediting the framework + linking to the Handzon repo. Sized to
- * match the rest of the brutalist surface treatment.
+ * Site footer. A single quiet line at the bottom of every page, sized
+ * to match the rest of the brutalist surface treatment.
+ *
+ * Two modes:
+ *  - Default (no `siteUrl`): one centered "Built with Handzon" credit,
+ *    preserving the framework's original footer for unbranded scaffolds.
+ *  - Branded (`siteUrl` set): the site owner's credit leads on the left
+ *    (linked to `siteUrl`), and "Built with Handzon" moves to a quieter
+ *    secondary link on the right.
  */
 interface Props {
-  /** Public URL to the framework repo. Override to point elsewhere. */
+  /** Primary credit label — the site owner. */
+  siteName?: string;
+  /** Primary credit link. When set, the footer leads with this credit
+   *  and demotes the Handzon link to a secondary side link. */
+  siteUrl?: string;
+  /** Handzon project/package link (the secondary "Built with" credit). */
   repoUrl?: string;
   /** Year displayed in the credit line; defaults to the current year. */
   year?: number;
 }
 
 const {
+  siteName = "Handzon",
+  siteUrl,
   repoUrl = "https://github.com/R4ph-t/handzon",
   year = new Date().getFullYear(),
 } = Astro.props;
 ---
 <footer class="hz-footer">
-  <div class="hz-footer-inner">
-    <span class="hz-footer-credit">
-      © {year} · Built with
-      <a class="hz-footer-link" href={repoUrl} target="_blank" rel="noopener">
-        Handzon
-        <svg
-          viewBox="0 0 24 24"
-          width="11"
-          height="11"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          aria-hidden="true"
-        >
-          <path d="M7 17 17 7" />
-          <path d="M7 7h10v10" />
-        </svg>
-      </a>
-    </span>
-  </div>
+  {siteUrl ? (
+    <div class="hz-footer-inner hz-footer-split">
+      <span class="hz-footer-credit">
+        © {year}
+        <a class="hz-footer-link" href={siteUrl} target="_blank" rel="noopener">
+          {siteName}
+          <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M7 17 17 7" />
+            <path d="M7 7h10v10" />
+          </svg>
+        </a>
+      </span>
+      <span class="hz-footer-built">
+        Built with
+        <a class="hz-footer-link" href={repoUrl} target="_blank" rel="noopener">
+          Handzon
+          <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M7 17 17 7" />
+            <path d="M7 7h10v10" />
+          </svg>
+        </a>
+      </span>
+    </div>
+  ) : (
+    <div class="hz-footer-inner">
+      <span class="hz-footer-credit">
+        © {year} · Built with
+        <a class="hz-footer-link" href={repoUrl} target="_blank" rel="noopener">
+          Handzon
+          <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M7 17 17 7" />
+            <path d="M7 7h10v10" />
+          </svg>
+        </a>
+      </span>
+    </div>
+  )}
 </footer>
 
 <style is:global>
@@ -64,10 +92,23 @@ const {
     font-family: var(--font-mono);
     font-size: 0.75em;
   }
+  /* Branded mode: site credit left, "Built with Handzon" right. Falls
+   * back to a stacked, centered layout on narrow viewports. */
+  .hz-footer-split {
+    justify-content: space-between;
+    gap: 0.75rem 1.5rem;
+    flex-wrap: wrap;
+  }
   .hz-footer-credit {
     display: inline-flex;
     align-items: center;
     gap: 0.45rem;
+  }
+  .hz-footer-built {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    opacity: 0.85;
   }
   .hz-footer-link {
     display: inline-flex;

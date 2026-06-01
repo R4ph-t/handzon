@@ -24,6 +24,7 @@ interface Props {
   logoHeight?: number;
   faviconUrl?: string;
   repoUrl?: string;
+  siteUrl?: string;
 }
 
 const {
@@ -38,6 +39,7 @@ const {
   logoHeight,
   faviconUrl,
   repoUrl,
+  siteUrl,
 } = Astro.props;
 const { stepSlug } = parseStepId(currentStep.id);
 const { Content } = await render(currentStep);
@@ -68,8 +70,10 @@ const initialContext = buildContext({
   logoHeight={logoHeight}
   faviconUrl={faviconUrl}
   repoUrl={repoUrl}
+  siteUrl={siteUrl}
 >
   <slot name="head" slot="head" />
+  {Astro.slots.has("footer") && <slot name="footer" slot="footer" />}
   <Content components={components} />
   {aiConfig.enabled && aiConfig.autoStepHelp && (
     <StepHelp client:visible stepTitle={currentStep.data.title} />

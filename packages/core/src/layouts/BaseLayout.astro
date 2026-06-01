@@ -34,6 +34,10 @@ interface Props {
   showFooter?: boolean;
   /** Footer link URL; defaults to the Handzon repo. */
   repoUrl?: string;
+  /** Primary footer credit link (the site owner, e.g. https://render.com).
+   *  When set, the footer leads with the site credit and demotes the
+   *  Handzon link to a secondary side link. */
+  siteUrl?: string;
   /**
    * Width of the page's content column. Drives the navbar + footer
    * alignment via the --hz-page-max-width CSS custom property so the
@@ -63,6 +67,7 @@ const {
   faviconUrl = "/favicon.svg",
   showFooter = true,
   repoUrl,
+  siteUrl,
   // Default to a full-width navbar + footer with a small consistent
   // inset, matching the tutorial step page. Pages with a centred
   // column (home grid, tutorial landing) keep their own content
@@ -113,7 +118,14 @@ const desc = description ?? tagline;
     <div class="hz-page">
       <slot />
     </div>
-    {showFooter && <Footer repoUrl={repoUrl} />}
+    {/* Footer is fully overridable: pass `slot="footer"` from any page
+        wrapper to replace it entirely. With no override, the default
+        Footer renders, configurable via siteName/siteUrl/repoUrl. */}
+    {showFooter && (
+      <slot name="footer">
+        <Footer siteName={siteName} siteUrl={siteUrl} repoUrl={repoUrl} />
+      </slot>
+    )}
     <script>
       // Render any <pre class="mermaid"> blocks emitted by rehype-mermaid.
       if (document.querySelector("pre.mermaid")) {

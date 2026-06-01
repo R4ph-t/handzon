@@ -16,6 +16,7 @@ interface Props {
   logoHeight?: number;
   faviconUrl?: string;
   repoUrl?: string;
+  siteUrl?: string;
   showResumeRail?: boolean;
   emptyStateCommand?: string;
   /** Tutorials per page on the grid. */
@@ -31,6 +32,7 @@ const {
   logoHeight,
   faviconUrl,
   repoUrl,
+  siteUrl,
   showResumeRail = true,
   emptyStateCommand = "pnpm handzon:new",
   pageSize = 9,
@@ -64,9 +66,11 @@ for (const t of tutorials) {
   logoHeight={logoHeight}
   faviconUrl={faviconUrl}
   repoUrl={repoUrl}
+  siteUrl={siteUrl}
   nav="userMenu"
 >
   <slot name="head" slot="head" />
+  {Astro.slots.has("footer") && <slot name="footer" slot="footer" />}
   <div class="home">
     <Hero
       title={hero?.title}

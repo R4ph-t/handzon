@@ -13,6 +13,7 @@ interface Props {
   logoHeight?: number;
   faviconUrl?: string;
   repoUrl?: string;
+  siteUrl?: string;
 }
 
 const {
@@ -24,6 +25,7 @@ const {
   logoHeight,
   faviconUrl,
   repoUrl,
+  siteUrl,
 } = Astro.props;
 const steps = await getStepsForTutorial(tutorial.id);
 const duration = tutorial.data.estimatedDuration ?? sumDurations(steps) ?? "";
@@ -39,8 +41,10 @@ const firstStepSlug = steps[0] ? parseStepId(steps[0].id).stepSlug : null;
   logoHeight={logoHeight}
   faviconUrl={faviconUrl}
   repoUrl={repoUrl}
+  siteUrl={siteUrl}
 >
   <slot name="head" slot="head" />
+  {Astro.slots.has("footer") && <slot name="footer" slot="footer" />}
   <div class="landing">
     <a class="back" href={withBase("/")}>← All tutorials</a>
 

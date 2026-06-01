@@ -18,6 +18,7 @@ interface Props {
   logoHeight?: number;
   faviconUrl?: string;
   repoUrl?: string;
+  siteUrl?: string;
 }
 
 const {
@@ -33,6 +34,7 @@ const {
   logoHeight,
   faviconUrl,
   repoUrl,
+  siteUrl,
 } = Astro.props;
 
 const stepSlugs = steps.map((s) => parseStepId(s.id).stepSlug);
@@ -47,8 +49,10 @@ const stepSlugs = steps.map((s) => parseStepId(s.id).stepSlug);
   logoHeight={logoHeight}
   faviconUrl={faviconUrl}
   repoUrl={repoUrl}
+  siteUrl={siteUrl}
 >
   <slot name="head" slot="head" />
+  {Astro.slots.has("footer") && <slot name="footer" slot="footer" />}
   <div class="layout">
     <div class="sidebar-wrap">
       <Sidebar tutorial={tutorial} steps={steps} currentStepSlug={currentStepSlug} />
