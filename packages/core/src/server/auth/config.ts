@@ -56,6 +56,12 @@ function resolveAuthUrl(): string | undefined {
   return undefined;
 }
 
+function resolveAuthPrefix(): string {
+  const base = import.meta.env.BASE_URL;
+  const normalizedBase = base === "/" ? "" : base.replace(/\/$/, "");
+  return `${normalizedBase}/api/auth`;
+}
+
 export function createAuthConfig({ db }: AuthConfigOptions) {
   // Auth.js v5 reads `AUTH_URL` from process.env on each request, so
   // we resolve once and write it back. Idempotent: if AUTH_URL was
@@ -73,6 +79,11 @@ export function createAuthConfig({ db }: AuthConfigOptions) {
     return defineConfig({ providers: [] });
   }
   return defineConfig({
+    // auth-astro defaults to /api/auth, but Astro apps mounted with
+    // `base` receive requests at /<base>/api/auth. Use the same base
+    // that powers app links and API calls so the catch-all auth route
+    // returns a Response instead of falling through with undefined.
+    prefix: resolveAuthPrefix(),
     adapter: DrizzleAdapter(db, {
       usersTable: users,
       accountsTable: accounts,

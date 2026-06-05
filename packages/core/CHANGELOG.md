@@ -1,5 +1,16 @@
 # handzon-core
 
+## 0.12.1
+
+### Patch Changes
+
+- Make auth base-path aware. `createAuthConfig()` now configures auth-astro's
+  prefix from Astro's `BASE_URL`, so apps mounted under `base: "/tutorials"`
+  handle `/tutorials/api/auth/...` instead of falling through the auth catch-all
+  without a response. This fixes GitHub OAuth callbacks for base-mounted sites
+  when `AUTH_URL` includes the base path, for example
+  `https://render.com/tutorials`.
+
 ## 0.12.0
 
 ### Minor Changes
