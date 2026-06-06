@@ -24,6 +24,12 @@ interface AuthConfigOptions {
    * builds and for `pnpm build` on a fresh checkout without a database.
    */
   db: Parameters<typeof DrizzleAdapter>[0] | null;
+  /**
+   * Override auth-astro's route prefix when a fronting proxy rewrites
+   * paths before the request reaches the Handzon app. Defaults to
+   * Astro's configured `base` plus `/api/auth`.
+   */
+  authPrefix?: string;
 }
 
 /**
@@ -56,13 +62,14 @@ function resolveAuthUrl(): string | undefined {
   return undefined;
 }
 
-function resolveAuthPrefix(): string {
+function resolveAuthPrefix(authPrefix?: string): string {
+  if (authPrefix) return authPrefix;
   const base = import.meta.env.BASE_URL;
   const normalizedBase = base === "/" ? "" : base.replace(/\/$/, "");
   return `${normalizedBase}/api/auth`;
 }
 
-export function createAuthConfig({ db }: AuthConfigOptions) {
+export function createAuthConfig({ db, authPrefix }: AuthConfigOptions) {
   // Auth.js v5 reads `AUTH_URL` from process.env on each request, so
   // we resolve once and write it back. Idempotent: if AUTH_URL was
   // already a full URL, this is a no-op aside from the trailing-slash
@@ -72,18 +79,20 @@ export function createAuthConfig({ db }: AuthConfigOptions) {
     process.env.AUTH_URL = resolvedUrl;
   }
 
+  const prefix = resolveAuthPrefix(authPrefix);
+
   if (!db) {
     // No database → no adapter → no providers. auth-astro logs a warning
     // and any sign-in attempt fails gracefully instead of crashing the
     // build.
-    return defineConfig({ providers: [] });
+    return defineConfig({ prefix, providers: [] });
   }
   return defineConfig({
     // auth-astro defaults to /api/auth, but Astro apps mounted with
     // `base` receive requests at /<base>/api/auth. Use the same base
     // that powers app links and API calls so the catch-all auth route
     // returns a Response instead of falling through with undefined.
-    prefix: resolveAuthPrefix(),
+    prefix,
     adapter: DrizzleAdapter(db, {
       usersTable: users,
       accountsTable: accounts,

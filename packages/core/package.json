@@ -1,6 +1,6 @@
 {
   "name": "handzon-core",
-  "version": "0.12.1",
+  "version": "0.12.2",
   "description": "Core framework for Handzon — layouts, components, content + AI libs, and server runtime (handlers, DB, auth, migration runner) consumed by Handzon scaffolds.",
   "publishConfig": {
     "access": "public"
