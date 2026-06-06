@@ -32,11 +32,29 @@ const slug = tutorial.id;
       <Progress tutorialSlug={slug} totalSteps={steps.length} client:load />
     )}
     {tutorial.data.tracks.length > 1 && (
-      <TrackSelector
-        tracks={tutorial.data.tracks}
-        defaultTrack={tutorial.data.defaultTrack}
-        client:load
-      />
+      <div class="track-selector-shell">
+        <section class="track-selector" aria-label="Tutorial track" data-track-fallback>
+          <div class="track-selector-list">
+            {tutorial.data.tracks.map((track: (typeof tutorial.data.tracks)[number]) => (
+              <button
+                type="button"
+                class="track-selector-option"
+                data-track-id={track.id}
+                data-active={track.id === (tutorial.data.defaultTrack ?? tutorial.data.tracks[0]?.id) ? "true" : "false"}
+                disabled
+              >
+                <span class="track-selector-icon-slot" aria-hidden="true"></span>
+                <span>{track.label}</span>
+              </button>
+            ))}
+          </div>
+        </section>
+        <TrackSelector
+          tracks={tutorial.data.tracks}
+          defaultTrack={tutorial.data.defaultTrack}
+          client:only="react"
+        />
+      </div>
     )}
   </div>
 

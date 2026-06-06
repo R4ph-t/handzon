@@ -1,5 +1,23 @@
 # handzon-core
 
+## 0.13.2
+
+### Patch Changes
+
+- Polish the tutorial track selector with a compact full-width segmented control and real language icons.
+
+  The selector no longer shows a separate "Track" label, reserves icon space during SSR to avoid hydration layout shift, and uses `simple-icons` brand marks for common language tracks with a compact fallback badge for unknown tracks.
+
+## 0.13.1
+
+### Patch Changes
+
+- Render the tutorial track selector as a client-only React island. The selected
+  track is localStorage-backed browser state, and the inline bootstrap already
+  applies the active track before hydration. Avoiding server rendering prevents
+  React hook/runtime mismatches from breaking the selector and keeps track
+  selection persisted across tutorial navigation.
+
 ## 0.13.0
 
 ### Minor Changes
