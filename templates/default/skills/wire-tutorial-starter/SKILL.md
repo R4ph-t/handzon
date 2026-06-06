@@ -17,6 +17,36 @@ Use `git` when the tutorial depends on prepared files, branches, fixtures, or a 
 
 ## 2. Add `_meta.json.starter`
 
+If the tutorial declares `tracks`, `starter` can be a map keyed by track id. Use this when each track starts from a different repo or scaffold command.
+
+```json
+{
+  "tracks": [
+    { "id": "py", "label": "Python" },
+    { "id": "ts", "label": "TypeScript" }
+  ],
+  "defaultTrack": "py",
+  "starter": {
+    "py": {
+      "kind": "git",
+      "repo": "https://github.com/example/python-starter.git",
+      "targetDir": "hello-python",
+      "setupCommands": ["python -m venv .venv", ". .venv/bin/activate && pip install -r requirements.txt"],
+      "devCommand": ". .venv/bin/activate && flask run"
+    },
+    "ts": {
+      "kind": "git",
+      "repo": "https://github.com/example/typescript-starter.git",
+      "targetDir": "hello-typescript",
+      "setupCommands": ["npm install"],
+      "devCommand": "npm start"
+    }
+  }
+}
+```
+
+Per-track maps are strict: include every declared track and do not include undeclared keys. Use a single `starter` object only when all tracks share the same bootstrap.
+
 For a repo starter:
 
 ```json
@@ -64,6 +94,7 @@ The first step should agree with the starter:
 - If `starter.kind` is `command`, step 1 should show the same init command or clearly explain the equivalent package-manager variants.
 - If `starter.kind` is `git`, step 1 should explain what the starter contains, not ask the learner to create it from scratch.
 - The first concrete checkpoint should have a stable `id` so MCP verification and browser progress share one key.
+- For tracked tutorials, step 1 should explain that the sidebar track selector controls which starter MCP resolves. Do not duplicate the tutorial just to change the starter.
 
 ## 4. Add verification when possible
 

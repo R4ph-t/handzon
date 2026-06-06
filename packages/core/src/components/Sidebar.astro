@@ -3,6 +3,7 @@ import { withBase } from "../lib/base";
 import type { TutorialEntry, StepEntry } from "../lib/content";
 import { parseStepId } from "../lib/content";
 import Progress from "./Progress.tsx";
+import TrackSelector from "./TrackSelector.tsx";
 
 interface Props {
   tutorial: TutorialEntry;
@@ -29,6 +30,13 @@ const slug = tutorial.id;
 
     {tutorial.data.showProgress && (
       <Progress tutorialSlug={slug} totalSteps={steps.length} client:load />
+    )}
+    {tutorial.data.tracks.length > 1 && (
+      <TrackSelector
+        tracks={tutorial.data.tracks}
+        defaultTrack={tutorial.data.defaultTrack}
+        client:load
+      />
     )}
   </div>
 

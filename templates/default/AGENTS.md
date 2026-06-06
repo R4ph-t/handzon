@@ -45,8 +45,34 @@ Listed tutorials appear first, in array order. Anything not listed is appended a
 | `prerequisites`     | no       | bulleted list on the landing page |
 | `nextTutorial`      | no       | slug of follow-up tutorial; renders "Continue learning" card |
 | `cover` / `icon`    | no       | card, landing hero, and social preview media. `cover` is an image. `icon` can be an image or short text glyph |
+| `tracks`            | no       | tutorial-wide programming-language variants, as `[{ "id": "py", "label": "Python" }]` |
+| `defaultTrack`      | no       | default track id when no persisted learner choice applies |
+| `starter`           | no       | shared starter spec or a per-track map of starter specs |
 | `gated`             | no       | when `true`, every step must register a Checkpoint to advance |
 | `ai`                | no       | per-tutorial assistant overrides (see "AI config" below) |
+
+### Tutorial tracks
+
+Use `tracks` when one tutorial should support multiple programming-language variants without duplicating the entire tutorial. A **track** is the learner's chosen variant, such as Python or TypeScript. Do not call this `lang`: fence languages like ` ```ts ` still mean syntax highlighting only.
+
+```json
+{
+  "tracks": [
+    { "id": "py", "label": "Python" },
+    { "id": "ts", "label": "TypeScript" }
+  ],
+  "defaultTrack": "py"
+}
+```
+
+Rules:
+
+- Track ids must be stable and short, such as `py`, `ts`, `go`, or `rust`.
+- The sidebar renders one global selector when a tutorial declares two or more tracks.
+- Use `<Track id="py">...</Track>` around prose, code fences, terminals, or playgrounds that apply only to that track.
+- Keep shared prose outside `<Track>`.
+- `<Tabs>` stays for local choices like package manager or operating system. Do not use Tabs as the track selector.
+- `starter` and step `verify` can be shared specs or per-track maps. If you use a per-track map, include every declared track.
 
 ### Step frontmatter
 
@@ -85,6 +111,7 @@ Use inline Markdown images for supporting screenshots inside the step body. Use 
 | `<Embed>`       | static        | inline YouTube/Loom/Vimeo iframe (auto-privacy) |
 | `<Download>`    | static        | styled link for `public/downloads/...` |
 | `<Tabs>`/`<Tab>` | interactive  | npm/pnpm/yarn or macOS/Linux/Windows variants; use `group="..."` so selection persists across pages |
+| `<Track>`       | static        | track-specific prose, snippets, terminals, or playgrounds; requires `id="..."` |
 | `<FileTree>`    | interactive   | `paths={["a/b.ts", "a/c.ts"]}` |
 | `<Reveal>`      | interactive   | lock content behind a click |
 | `<Terminal>`    | interactive   | fake terminal — `entries=[{command, output}]` |

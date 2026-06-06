@@ -1,0 +1,44 @@
+.track-selector {
+  display: grid;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: var(--border-default, 2px) solid var(--color-border);
+}
+
+.track-selector-label {
+  font-family: var(--font-mono);
+  font-size: 0.72em;
+  color: var(--color-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.track-selector-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.track-selector-option {
+  appearance: none;
+  border: var(--border-default, 2px) solid var(--color-border);
+  background: var(--color-bg);
+  color: var(--color-fg);
+  cursor: pointer;
+  font: inherit;
+  font-family: var(--font-mono);
+  font-size: 0.75em;
+  line-height: 1;
+  padding: 0.45rem 0.6rem;
+}
+
+.track-selector-option:hover {
+  border-color: var(--color-accent);
+}
+
+.track-selector-option[data-active="true"] {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: var(--color-accent-fg);
+}

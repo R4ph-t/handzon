@@ -1,0 +1,34 @@
+{
+  "title": "Multi-track Hello API",
+  "description": "Use one tutorial to choose either a Python or TypeScript API track, then run the matching tests.",
+  "tags": ["tracks", "python", "typescript", "api"],
+  "difficulty": "beginner",
+  "estimatedDuration": "10 min",
+  "tracks": [{ "id": "py", "label": "Python" }, { "id": "ts", "label": "TypeScript" }],
+  "defaultTrack": "py",
+  "prerequisites": ["A local Python or Node.js toolchain, depending on the selected track"],
+  "starter": {
+    "py": {
+      "kind": "git",
+      "repo": "https://github.com/render-examples/flask-hello-world.git",
+      "targetDir": "hello-python",
+      "setupCommands": [
+        "python -m venv .venv",
+        ". .venv/bin/activate && pip install -r requirements.txt pytest"
+      ],
+      "devCommand": ". .venv/bin/activate && flask run",
+      "notes": ["Use the Python track selector before starting with MCP."]
+    },
+    "ts": {
+      "kind": "git",
+      "repo": "https://github.com/render-examples/express-hello-world.git",
+      "targetDir": "hello-typescript",
+      "setupCommands": ["npm install"],
+      "devCommand": "npm start",
+      "notes": ["Use the TypeScript track selector before starting with MCP."]
+    }
+  },
+  "ai": {
+    "tone": "direct"
+  }
+}

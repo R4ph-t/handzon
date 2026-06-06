@@ -224,6 +224,16 @@ export default function ChatPanel({ open, onOpenChange, config, context, initial
 
             <div className="chat-meta">
               On: <strong>{context.currentStep.title}</strong>
+              {context.tutorial.track && (
+                <>
+                  {" "}
+                  · Track:{" "}
+                  <strong>
+                    {context.tutorial.tracks.find((track) => track.id === context.tutorial.track)
+                      ?.label ?? context.tutorial.track}
+                  </strong>
+                </>
+              )}
             </div>
 
             {needsKey ? (

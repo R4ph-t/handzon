@@ -1,5 +1,13 @@
 import type { StarterSpec, VerifySpec } from "../../collections.ts";
-import { type McpTool, text } from "./protocol.ts";
+import {
+  isStarterSpec,
+  isVerifySpec,
+  resolveForTrack,
+  type TrackScoped,
+} from "../../lib/track-scoped.ts";
+import type { TrackOption } from "../../lib/tracks.ts";
+import { type McpContext, type McpTool, text } from "./protocol.ts";
+import { resolveMcpTrack } from "./tracks.ts";
 
 interface StartTutorialStep {
   slug: string;
@@ -7,7 +15,7 @@ interface StartTutorialStep {
   title: string;
   summary?: string;
   duration?: string;
-  verify?: VerifySpec | null;
+  verify?: TrackScoped<VerifySpec> | null;
 }
 
 interface StartTutorialInput {
@@ -17,14 +25,18 @@ interface StartTutorialInput {
     description: string;
     difficulty: string;
     tags: string[];
-    starter?: StarterSpec;
+    tracks?: TrackOption[];
+    defaultTrack?: string;
+    starter?: TrackScoped<StarterSpec>;
   };
   steps: StartTutorialStep[];
   workspaceName?: string;
+  resolvedTrack?: string;
 }
 
 export type LoadStartTutorial = (
   slug: string,
+  ctx: McpContext,
 ) => Promise<Omit<StartTutorialInput, "workspaceName"> | null>;
 
 export interface StartTutorialPayload {
@@ -34,6 +46,8 @@ export interface StartTutorialPayload {
     description: string;
     difficulty: string;
     tags: string[];
+    tracks: TrackOption[];
+    track?: string | null;
   };
   starter: StarterSpec | null;
   workspace: {
@@ -80,19 +94,39 @@ function buildCommands(starter: StarterSpec | undefined, targetDir: string, open
   return commands;
 }
 
+function resolveStarterForTrack(
+  starter: TrackScoped<StarterSpec> | undefined,
+  trackId: string | undefined,
+) {
+  return resolveForTrack(starter, trackId, isStarterSpec as (v: unknown) => v is StarterSpec);
+}
+
+function resolveVerifyForTrack(
+  verify: TrackScoped<VerifySpec> | undefined,
+  trackId: string | undefined,
+) {
+  return resolveForTrack(verify, trackId, isVerifySpec as (v: unknown) => v is VerifySpec);
+}
+
 export function buildStartTutorialPayload({
   tutorial,
   steps,
   workspaceName,
+  resolvedTrack,
 }: StartTutorialInput): StartTutorialPayload {
-  const [firstStep] = [...steps].sort((a, b) => a.order - b.order);
+  const resolvedSteps = steps.map((step) => ({
+    ...step,
+    verify: resolveVerifyForTrack(step.verify ?? undefined, resolvedTrack) ?? null,
+  }));
+  const [firstStep] = [...resolvedSteps].sort((a, b) => a.order - b.order);
   if (!firstStep) {
     throw new Error(`Tutorial ${tutorial.slug} has no steps.`);
   }
 
-  const targetDir = resolveTargetDir(tutorial.slug, tutorial.starter, workspaceName);
-  const openPath = resolveOpenPath(targetDir, tutorial.starter);
-  const commands = buildCommands(tutorial.starter, targetDir, openPath);
+  const starter = resolveStarterForTrack(tutorial.starter, resolvedTrack);
+  const targetDir = resolveTargetDir(tutorial.slug, starter, workspaceName);
+  const openPath = resolveOpenPath(targetDir, starter);
+  const commands = buildCommands(starter, targetDir, openPath);
 
   return {
     tutorial: {
@@ -101,8 +135,10 @@ export function buildStartTutorialPayload({
       description: tutorial.description,
       difficulty: tutorial.difficulty,
       tags: tutorial.tags,
+      tracks: tutorial.tracks ?? [],
+      track: resolvedTrack ?? null,
     },
-    starter: tutorial.starter ?? null,
+    starter: starter ?? null,
     workspace: { targetDir, openPath },
     commands,
     firstStep,
@@ -131,20 +167,42 @@ export function createStartTutorialTool(load: LoadStartTutorial): McpTool {
           description:
             "Optional local directory name to use instead of the tutorial's default targetDir.",
         },
+        track: {
+          type: "string",
+          minLength: 1,
+          description:
+            "Optional tutorial track id. Overrides the learner's persisted prefs.track for this call.",
+        },
       },
       required: ["slug"],
       additionalProperties: false,
     },
-    handler: async (args) => {
-      const { slug, workspaceName } = args as { slug: string; workspaceName?: string };
-      const loaded = await load(slug);
+    handler: async (args, ctx) => {
+      const { slug, workspaceName, track } = args as {
+        slug: string;
+        workspaceName?: string;
+        track?: string;
+      };
+      const loaded = await load(slug, ctx);
       if (!loaded) {
         return {
           content: [{ type: "text", text: `No tutorial with slug "${slug}".` }],
           isError: true,
         };
       }
-      return text(JSON.stringify(buildStartTutorialPayload({ ...loaded, workspaceName }), null, 2));
+      const resolvedTrack = await resolveMcpTrack({
+        tracks: loaded.tutorial.tracks,
+        defaultTrack: loaded.tutorial.defaultTrack,
+        explicitTrack: track,
+        learnerId: ctx.learnerId,
+      });
+      return text(
+        JSON.stringify(
+          buildStartTutorialPayload({ ...loaded, workspaceName, resolvedTrack }),
+          null,
+          2,
+        ),
+      );
     },
   };
 }

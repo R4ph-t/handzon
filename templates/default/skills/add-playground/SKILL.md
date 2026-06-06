@@ -18,6 +18,16 @@ If the reader just needs to see the code, use a fenced code block with `title=".
 
 **Non-JS languages:** Python, SQL, Rust, Go, and others are display-only via Expressive Code in v1. Use `<Terminal>` to show their output. Don't try to fake a Python playground with a JS sandbox.
 
+**Tracked tutorials:** If a tutorial declares `tracks`, wrap playgrounds in `<Track id="...">` when they apply to one track. Sandpack still runs JS/TS only, so a Python track should usually use fenced code blocks and `<Terminal>` output instead of a playground.
+
+```mdx
+<Track id="ts">
+  <Playground template="node" files={{
+    "/index.ts": `console.log("Hello from TypeScript");`
+  }} />
+</Track>
+```
+
 ## 2. Pick the template
 
 The `template` prop accepts any Sandpack template. The common ones for Handzon tutorials:
@@ -107,6 +117,7 @@ Playgrounds load `client:load` — they run in the browser, each one spinning up
 - **One playground per step is the standard.** Two if they're contrasting (e.g. "the bug" and "the fix" side by side). Three+ is usually a sign the step should be split.
 - **First load is slow** — first-time visitors wait for Sandpack's bundler. If the playground depends on packages, it's slower. Set expectations in surrounding prose: "The playground below takes a moment to boot on first load."
 - **Don't nest a playground inside a tab or hint** that the reader is likely to skip; the iframe still mounts and loads.
+- **Don't use `<Tabs>` as a track selector.** Track choice is global; use `<Track id="...">` for per-track playgrounds.
 
 ## 7. Example: a complete useful playground
 

@@ -18,6 +18,7 @@ import StepsCmp from "../components/mdx/Steps.astro";
 import Tab from "../components/mdx/Tab.astro";
 import Tabs from "../components/mdx/Tabs.astro";
 import Terminal from "../components/mdx/Terminal.astro";
+import Track from "../components/mdx/Track.astro";
 
 /**
  * The components map passed to <Content components={...} />. Every React
@@ -37,6 +38,7 @@ export function mdxComponents() {
     Download,
     Tabs,
     Tab,
+    Track,
     FileTree,
     Reveal,
     Terminal,

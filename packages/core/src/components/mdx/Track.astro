@@ -1,0 +1,11 @@
+---
+interface Props {
+  id: string;
+}
+
+const { id } = Astro.props;
+---
+
+<div class="track-panel" data-track-panel={id}>
+  <slot />
+</div>

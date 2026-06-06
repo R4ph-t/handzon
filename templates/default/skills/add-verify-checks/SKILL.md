@@ -89,7 +89,39 @@ verify:
 <Checkpoint id="setup/dev-server-running" label="My dev server is running and the browser shows the Vite welcome screen." />
 ```
 
-## 5. Sanity-check the spec yourself
+## 5. Use per-track verify maps when tracks differ
+
+If the tutorial declares `tracks`, `verify` can be either a shared spec or a map keyed by track id. Use the map shape when each track needs different files, commands, ports, or test runners.
+
+```yaml
+---
+title: Run the tests
+verify:
+  py:
+    id: hello/tests-pass
+    cwd: "$LEARNER_PROJECT"
+    checks:
+      - kind: shell
+        run: "python -m pytest"
+        expect: { exitCode: 0 }
+  ts:
+    id: hello/tests-pass
+    cwd: "$LEARNER_PROJECT"
+    checks:
+      - kind: shell
+        run: "npm test"
+        expect: { exitCode: 0 }
+---
+```
+
+Rules:
+
+- Include every declared track in a per-track map. Missing or unknown track ids fail the build.
+- Use the same checkpoint id across tracks when the learning outcome is the same.
+- The MCP tools resolve the active track from an explicit `track` argument, then `prefs.track`, then `defaultTrack`, then the first declared track.
+- Keep the browser `<Checkpoint>` shared. Progress is track-agnostic.
+
+## 6. Sanity-check the spec yourself
 
 Before publishing, run the checks against your own machine the way an agent would:
 
@@ -98,7 +130,7 @@ Before publishing, run the checks against your own machine the way an agent woul
 
 If a hint surprises you in the fail case, rewrite it. Hints that read fine in the abstract often fall apart in context.
 
-## 6. Order checks from cheapest to most diagnostic
+## 7. Order checks from cheapest to most diagnostic
 
 The evaluator stops at the first failure. Put the cheapest, most-likely-to-fail check first:
 
@@ -109,7 +141,7 @@ The evaluator stops at the first failure. Put the cheapest, most-likely-to-fail 
 
 This way the learner gets the most actionable failure first instead of waiting for a slow `http` check to confirm what `file_exists` would have caught instantly.
 
-## 7. Don't
+## 8. Don't
 
 - **Don't** declare a `verify` block without a matching `<Checkpoint id="…">`. The build fails. (Good — that's the safety net.)
 - **Don't** point checks at the *author's* machine. `path: /Users/raph/…` is wrong; `path: package.json` (cwd-relative) is right.
@@ -119,7 +151,7 @@ This way the learner gets the most actionable failure first instead of waiting f
 - **Don't** write hints that restate the check. Explain the cause, not the symptom.
 - **Don't** rewrite the prose `<Checkpoint label="…">` when adding `verify` — the label is still what the learner reads. The checks are what the agent verifies. Both stay.
 
-## 8. Cross-references
+## 9. Cross-references
 
 - `add-checkpoint` for the gating mechanic, label voice, and one-checkpoint-per-step rule. Read that first.
 - `review-tutorial` flags gated steps that have a `<Checkpoint>` but no `verify.checks` — useful before publishing.

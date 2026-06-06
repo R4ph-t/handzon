@@ -46,6 +46,7 @@ export type ProgressState = {
     packageManager?: "npm" | "pnpm" | "yarn" | "bun";
     os?: "macos" | "linux" | "windows";
     theme?: "light" | "dark";
+    track?: string;
   };
   /**
    * Per-tutorial "where was I last?" marker. Tracks `ts` so consumers

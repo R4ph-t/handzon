@@ -1,11 +1,21 @@
-import { getStep } from "../../lib/content.ts";
+import type { VerifySpec } from "../../collections.ts";
+import { getStep, getTutorialBySlug } from "../../lib/content.ts";
+import { isVerifySpec, resolveForTrack, type TrackScoped } from "../../lib/track-scoped.ts";
 import { getDb } from "../db/client.ts";
 import { helpRequests } from "../db/schema.ts";
 import { writeProgressEntries } from "../progress.ts";
 import { type CheckObservation, evaluate } from "../verify/evaluator.ts";
 import { errorResult, type McpTool, text } from "./protocol.ts";
+import { resolveMcpTrack } from "./tracks.ts";
 
 const SCOPE = "progress:write";
+
+function resolveVerifyForTrack(
+  verify: TrackScoped<VerifySpec> | undefined,
+  trackId: string | undefined,
+) {
+  return resolveForTrack(verify, trackId, isVerifySpec as (v: unknown) => v is VerifySpec);
+}
 
 function requireLearner(learnerId: string | undefined) {
   if (!learnerId) {
@@ -312,6 +322,12 @@ export const verificationTools: McpTool[] = [
       properties: {
         tutorial: { type: "string", minLength: 1 },
         step: { type: "string", minLength: 1 },
+        track: {
+          type: "string",
+          minLength: 1,
+          description:
+            "Optional tutorial track id. Overrides the learner's persisted prefs.track for this verification.",
+        },
         observations: {
           type: "array",
           description:
@@ -326,16 +342,28 @@ export const verificationTools: McpTool[] = [
       const a = args as {
         tutorial: string;
         step: string;
+        track?: string;
         observations: CheckObservation[];
       };
       const learnerId = requireLearner(ctx.learnerId);
+      const tutorialEntry = await getTutorialBySlug(a.tutorial);
+      if (!tutorialEntry) {
+        return errorResult(`No tutorial "${a.tutorial}".`);
+      }
       const stepEntry = await getStep(a.tutorial, a.step);
       if (!stepEntry) {
         return errorResult(`No step "${a.step}" in "${a.tutorial}".`);
       }
-      const spec = (stepEntry.data as { verify?: unknown }).verify as
-        | import("../../collections.ts").VerifySpec
-        | undefined;
+      const activeTrack = await resolveMcpTrack({
+        tracks: tutorialEntry.data.tracks,
+        defaultTrack: tutorialEntry.data.defaultTrack,
+        explicitTrack: a.track,
+        learnerId,
+      });
+      const spec = resolveVerifyForTrack(
+        (stepEntry.data as { verify?: TrackScoped<VerifySpec> }).verify,
+        activeTrack,
+      );
       if (!spec) {
         return errorResult(
           `Step ${a.tutorial}/${a.step} has no verify block. Use complete_checkpoint for prose-fallback verification.`,
@@ -356,6 +384,7 @@ export const verificationTools: McpTool[] = [
               source: "verify",
               tutorial: a.tutorial,
               step: a.step,
+              track: activeTrack ?? null,
               results: a.observations,
               ts,
             },
@@ -383,6 +412,7 @@ export const verificationTools: McpTool[] = [
           key: spec.id,
           value: {
             pass: false,
+            track: activeTrack ?? null,
             failingCheckIndex: verdict.failingCheckIndex,
             reason: verdict.reason,
             hint: verdict.hint,

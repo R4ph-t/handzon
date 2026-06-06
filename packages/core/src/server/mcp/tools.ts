@@ -1,4 +1,5 @@
 import { eq } from "drizzle-orm";
+import type { VerifySpec } from "../../collections.ts";
 import {
   getStep,
   getStepsForTutorial,
@@ -6,10 +7,13 @@ import {
   getTutorials,
   parseStepId,
 } from "../../lib/content.ts";
+import { isVerifySpec, resolveForTrack, type TrackScoped } from "../../lib/track-scoped.ts";
+import { stripInactiveTrackBlocks } from "../../lib/track-source.ts";
 import { getDb } from "../db/client.ts";
 import { progressEntries } from "../db/schema.ts";
 import { type McpTool, text } from "./protocol.ts";
 import { createStartTutorialTool } from "./startTutorial.ts";
+import { resolveMcpTrack } from "./tracks.ts";
 import { progressWriteTools, verificationTools } from "./writeTools.ts";
 
 /**
@@ -22,6 +26,13 @@ function extractCheckpointLabel(body: string): string | undefined {
   const m = /<Checkpoint\b[^>]*\blabel\s*=\s*(?:"([^"]+)"|'([^']+)'|\{`([^`]+)`\})/.exec(body);
   if (!m) return undefined;
   return m[1] ?? m[2] ?? m[3];
+}
+
+function resolveVerifyForTrack(
+  verify: TrackScoped<VerifySpec> | undefined,
+  trackId: string | undefined,
+) {
+  return resolveForTrack(verify, trackId, isVerifySpec as (v: unknown) => v is VerifySpec);
 }
 
 /**
@@ -42,6 +53,8 @@ export const catalogReadTools: McpTool[] = [
         description: t.data.description,
         difficulty: t.data.difficulty,
         tags: t.data.tags,
+        tracks: t.data.tracks,
+        defaultTrack: t.data.defaultTrack,
       }));
       return text(JSON.stringify({ tutorials: rows }, null, 2));
     },
@@ -73,6 +86,8 @@ export const catalogReadTools: McpTool[] = [
         difficulty: tutorial.data.difficulty,
         tags: tutorial.data.tags,
         gated: tutorial.data.gated,
+        tracks: tutorial.data.tracks,
+        defaultTrack: tutorial.data.defaultTrack,
         starter: tutorial.data.starter ?? null,
         steps: steps.map((s) => {
           const { stepSlug, order } = parseStepId(s.id);
@@ -99,6 +114,8 @@ export const catalogReadTools: McpTool[] = [
         description: tutorial.data.description,
         difficulty: tutorial.data.difficulty,
         tags: tutorial.data.tags,
+        tracks: tutorial.data.tracks,
+        defaultTrack: tutorial.data.defaultTrack,
         starter: tutorial.data.starter,
       },
       steps: steps.map((s) => {
@@ -122,12 +139,18 @@ export const catalogReadTools: McpTool[] = [
       properties: {
         tutorial: { type: "string", minLength: 1 },
         step: { type: "string", minLength: 1 },
+        track: {
+          type: "string",
+          minLength: 1,
+          description:
+            "Optional tutorial track id. Overrides the learner's persisted prefs.track for this call.",
+        },
       },
       required: ["tutorial", "step"],
       additionalProperties: false,
     },
     handler: async (args) => {
-      const { tutorial, step } = args as { tutorial: string; step: string };
+      const { tutorial, step, track } = args as { tutorial: string; step: string; track?: string };
       const tut = await getTutorialBySlug(tutorial);
       if (!tut) {
         return {
@@ -143,12 +166,22 @@ export const catalogReadTools: McpTool[] = [
         };
       }
       const { stepSlug, order } = parseStepId(stepEntry.id);
-      const body = stepEntry.body ?? "";
-      const verifySpec = (stepEntry.data as { verify?: unknown }).verify;
+      const activeTrack = await resolveMcpTrack({
+        tracks: tut.data.tracks,
+        defaultTrack: tut.data.defaultTrack,
+        explicitTrack: track,
+        learnerId: ctx.learnerId,
+      });
+      const body = stripInactiveTrackBlocks(stepEntry.body ?? "", activeTrack);
+      const verifySpec = resolveVerifyForTrack(
+        (stepEntry.data as { verify?: TrackScoped<VerifySpec> }).verify,
+        activeTrack,
+      );
       const payload = {
         tutorial,
         slug: stepSlug,
         order,
+        track: activeTrack ?? null,
         title: stepEntry.data.title,
         summary: stepEntry.data.summary,
         duration: stepEntry.data.duration,

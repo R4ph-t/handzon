@@ -30,7 +30,14 @@ export interface AssistantPrompt {
 }
 
 function header(ctx: AssistantContext): string {
-  return [`Tutorial: ${ctx.tutorial.title}`, `Step: ${ctx.currentStep.title}`].join("\n");
+  const lines = [`Tutorial: ${ctx.tutorial.title}`, `Step: ${ctx.currentStep.title}`];
+  if (ctx.tutorial.track) {
+    const label =
+      ctx.tutorial.tracks.find((track) => track.id === ctx.tutorial.track)?.label ??
+      ctx.tutorial.track;
+    lines.push(`Track: ${label}`);
+  }
+  return lines.join("\n");
 }
 
 function renderIntent(ctx: AssistantContext, intent: AssistantIntent): string {

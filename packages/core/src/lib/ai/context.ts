@@ -1,6 +1,8 @@
 import type { StepEntry, TutorialEntry } from "../content";
 import { parseStepId } from "../content";
 import type { ProgressState } from "../progress/types";
+import { stripInactiveTrackBlocks } from "../track-source";
+import type { TrackOption } from "../tracks";
 
 export interface AssistantContext {
   tutorial: {
@@ -9,6 +11,9 @@ export interface AssistantContext {
     description: string;
     difficulty: string;
     tags: string[];
+    tracks: TrackOption[];
+    defaultTrack?: string;
+    track?: string | null;
   };
   outline: Array<{ slug: string; title: string; completed: boolean; current: boolean }>;
   currentStep: {
@@ -32,6 +37,7 @@ interface BuildOptions {
   progress: ProgressState;
   references?: Array<{ source: string; content: string }>;
   includeFutureSteps?: boolean;
+  activeTrack?: string;
 }
 
 /**
@@ -46,6 +52,7 @@ export function buildContext({
   progress,
   references = [],
   includeFutureSteps = false,
+  activeTrack,
 }: BuildOptions): AssistantContext {
   const slug = tutorial.id;
   const currentIdx = steps.findIndex((s) => s.id === currentStep.id);
@@ -67,7 +74,7 @@ export function buildContext({
     .map((s) => ({
       slug: parseStepId(s.id).stepSlug,
       title: s.data.title,
-      source: s.body ?? "",
+      source: stripInactiveTrackBlocks(s.body ?? "", activeTrack),
     }));
 
   return {
@@ -77,12 +84,15 @@ export function buildContext({
       description: tutorial.data.description,
       difficulty: tutorial.data.difficulty,
       tags: tutorial.data.tags,
+      tracks: tutorial.data.tracks,
+      defaultTrack: tutorial.data.defaultTrack,
+      track: activeTrack ?? null,
     },
     outline,
     currentStep: {
       slug: currentSlug,
       title: currentStep.data.title,
-      source: currentStep.body ?? "",
+      source: stripInactiveTrackBlocks(currentStep.body ?? "", activeTrack),
     },
     priorSteps,
     progress: {

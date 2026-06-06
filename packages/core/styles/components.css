@@ -15,6 +15,7 @@
 
 /* Site chrome */
 @import "./components/progress.css";
+@import "./components/track-selector.css";
 
 /* AI assistant */
 @import "./components/chat.css";

@@ -44,6 +44,34 @@ const {
 } = Astro.props;
 
 const stepSlugs = steps.map((s) => parseStepId(s.id).stepSlug);
+const trackBootstrap =
+  tutorial.data.tracks.length > 0
+    ? `(() => {
+  try {
+    const tracks = ${JSON.stringify(tutorial.data.tracks).replace(/</g, "\\u003c")};
+    const defaultTrack = ${JSON.stringify(tutorial.data.defaultTrack ?? null)};
+    const ids = tracks.map((track) => track.id);
+    const raw = window.localStorage.getItem("handzon:v1");
+    const preferred = raw ? JSON.parse(raw)?.prefs?.track : null;
+    const active = ids.includes(preferred)
+      ? preferred
+      : defaultTrack && ids.includes(defaultTrack)
+        ? defaultTrack
+        : ids[0];
+    if (!active) return;
+    document.documentElement.dataset.track = active;
+    let style = document.getElementById("handzon-track-style");
+    if (!style) {
+      style = document.createElement("style");
+      style.id = "handzon-track-style";
+      document.head.appendChild(style);
+    }
+    style.textContent = '[data-track-panel]:not([data-track-panel="' + active + '"]) { display: none !important; }';
+  } catch {
+    // Track selection is progressive enhancement; leave all content visible on failure.
+  }
+})();`
+    : null;
 ---
 <BaseLayout
   title={`${currentStep.data.title} — ${tutorial.data.title}`}
@@ -60,6 +88,7 @@ const stepSlugs = steps.map((s) => parseStepId(s.id).stepSlug);
   showFooter={showFooter}
 >
   <slot name="head" slot="head" />
+  {trackBootstrap && <script is:inline set:html={trackBootstrap} />}
   <div class="layout">
     <div class="sidebar-wrap">
       <Sidebar tutorial={tutorial} steps={steps} currentStepSlug={currentStepSlug} />

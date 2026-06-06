@@ -1,0 +1,102 @@
+---
+title: Choose a track and run tests
+duration: 10 min
+summary: Pick Python or TypeScript, inspect the matching starter, and run the track-specific test command.
+verify:
+  py:
+    id: hello/tests-pass
+    cwd: "$LEARNER_PROJECT"
+    checks:
+      - kind: file_exists
+        path: app.py
+        hint: "Make sure the Python starter repo was cloned and opened."
+      - kind: file_contains
+        path: app.py
+        pattern: "Flask"
+        hint: "This does not look like the Flask starter."
+      - kind: shell
+        run: "python -m pytest"
+        expect:
+          exitCode: 0
+        hint: "Install pytest and the app dependencies, then run the Python tests again."
+  ts:
+    id: hello/tests-pass
+    cwd: "$LEARNER_PROJECT"
+    checks:
+      - kind: file_exists
+        path: package.json
+        hint: "Make sure the TypeScript starter repo was cloned and opened."
+      - kind: file_contains
+        path: package.json
+        pattern: "express"
+        hint: "This does not look like the Express starter."
+      - kind: shell
+        run: "npm test"
+        expect:
+          exitCode: 0
+        hint: "Install dependencies with npm install, then run the TypeScript tests again."
+---
+
+This tutorial demonstrates tracks. Pick a track in the sidebar. The prose below stays shared, while code, commands, tests, and starter metadata resolve to your selected track.
+
+<Callout type="tip">
+Tracks are tutorial-wide. Tabs are still for local choices like package managers or operating systems.
+</Callout>
+
+## Inspect the entry point
+
+<Track id="py">
+
+```python title="app.py"
+from flask import Flask
+
+app = Flask(__name__)
+
+@app.get("/")
+def hello():
+    return "Hello from Python"
+```
+
+</Track>
+
+<Track id="ts">
+
+```ts title="src/server.ts"
+import express from "express";
+
+const app = express();
+
+app.get("/", (_req, res) => {
+  res.send("Hello from TypeScript");
+});
+```
+
+</Track>
+
+## Run the tests
+
+<Track id="py">
+
+```bash title="Terminal"
+python -m pytest
+```
+
+</Track>
+
+<Track id="ts">
+
+```bash title="Terminal"
+npm test
+```
+
+</Track>
+
+The verifier uses the same checkpoint id for both tracks, but each track has its own file and shell checks.
+
+<Checkpoint id="hello/tests-pass" label="The tests pass for my selected track." />
+
+<Recap items={[
+  "Chose one tutorial-wide track",
+  "Viewed only the snippets for that track",
+  "Ran the matching track-specific test command"
+]} />
