@@ -1,5 +1,13 @@
 # handzon-core
 
+## 0.13.3
+
+### Patch Changes
+
+- Polish sidebar and auth controls to avoid layout shifts.
+
+  The tutorial track selector is now a compact full-width segmented control, reserves icon space during SSR to avoid hydration layout shift, and uses `simple-icons` marks for common language tracks with a compact fallback badge for unknown tracks. The GitHub auth menu now also renders a same-size SSR fallback while the client island resolves auth state, preventing the navbar button from shifting in after load.
+
 ## 0.13.2
 
 ### Patch Changes

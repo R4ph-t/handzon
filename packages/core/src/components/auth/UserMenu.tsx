@@ -68,6 +68,13 @@ export default function UserMenu() {
     };
   }, []);
 
+  useEffect(() => {
+    if (session === undefined) return;
+    document.querySelectorAll<HTMLElement>("[data-user-menu-fallback]").forEach((el) => {
+      el.hidden = true;
+    });
+  }, [session]);
+
   // Loading or auth not wired → render nothing.
   if (session === undefined || !csrfToken) return null;
 

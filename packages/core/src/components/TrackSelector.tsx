@@ -1,4 +1,4 @@
-import { type CSSProperties, useEffect, useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import {
   type SimpleIcon,
   siC,
@@ -107,12 +107,7 @@ export default function TrackSelector({ tracks, defaultTrack }: Props) {
               onClick={() => setPref("track", track.id)}
             >
               {icon ? (
-                <svg
-                  className="track-selector-icon"
-                  viewBox="0 0 24 24"
-                  aria-hidden="true"
-                  style={{ "--track-icon-color": `#${icon.hex}` } as CSSProperties}
-                >
+                <svg className="track-selector-icon" viewBox="0 0 24 24" aria-hidden="true">
                   <path d={icon.path} />
                 </svg>
               ) : (

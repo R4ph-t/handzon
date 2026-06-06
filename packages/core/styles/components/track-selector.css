@@ -50,7 +50,7 @@
   width: 0.95rem;
   height: 0.95rem;
   flex-shrink: 0;
-  fill: var(--track-icon-color, currentColor);
+  fill: currentColor;
 }
 
 .track-selector-icon-slot {
