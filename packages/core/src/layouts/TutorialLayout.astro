@@ -1,6 +1,7 @@
 ---
 import BaseLayout from "./BaseLayout.astro";
 import Sidebar from "../components/Sidebar.astro";
+import StepHeroMedia from "../components/StepHeroMedia.astro";
 import StepNav from "../components/StepNav.astro";
 import { parseStepId } from "../lib/content.ts";
 import type { TutorialEntry, StepEntry } from "../lib/content";
@@ -72,6 +73,10 @@ const stepSlugs = steps.map((s) => parseStepId(s.id).stepSlug);
           <div class="step-dur">⏱ {currentStep.data.duration}</div>
         )}
       </header>
+
+      {currentStep.data.heroMedia && (
+        <StepHeroMedia media={currentStep.data.heroMedia} />
+      )}
 
       <article class="prose">
         <slot />

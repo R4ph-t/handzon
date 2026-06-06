@@ -44,7 +44,7 @@ Listed tutorials appear first, in array order. Anything not listed is appended a
 | `estimatedDuration` | no       | shown on landing + cards; auto-summed from steps if omitted |
 | `prerequisites`     | no       | bulleted list on the landing page |
 | `nextTutorial`      | no       | slug of follow-up tutorial; renders "Continue learning" card |
-| `cover` / `icon`    | no       | **schema-declared but not yet rendered.** Astro processes the image via sharp if you reference one, but no page currently displays it. Safe to set for forward-compatibility; don't expect it on screen yet. |
+| `cover` / `icon`    | no       | card, landing hero, and social preview media. `cover` is an image. `icon` can be an image or short text glyph |
 | `gated`             | no       | when `true`, every step must register a Checkpoint to advance |
 | `ai`                | no       | per-tutorial assistant overrides (see "AI config" below) |
 
@@ -54,7 +54,24 @@ Listed tutorials appear first, in array order. Anything not listed is appended a
 title: Set up the project        # required
 duration: 5 min                  # optional; surfaces in the sidebar
 summary: One-line teaser.        # optional; landing page + AI context
+heroMedia:                       # optional; first visual element in the step
+  kind: image
+  src: ./assets/setup.png
+  alt: Terminal showing the local dev server
 ```
+
+Use `heroMedia` when the step should open with a screenshot, diagram, or walkthrough video. Image hero media requires `alt`. Video hero media requires `title`.
+
+```yaml
+heroMedia:
+  kind: video
+  src: https://www.youtube.com/embed/...
+  title: Walkthrough video
+  aspect: 16/9
+  type: iframe
+```
+
+Use inline Markdown images for supporting screenshots inside the step body. Use `<Embed>` for inline videos that should appear later in the step.
 
 ## MDX components (globally available — no imports needed)
 
@@ -65,7 +82,7 @@ summary: One-line teaser.        # optional; landing page + AI context
 | `<Steps>`/`<Step>` | static     | numbered sub-steps inside a page |
 | `<File>`        | static        | filename label (Expressive Code's `title="..."` is also fine) |
 | `<Recap>`       | static        | `items={[...]}` end-of-step summary card |
-| `<Embed>`       | static        | YouTube/Loom/Vimeo iframe (auto-privacy) |
+| `<Embed>`       | static        | inline YouTube/Loom/Vimeo iframe (auto-privacy) |
 | `<Download>`    | static        | styled link for `public/downloads/...` |
 | `<Tabs>`/`<Tab>` | interactive  | npm/pnpm/yarn or macOS/Linux/Windows variants; use `group="..."` so selection persists across pages |
 | `<FileTree>`    | interactive   | `paths={["a/b.ts", "a/c.ts"]}` |
@@ -129,9 +146,12 @@ import roobertLight from "~/styles/fonts/Roobert-Light.woff2?url";
 
 Pages that don't pass `slot="head"` get the default `<head>` content unchanged.
 
-## Asset placement
+## Media and asset placement
 
-- **Co-locate** screenshots/diagrams next to the MDX file that uses them: `src/content/tutorials/<slug>/assets/foo.png`, reference with `./assets/foo.png`. This is the default.
+- **Co-locate** covers, icons, screenshots, and diagrams next to the tutorial that uses them: `src/content/tutorials/<slug>/assets/foo.png`, reference with `./assets/foo.png`. This is the default.
+- Use `cover` for tutorial cards, landing heroes, and social previews.
+- Use `icon` for a compact visual marker beside the tutorial title. Keep text icons short.
+- Use `heroMedia` for the first visual element in a step.
 - `src/assets/` — site-wide images that should be optimized (author avatars, brand art).
 - `public/` — files that need stable, unhashed URLs and no processing (favicon, downloads, OG overrides).
 

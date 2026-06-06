@@ -42,7 +42,8 @@ Guidance:
 - **Code changes** → `<Diff before={...} after={...}>` (not two consecutive fences)
 - **Optional solutions / spoilers** → `<Hint>` (collapsible) or `<Reveal>` (click-to-show)
 - **Architecture / sequence / flow** → `<Mermaid>` (interactive) or a ` ```mermaid ` fence (static)
-- **Embeddable video** → `<Embed url="..."/>`; **downloadable asset** → `<Download href="/downloads/..."/>`
+- **Opening screenshot or walkthrough video** → `heroMedia` in step frontmatter
+- **Inline embeddable video** → `<Embed src="..."/>`; **downloadable asset** → `<Download href="/downloads/..."/>`
 - **Runnable JS/TS** → `<Playground>` (v1: JS/TS only)
 - **Knowledge check** → at least one `<Quiz>` per tutorial, typically mid-tutorial
 - **Inline "stuck?" button** → `<HelpMe topic="..."/>` at a specific hard spot in a step when the tutorial has AI enabled (see `add-helpme`)
@@ -85,7 +86,7 @@ src/content/tutorials/<slug>/
 }
 ```
 
-Add `"gated": true` only if the author asked for it. If the author chose a starter repo or create-app command, add a `starter` block using `wire-tutorial-starter` so MCP-aware agents can start the tutorial from a blank workspace. See `AGENTS.md` for the full schema (`nextTutorial`, `cover`, `icon`, `ai`). For per-tutorial AI assistant overrides (`ai.tone`, `ai.persona`, `ai.byok`, `ai.disabledSkills`, etc.), defer to the `configure-ai-assistant` skill — don't stub the block here, it inherits sensible defaults from `src/config/ai.ts` until the author has an opinion.
+Add `"gated": true` only if the author asked for it. If the author provides cover art or an icon, set `cover` and `icon` so cards, landing pages, and social previews can use them. If the author chose a starter repo or create-app command, add a `starter` block using `wire-tutorial-starter` so MCP-aware agents can start the tutorial from a blank workspace. See `AGENTS.md` for the full schema (`nextTutorial`, `cover`, `icon`, `ai`). For per-tutorial AI assistant overrides (`ai.tone`, `ai.persona`, `ai.byok`, `ai.disabledSkills`, etc.), defer to the `configure-ai-assistant` skill — don't stub the block here, it inherits sensible defaults from `src/config/ai.ts` until the author has an opinion.
 
 **Each step `.mdx`** — frontmatter plus a useful skeleton, not just a `<Callout>` placeholder. Drop in empty instances of the components the outline agreed on for *this* step (don't include components from other steps). Any prose you write in the skeleton (the intro sentence, the `<Callout>` body) must follow the `authoring-voice` rules — no em dashes, no AI tells, second person, present tense:
 

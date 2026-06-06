@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 720" role="img" aria-labelledby="title desc">
+  <title id="title">Render deploy dashboard</title>
+  <desc id="desc">A stylized Render deploy dashboard with a successful health check.</desc>
+  <rect width="1200" height="720" fill="#0b0f14"/>
+  <rect x="88" y="80" width="1024" height="560" fill="#101820" stroke="#5eead4" stroke-width="6"/>
+  <rect x="88" y="80" width="1024" height="72" fill="#16202a"/>
+  <text x="132" y="128" fill="#f8fafc" font-family="ui-monospace, monospace" font-size="28">my-python-api</text>
+  <rect x="132" y="204" width="292" height="132" fill="#0b0f14" stroke="#334155" stroke-width="4"/>
+  <text x="164" y="254" fill="#94a3b8" font-family="ui-monospace, monospace" font-size="22">Runtime</text>
+  <text x="164" y="302" fill="#fbbf24" font-family="ui-monospace, monospace" font-size="34">Docker</text>
+  <rect x="472" y="204" width="292" height="132" fill="#0b0f14" stroke="#334155" stroke-width="4"/>
+  <text x="504" y="254" fill="#94a3b8" font-family="ui-monospace, monospace" font-size="22">Health check</text>
+  <text x="504" y="302" fill="#34d399" font-family="ui-monospace, monospace" font-size="34">/healthz</text>
+  <rect x="812" y="204" width="252" height="132" fill="#0b0f14" stroke="#334155" stroke-width="4"/>
+  <text x="844" y="254" fill="#94a3b8" font-family="ui-monospace, monospace" font-size="22">Status</text>
+  <text x="844" y="302" fill="#34d399" font-family="ui-monospace, monospace" font-size="34">Live</text>
+  <path d="M156 440h820" stroke="#334155" stroke-width="8"/>
+  <path d="M156 500h640" stroke="#334155" stroke-width="8"/>
+  <path d="M156 560h720" stroke="#334155" stroke-width="8"/>
+  <circle cx="1012" cy="438" r="18" fill="#34d399"/>
+  <circle cx="832" cy="498" r="18" fill="#34d399"/>
+  <circle cx="912" cy="558" r="18" fill="#34d399"/>
+</svg>

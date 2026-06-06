@@ -30,6 +30,8 @@ interface Props {
   logoHeight?: number;
   /** Favicon URL injected into <head>. */
   faviconUrl?: string;
+  /** Optional social preview image for Open Graph and Twitter cards. */
+  ogImageUrl?: string;
   /** Show the site footer ("Built with Handzon" + repo link). */
   showFooter?: boolean;
   /** Footer link URL; defaults to the Handzon repo. */
@@ -67,6 +69,7 @@ const {
   logoWidth = 76,
   logoHeight = 58,
   faviconUrl = "/favicon.svg",
+  ogImageUrl,
   showFooter = true,
   repoUrl,
   siteUrl,
@@ -83,6 +86,7 @@ const {
 const resolvedMaxWidth = pageMaxWidth === "none" ? "none" : pageMaxWidth;
 const pageTitle = title ? `${title} — ${siteName}` : siteName;
 const desc = description ?? tagline;
+const socialImageUrl = ogImageUrl ? withBase(ogImageUrl) : undefined;
 ---
 <!doctype html>
 <html lang="en">
@@ -95,6 +99,9 @@ const desc = description ?? tagline;
     <meta property="og:title" content={pageTitle} />
     <meta property="og:description" content={desc} />
     <meta property="og:type" content="website" />
+    {socialImageUrl && <meta property="og:image" content={socialImageUrl} />}
+    {socialImageUrl && <meta name="twitter:card" content="summary_large_image" />}
+    {socialImageUrl && <meta name="twitter:image" content={socialImageUrl} />}
     {/* Optional consumer-side <head> injections. Forwarded by every
      * page wrapper (Home, TutorialLanding, TutorialStep / TutorialLayout)
      * so scaffolds can preload fonts, attach per-page OG images, add

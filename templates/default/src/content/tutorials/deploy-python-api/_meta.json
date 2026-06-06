@@ -4,6 +4,8 @@
   "tags": ["python", "flask", "docker", "render", "devops"],
   "difficulty": "intermediate",
   "estimatedDuration": "40 min",
+  "cover": "./assets/cover.svg",
+  "icon": "🐍",
   "prerequisites": ["Comfortable in a terminal", "Python 3.11+ installed"],
   "ai": {
     "tone": "socratic"

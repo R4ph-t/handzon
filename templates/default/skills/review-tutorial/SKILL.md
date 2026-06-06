@@ -145,7 +145,7 @@ Em-dash hits and `\"` hits are both **must fix**. AI-tell hits are **recommended
 
 - **No `TODO`, `XXX`, `FIXME`, or `TODO(author)`** anywhere in step bodies. Covered by 2a but worth a second pass after fixes.
 - **All co-located assets are referenced.** `ls <slug>/assets/` and grep each filename in the tutorial; orphans should be deleted or used.
-- **Cover/icon caveat.** `_meta.json.cover` and `icon` are schema-declared but **no page currently renders them**. Don't flag a missing cover as a bug; it's currently inert. If they're set, leave them — they're forward-compatible scaffolding.
+- **Tutorial media resolves.** If `_meta.json.cover`, `_meta.json.icon`, `author.avatar`, or step `heroMedia` references a local file, verify the file exists.
 - **AI references resolve.** If `_meta.json.ai.references` lists files, verify each exists.
 - **AI sanity (only if `_meta.json.ai.enabled` is true or omitted).** See section 5a below.
 - **Manual click-through.** Run `pnpm dev`, open `http://localhost:4321/<slug>`, click Next through every step. Confirm:
@@ -225,7 +225,7 @@ Group everything into three buckets. Be honest about what's must-fix vs. taste.
 - `ai.references` collectively exceeding `contextBudgetTokens`
 
 **FYI (not blocking):**
-- Cover/icon set but not yet rendered by any page
+- Missing optional cover, icon, author avatar, or step hero media
 - Style/voice nits
 - Suggestions for additional Quizzes or Playgrounds
 - `includeFutureSteps: true` on a story-arc tutorial (verify it's deliberate)
@@ -236,7 +236,7 @@ Present the report grouped this way. **Don't auto-fix without asking** — the a
 
 - Don't rewrite the tutorial. This is a review, not a rewrite. Surface findings, propose fixes, ask first.
 - Don't auto-fix must-fix issues without showing the author what changed. Build errors and missing checkpoints get a fix proposal, not a silent edit.
-- Don't flag `_meta.json.cover` or `icon` as missing or broken. They're inert by design right now (TODO in `packages/core/src/collections.ts`).
+- Don't require optional media. Do flag broken media paths when the tutorial sets them.
 - Don't pad the report. If the tutorial is clean, say so in one line. A 30-finding report on a 4-step tutorial means most findings are taste.
 - Don't skip section 3a on gated tutorials. The silent-skip bug is the single most common production issue.
 - Don't skip section 5a if the tutorial has the assistant enabled. Most AI failure modes here are silent (no build error, just bad learner UX).

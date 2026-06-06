@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" role="img" aria-labelledby="title desc">
+  <title id="title">Python API deployment cover</title>
+  <desc id="desc">A stylized terminal, API route, and deployment status card.</desc>
+  <rect width="1200" height="675" fill="#0b0f14"/>
+  <path d="M0 520 1200 280v395H0Z" fill="#16202a"/>
+  <rect x="96" y="92" width="540" height="360" fill="#101820" stroke="#5eead4" stroke-width="8"/>
+  <rect x="96" y="92" width="540" height="54" fill="#16202a"/>
+  <circle cx="132" cy="119" r="10" fill="#fb7185"/>
+  <circle cx="164" cy="119" r="10" fill="#fbbf24"/>
+  <circle cx="196" cy="119" r="10" fill="#34d399"/>
+  <text x="136" y="224" fill="#e5f7ff" font-family="ui-monospace, monospace" font-size="42">GET /healthz</text>
+  <text x="136" y="296" fill="#5eead4" font-family="ui-monospace, monospace" font-size="34">{&quot;status&quot;:&quot;ok&quot;}</text>
+  <rect x="724" y="172" width="360" height="280" fill="#101820" stroke="#fbbf24" stroke-width="8"/>
+  <text x="774" y="254" fill="#f8fafc" font-family="ui-monospace, monospace" font-size="40">Render</text>
+  <text x="774" y="326" fill="#34d399" font-family="ui-monospace, monospace" font-size="34">live</text>
+  <path d="M636 272h88" stroke="#5eead4" stroke-width="10"/>
+  <path d="m702 238 34 34-34 34" fill="none" stroke="#5eead4" stroke-width="10"/>
+</svg>

@@ -1,4 +1,5 @@
 ---
+import { Image } from "astro:assets";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import { withBase } from "../lib/base.ts";
 import { getStepsForTutorial, parseStepId, sumDurations } from "../lib/content.ts";
@@ -35,10 +36,14 @@ const {
 const steps = await getStepsForTutorial(tutorial.id);
 const duration = tutorial.data.estimatedDuration ?? sumDurations(steps) ?? "";
 const firstStepSlug = steps[0] ? parseStepId(steps[0].id).stepSlug : null;
+const iconText = typeof tutorial.data.icon === "string" ? tutorial.data.icon : undefined;
+const iconImage = tutorial.data.icon && typeof tutorial.data.icon !== "string" ? tutorial.data.icon : undefined;
+const coverUrl = tutorial.data.cover?.src;
 ---
 <BaseLayout
   title={tutorial.data.title}
   description={tutorial.data.description}
+  ogImageUrl={coverUrl}
   siteName={siteName}
   tagline={tagline}
   logoUrl={logoUrl}
@@ -54,38 +59,76 @@ const firstStepSlug = steps[0] ? parseStepId(steps[0].id).stepSlug : null;
   <div class="landing">
     <a class="back" href={withBase("/")}>← All tutorials</a>
 
-    <header class="hero">
-      <div class="hero-meta">
-        <span class={`pill pill-${tutorial.data.difficulty}`}>{tutorial.data.difficulty}</span>
-        {duration && <span class="pill pill-neutral">⏱ {duration}</span>}
-        <span class="pill pill-neutral">{steps.length} {steps.length === 1 ? "step" : "steps"}</span>
-      </div>
+    <header class:list={["hero", tutorial.data.cover && "hero-with-cover"]}>
+      <div class="hero-copy">
+        <div class="hero-meta">
+          <span class={`pill pill-${tutorial.data.difficulty}`}>{tutorial.data.difficulty}</span>
+          {duration && <span class="pill pill-neutral">⏱ {duration}</span>}
+          <span class="pill pill-neutral">{steps.length} {steps.length === 1 ? "step" : "steps"}</span>
+        </div>
 
-      <h1>{tutorial.data.title}</h1>
-      <p class="desc">{tutorial.data.description}</p>
+        <div class="hero-title-row">
+          {iconImage && (
+            <Image
+              src={iconImage}
+              alt=""
+              class="hero-icon hero-icon-image"
+              width={48}
+              height={48}
+            />
+          )}
+          {iconText && <span class="hero-icon hero-icon-text" aria-hidden="true">{iconText}</span>}
+          <h1>{tutorial.data.title}</h1>
+        </div>
+        <p class="desc">{tutorial.data.description}</p>
 
-      <div class="hero-actions">
-        {firstStepSlug && (
-          <a class="cta" href={withBase(`/${tutorial.id}/${firstStepSlug}`)} data-tutorial-slug={tutorial.id}>
-            <span class="cta-label">Start tutorial</span>
-            <span class="cta-arrow" aria-hidden="true">→</span>
-          </a>
-        )}
-        {tutorial.data.author && (
-          <div class="author">
-            By <strong>{tutorial.data.author.name}</strong>
-            {tutorial.data.publishedAt && (
-              <> · {new Date(tutorial.data.publishedAt).toLocaleDateString()}</>
-            )}
+        <div class="hero-actions">
+          {firstStepSlug && (
+            <a class="cta" href={withBase(`/${tutorial.id}/${firstStepSlug}`)} data-tutorial-slug={tutorial.id}>
+              <span class="cta-label">Start tutorial</span>
+              <span class="cta-arrow" aria-hidden="true">→</span>
+            </a>
+          )}
+          {tutorial.data.author && (
+            <div class="author">
+              {tutorial.data.author.avatar && (
+                <Image
+                  src={tutorial.data.author.avatar}
+                  alt=""
+                  class="author-avatar"
+                  width={32}
+                  height={32}
+                  loading="lazy"
+                />
+              )}
+              <span>
+                By <strong>{tutorial.data.author.name}</strong>
+                {tutorial.data.publishedAt && (
+                  <> · {new Date(tutorial.data.publishedAt).toLocaleDateString()}</>
+                )}
+              </span>
+            </div>
+          )}
+        </div>
+
+        {tutorial.data.tags.length > 0 && (
+          <div class="hero-tags" aria-label="Topics">
+            {tutorial.data.tags.map((tag: string) => (
+              <a class="hero-tag" href={withBase(`/?tag=${encodeURIComponent(tag)}`)}>#{tag}</a>
+            ))}
           </div>
         )}
       </div>
 
-      {tutorial.data.tags.length > 0 && (
-        <div class="hero-tags" aria-label="Topics">
-          {tutorial.data.tags.map((tag: string) => (
-            <a class="hero-tag" href={withBase(`/?tag=${encodeURIComponent(tag)}`)}>#{tag}</a>
-          ))}
+      {tutorial.data.cover && (
+        <div class="hero-media">
+          <Image
+            src={tutorial.data.cover}
+            alt=""
+            class="hero-cover"
+            widths={[520, 760, 1040]}
+            sizes="(min-width: 900px) 38vw, 100vw"
+          />
         </div>
       )}
     </header>
@@ -167,6 +210,53 @@ const firstStepSlug = steps[0] ? parseStepId(steps[0].id).stepSlug : null;
     border-left-color: var(--color-accent);
     margin-bottom: 3rem;
   }
+  .hero-with-cover {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(18rem, 0.9fr);
+    gap: clamp(1.5rem, 4vw, 3rem);
+    align-items: stretch;
+  }
+  .hero-copy {
+    min-width: 0;
+  }
+  .hero-title-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.85rem;
+  }
+  .hero-icon {
+    flex-shrink: 0;
+    width: 3rem;
+    height: 3rem;
+    border: var(--border-default, 2px) solid var(--color-border);
+    background: var(--color-bg);
+    margin-top: 0.25rem;
+  }
+  .hero-icon-image {
+    object-fit: cover;
+    display: block;
+  }
+  .hero-icon-text {
+    display: inline-grid;
+    place-items: center;
+    font-size: 1.45rem;
+    line-height: 1;
+  }
+  .hero-media {
+    min-height: 100%;
+    border: var(--border-default, 2px) solid var(--color-border);
+    background: var(--color-surface);
+    overflow: hidden;
+    box-shadow: 0.45rem 0.45rem 0 color-mix(in oklab, var(--color-accent) 35%, transparent);
+  }
+  .hero-cover {
+    width: 100%;
+    height: 100%;
+    min-height: 18rem;
+    object-fit: cover;
+    display: block;
+    filter: saturate(0.95) contrast(1.06);
+  }
   .hero-meta {
     display: flex;
     flex-wrap: wrap;
@@ -234,7 +324,19 @@ const firstStepSlug = steps[0] ? parseStepId(steps[0].id).stepSlug : null;
     align-items: center;
     gap: 1.25rem;
   }
-  .author { color: var(--color-muted); font-size: 0.85em; }
+  .author {
+    color: var(--color-muted);
+    font-size: 0.85em;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+  }
+  .author-avatar {
+    width: 2rem;
+    height: 2rem;
+    border: 1px solid var(--color-border);
+    object-fit: cover;
+  }
   .cta {
     display: inline-flex;
     align-items: center;
@@ -345,6 +447,9 @@ const firstStepSlug = steps[0] ? parseStepId(steps[0].id).stepSlug : null;
   }
   @media (max-width: 640px) {
     .hero { padding: 1.5rem 1.25rem 1.75rem; }
+    .hero-with-cover { grid-template-columns: 1fr; }
+    .hero-media { order: -1; }
+    .hero-cover { min-height: 12rem; }
     .step-list a { grid-template-columns: auto 1fr auto; padding: 0.75rem; }
     .step-chevron { display: none; }
   }
