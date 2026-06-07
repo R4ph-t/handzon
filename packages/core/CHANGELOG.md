@@ -1,5 +1,13 @@
 # handzon-core
 
+## 0.13.4
+
+### Patch Changes
+
+- Polish tutorial landing and sidebar UI.
+
+  Tutorial landing pages now render cover art as a full-width 16:9 hero image above the copy, and tutorial icon metadata now prefers image parsing before short text labels. The tutorial track selector is a compact full-width segmented control that uses `simple-icons` marks for common language tracks, with the same icons rendered during SSR and hydration to prevent pop-in between step page changes. The GitHub auth menu also renders a same-size SSR fallback while the client island resolves auth state, preventing the navbar button from shifting in after load.
+
 ## 0.13.3
 
 ### Patch Changes

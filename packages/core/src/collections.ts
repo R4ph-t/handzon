@@ -20,6 +20,7 @@ import { join, relative, resolve } from "node:path";
 import type { Loader } from "astro/loaders";
 import { glob } from "astro/loaders";
 import { createHeroMediaSchema } from "./lib/heroMedia";
+import { createTutorialIconSchema } from "./lib/tutorialIcon";
 
 const TUTORIALS_REL = "src/content/tutorials";
 const INDEX_FILE = "_index.json";
@@ -486,7 +487,7 @@ export function tutorialsSchema({ image }: { image: () => import("astro/zod").Zo
       prerequisites: z.array(z.string()).default([]),
       nextTutorial: z.string().optional(),
       cover: image().optional(),
-      icon: z.union([z.string(), image()]).optional(),
+      icon: createTutorialIconSchema(z, image).optional(),
       steps: z.array(z.string()).optional(),
       gated: z.boolean().default(false),
       showProgress: z.boolean().default(true),

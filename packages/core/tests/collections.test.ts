@@ -1,6 +1,31 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { z } from "zod";
 import { heroMediaSchema } from "../src/lib/heroMedia.ts";
+import { createTutorialIconSchema } from "../src/lib/tutorialIcon.ts";
+
+const imageSchema = () =>
+  z
+    .string()
+    .regex(/^\.\/.+\.(png|jpe?g|webp|gif)$/)
+    .transform((src) => ({ src, width: 512, height: 512, format: "png" }));
+
+test("tutorial icon parses relative image paths as images before text", () => {
+  const parsed = createTutorialIconSchema(z, imageSchema).parse("./assets/icon.png");
+
+  assert.deepEqual(parsed, {
+    src: "./assets/icon.png",
+    width: 512,
+    height: 512,
+    format: "png",
+  });
+});
+
+test("tutorial icon still accepts short text labels", () => {
+  const parsed = createTutorialIconSchema(z, imageSchema).parse("AI");
+
+  assert.equal(parsed, "AI");
+});
 
 test("steps schema accepts image hero media with required alt text", () => {
   const parsed = heroMediaSchema.parse({
