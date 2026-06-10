@@ -1,4 +1,5 @@
 import { type CollectionEntry, getCollection } from "astro:content";
+import { isTutorialListed, isTutorialPublished } from "./publication.ts";
 
 export type TutorialEntry = CollectionEntry<"tutorials">;
 export type StepEntry = CollectionEntry<"steps">;
@@ -30,7 +31,16 @@ export function parseStepId(id: string): { tutorialSlug: string; stepSlug: strin
 
 export async function getTutorials(): Promise<TutorialEntry[]> {
   const all = await getCollection("tutorials");
-  return all.sort((a, b) => {
+  return sortTutorials(all.filter((tutorial) => isTutorialPublished(tutorial.data)));
+}
+
+export async function getListedTutorials(): Promise<TutorialEntry[]> {
+  const all = await getCollection("tutorials");
+  return sortTutorials(all.filter((tutorial) => isTutorialListed(tutorial.data)));
+}
+
+function sortTutorials(tutorials: TutorialEntry[]): TutorialEntry[] {
+  return tutorials.sort((a, b) => {
     const ao = (a.data as { order?: number }).order ?? 0;
     const bo = (b.data as { order?: number }).order ?? 0;
     return ao - bo;
@@ -39,7 +49,7 @@ export async function getTutorials(): Promise<TutorialEntry[]> {
 
 export async function getTutorialBySlug(slug: string): Promise<TutorialEntry | undefined> {
   const all = await getCollection("tutorials");
-  return all.find((t) => t.id === slug);
+  return all.find((t) => t.id === slug && isTutorialPublished(t.data));
 }
 
 export async function getStepsForTutorial(slug: string): Promise<StepEntry[]> {

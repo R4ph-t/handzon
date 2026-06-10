@@ -107,9 +107,9 @@ export default function UserMenu() {
             {displayName}
           </span>
           <a
-            className="um-btn um-btn-icon"
+            className="um-btn um-mcp-btn"
             href={withBase("/settings/tokens")}
-            title="Access tokens for editor MCP"
+            title="Create an access token to connect your editor over MCP"
           >
             <svg
               viewBox="0 0 24 24"
@@ -125,7 +125,7 @@ export default function UserMenu() {
               <circle cx="7.5" cy="15.5" r="4.5" />
               <path d="M11 12L20 3l1.5 1.5L20 6l1.5 1.5L19 9l-1.5-1.5L16 9" />
             </svg>
-            <span className="sr-only">Access tokens</span>
+            <span>MCP setup</span>
           </a>
           <form method="post" action={withBase("/api/auth/signout")}>
             <input type="hidden" name="csrfToken" value={csrfToken} />

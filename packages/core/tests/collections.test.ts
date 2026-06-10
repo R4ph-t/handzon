@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { z } from "zod";
 import { heroMediaSchema } from "../src/lib/heroMedia.ts";
+import { isTutorialListed, isTutorialPublished } from "../src/lib/publication.ts";
 import { createTutorialIconSchema } from "../src/lib/tutorialIcon.ts";
 
 const imageSchema = () =>
@@ -75,4 +76,18 @@ test("steps schema requires accessible text for hero media", () => {
       }),
     /title/,
   );
+});
+
+test("tutorial publication helpers distinguish hidden from unpublished tutorials", () => {
+  assert.equal(isTutorialPublished({}), true);
+  assert.equal(isTutorialListed({}), true);
+
+  assert.equal(isTutorialPublished({ published: true, hidden: false }), true);
+  assert.equal(isTutorialListed({ published: true, hidden: false }), true);
+
+  assert.equal(isTutorialPublished({ published: true, hidden: true }), true);
+  assert.equal(isTutorialListed({ published: true, hidden: true }), false);
+
+  assert.equal(isTutorialPublished({ published: false, hidden: false }), false);
+  assert.equal(isTutorialListed({ published: false, hidden: false }), false);
 });

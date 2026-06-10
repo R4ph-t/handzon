@@ -480,6 +480,8 @@ export function tutorialsSchema({ image }: { image: () => import("astro/zod").Zo
       publishedAt: z.coerce.date().optional(),
       updatedAt: z.coerce.date().optional(),
       tags: z.array(z.string()).default([]),
+      published: z.boolean().default(true),
+      hidden: z.boolean().default(false),
       tracks: z.array(trackSchema).default([]),
       defaultTrack: z.string().min(1).optional(),
       difficulty: z.enum(["beginner", "intermediate", "advanced"]).default("beginner"),

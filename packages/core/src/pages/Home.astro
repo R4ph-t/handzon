@@ -5,7 +5,7 @@ import TutorialCard from "../components/home/TutorialCard.astro";
 import FilterBar from "../components/home/FilterBar.tsx";
 import Pagination from "../components/home/Pagination.tsx";
 import ResumeRail from "../components/home/ResumeRail.tsx";
-import { getTutorials, getStepsForTutorial, sumDurations } from "../lib/content.ts";
+import { getListedTutorials, getStepsForTutorial, sumDurations } from "../lib/content.ts";
 
 interface Props {
   siteName?: string;
@@ -43,7 +43,7 @@ const {
   pageSize = 9,
 } = Astro.props;
 
-const tutorials = await getTutorials();
+const tutorials = await getListedTutorials();
 const stepsByTutorial = new Map(
   await Promise.all(
     tutorials.map(async (t) => [t.id, await getStepsForTutorial(t.id)] as const),

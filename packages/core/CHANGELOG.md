@@ -1,5 +1,13 @@
 # handzon-core
 
+## 0.14.0
+
+### Minor Changes
+
+- Make the signed-in MCP setup action more visible and self-explanatory.
+- Add generated default covers for tutorial cards without authored cover images.
+- Add tutorial publication metadata with `hidden` for unlisted tutorials and `published: false` for unpublished drafts.
+
 ## 0.13.4
 
 ### Patch Changes

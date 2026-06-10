@@ -2,7 +2,7 @@
   "title": "Multi-track Hello API",
   "description": "Use one tutorial to choose either a Python or TypeScript API track, then run the matching tests.",
   "tags": ["tracks", "python", "typescript", "api"],
-  "difficulty": "beginner",
+  "difficulty": "intermediate",
   "estimatedDuration": "10 min",
   "tracks": [{ "id": "py", "label": "Python" }, { "id": "ts", "label": "TypeScript" }],
   "defaultTrack": "py",

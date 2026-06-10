@@ -24,6 +24,7 @@ export {
 } from "./lib/ai/prompts.ts";
 // Content collection helpers (built on top of astro:content).
 export {
+  getListedTutorials,
   getStep,
   getStepsForTutorial,
   getTutorialBySlug,

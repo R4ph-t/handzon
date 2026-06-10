@@ -2,6 +2,7 @@
 import { Image } from "astro:assets";
 import { withBase } from "../../lib/base";
 import type { TutorialEntry } from "../../lib/content";
+import { getDefaultCoverMeta } from "../../lib/defaultCover";
 
 interface Props {
   tutorial: TutorialEntry;
@@ -17,8 +18,17 @@ const { tutorial, duration, stepCount } = Astro.props;
 const data = tutorial.data;
 const slug = tutorial.id;
 const iconText = typeof data.icon === "string" ? data.icon : undefined;
-const iconImage = data.icon && typeof data.icon !== "string" ? data.icon : undefined;
+const iconImage =
+  data.icon && typeof data.icon !== "string" ? data.icon : undefined;
+const defaultCover = getDefaultCoverMeta({
+  slug,
+  title: data.title,
+  difficulty: data.difficulty,
+  tags: data.tags,
+  icon: data.icon,
+});
 ---
+
 <article
   class="card"
   data-difficulty={data.difficulty}
@@ -28,71 +38,110 @@ const iconImage = data.icon && typeof data.icon !== "string" ? data.icon : undef
   data-popularity="0"
 >
   <a href={withBase(`/${slug}`)} class="card-link">
-    {data.cover && (
-      <div class="card-media">
-        <Image
-          src={data.cover}
-          alt=""
-          class="card-cover"
-          loading="lazy"
-          widths={[360, 540, 720]}
-          sizes="(min-width: 960px) 33vw, (min-width: 640px) 50vw, 100vw"
-        />
-      </div>
-    )}
+    <div class="card-media">
+      {
+        data.cover ? (
+          <Image
+            src={data.cover}
+            alt=""
+            class="card-cover"
+            loading="lazy"
+            widths={[360, 540, 720]}
+            sizes="(min-width: 960px) 33vw, (min-width: 640px) 50vw, 100vw"
+          />
+        ) : (
+          <div
+            class={`card-cover-fallback pattern-${defaultCover.pattern} scale-${defaultCover.scale} glow-${defaultCover.glow} variant-${defaultCover.variant} difficulty-${defaultCover.difficulty}`}
+            aria-hidden="true"
+          >
+            <span class="fallback-keywords">
+              {defaultCover.keywords.map((keyword) => (
+                <span>{keyword}</span>
+              ))}
+            </span>
+            {defaultCover.icon ? (
+              <span class="fallback-watermark">
+                <svg
+                  viewBox="0 0 24 24"
+                  width="120"
+                  height="120"
+                  aria-hidden="true"
+                >
+                  <path d={defaultCover.icon.path} />
+                </svg>
+              </span>
+            ) : null}
+          </div>
+        )
+      }
+    </div>
     <div class="card-body">
       <div class="card-title-row">
-        {iconImage && (
-          <Image
-            src={iconImage}
-            alt=""
-            class="card-icon card-icon-image"
-            loading="lazy"
-            width={32}
-            height={32}
-          />
-        )}
-        {iconText && <span class="card-icon card-icon-text" aria-hidden="true">{iconText}</span>}
+        {
+          iconImage && (
+            <Image
+              src={iconImage}
+              alt=""
+              class="card-icon card-icon-image"
+              loading="lazy"
+              width={32}
+              height={32}
+            />
+          )
+        }
+        {
+          iconText && (
+            <span class="card-icon card-icon-text" aria-hidden="true">
+              {iconText}
+            </span>
+          )
+        }
         <h3>{data.title}</h3>
       </div>
       <p>{data.description}</p>
       <div class="badges">
         <span class={`badge badge-${data.difficulty}`}>{data.difficulty}</span>
-        {duration && (
-          <span class="badge badge-neutral">
-            <svg
-              viewBox="0 0 24 24"
-              width="11"
-              height="11"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              aria-hidden="true"
-            >
-              <circle cx="12" cy="12" r="10" />
-              <polyline points="12 7 12 12 15 14" />
-            </svg>
-            {duration}
-          </span>
-        )}
+        {
+          duration && (
+            <span class="badge badge-neutral">
+              <svg
+                viewBox="0 0 24 24"
+                width="11"
+                height="11"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <circle cx="12" cy="12" r="10" />
+                <polyline points="12 7 12 12 15 14" />
+              </svg>
+              {duration}
+            </span>
+          )
+        }
         <span
           class="card-progress"
           data-tutorial-slug={slug}
-          data-step-count={stepCount}
-        ></span>
+          data-step-count={stepCount}></span>
       </div>
-      {data.tags.length > 0 && (
-        <div class="tags">
-          {data.tags.map((tag: string) => <span class="tag">#{tag}</span>)}
-        </div>
-      )}
+      {
+        data.tags.length > 0 && (
+          <div class="tags">
+            {data.tags.map((tag: string) => (
+              <span class="tag">#{tag}</span>
+            ))}
+          </div>
+        )
+      }
       <div
         class="card-stats"
         data-tutorial-stats-slug={slug}
         aria-hidden="true"
-      ></div>
+      >
+      </div>
     </div>
   </a>
 </article>
@@ -102,7 +151,9 @@ const iconImage = data.icon && typeof data.icon !== "string" ? data.icon : undef
     border: 1px solid var(--color-border);
     background: var(--color-bg);
     display: flex;
-    transition: border-color 0.12s ease, transform 0.12s ease;
+    transition:
+      border-color 0.12s ease,
+      transform 0.12s ease;
   }
   .card:hover {
     border-color: var(--color-accent);
@@ -118,12 +169,11 @@ const iconImage = data.icon && typeof data.icon !== "string" ? data.icon : undef
   .card-media {
     aspect-ratio: 16 / 9;
     border-bottom: 1px solid var(--color-border);
-    background:
-      linear-gradient(
-        135deg,
-        color-mix(in oklab, var(--color-accent) 10%, transparent),
-        var(--color-surface)
-      );
+    background: linear-gradient(
+      135deg,
+      color-mix(in oklab, var(--color-accent) 10%, transparent),
+      var(--color-surface)
+    );
     overflow: hidden;
   }
   .card-cover {
@@ -132,9 +182,181 @@ const iconImage = data.icon && typeof data.icon !== "string" ? data.icon : undef
     object-fit: cover;
     display: block;
     filter: saturate(0.92) contrast(1.05);
-    transition: transform 0.18s ease, filter 0.18s ease;
+    transition:
+      transform 0.18s ease,
+      filter 0.18s ease;
   }
-  .card:hover .card-cover {
+  .card-cover-fallback {
+    --cover-accent: var(--color-accent);
+    --cover-glow-x: 28%;
+    --cover-glow-y: 76%;
+    --cover-grid-size: 1rem;
+    --cover-dot-size: 0.9rem;
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: grid;
+    padding: 1rem;
+    overflow: hidden;
+    background:
+      radial-gradient(
+        circle at var(--cover-glow-x) var(--cover-glow-y),
+        color-mix(in oklab, var(--cover-accent) 22%, transparent),
+        transparent 34%
+      ),
+      linear-gradient(
+        135deg,
+        color-mix(in oklab, var(--cover-accent) 10%, var(--color-bg)),
+        var(--color-surface)
+      );
+    transition:
+      transform 0.18s ease,
+      filter 0.18s ease;
+  }
+  .card-cover-fallback::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+  .card-cover-fallback::before {
+    opacity: 0.24;
+  }
+  .difficulty-beginner {
+    --cover-accent: var(--color-success);
+  }
+  .difficulty-intermediate {
+    --cover-accent: var(--color-warn);
+  }
+  .difficulty-advanced {
+    --cover-accent: var(--color-danger);
+  }
+  .glow-1 {
+    --cover-glow-x: 28%;
+    --cover-glow-y: 76%;
+  }
+  .glow-2 {
+    --cover-glow-x: 28%;
+    --cover-glow-y: 76%;
+  }
+  .glow-3 {
+    --cover-glow-x: 28%;
+    --cover-glow-y: 76%;
+  }
+  .card-cover-fallback.variant-1 {
+    --cover-glow-x: 74%;
+    --cover-glow-y: 28%;
+  }
+  .card-cover-fallback.variant-2 {
+    --cover-glow-x: 74%;
+    --cover-glow-y: 76%;
+  }
+  .card-cover-fallback.variant-3 {
+    --cover-glow-x: 28%;
+    --cover-glow-y: 28%;
+  }
+  .scale-1 {
+    --cover-grid-size: 1.45rem;
+    --cover-dot-size: 1.15rem;
+  }
+  .scale-2 {
+    --cover-grid-size: 0.72rem;
+    --cover-dot-size: 0.62rem;
+  }
+  .pattern-grid::before {
+    background-image:
+      linear-gradient(
+        color-mix(in oklab, var(--cover-accent) 16%, transparent) 1px,
+        transparent 1px
+      ),
+      linear-gradient(
+        90deg,
+        color-mix(in oklab, var(--cover-accent) 16%, transparent) 1px,
+        transparent 1px
+      );
+    background-size: var(--cover-grid-size) var(--cover-grid-size);
+  }
+  .pattern-dots::before {
+    background-image: radial-gradient(
+      circle,
+      color-mix(in oklab, var(--cover-accent) 18%, transparent) 1px,
+      transparent 1.5px
+    );
+    background-size: var(--cover-dot-size) var(--cover-dot-size);
+  }
+  .fallback-keywords,
+  .fallback-motif {
+    position: relative;
+    z-index: 3;
+  }
+  .fallback-keywords {
+    position: absolute;
+    inset: auto auto 1.05rem 1rem;
+    max-width: 58%;
+    display: grid;
+    gap: 0.15rem;
+    justify-items: start;
+    color: color-mix(in oklab, var(--cover-accent) 58%, transparent);
+    font-family: var(--font-mono);
+    font-size: clamp(1.05rem, 4.6vw, 2.1rem);
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    line-height: 0.9;
+    opacity: 0.42;
+    text-transform: uppercase;
+  }
+  .fallback-watermark {
+    position: absolute;
+    right: -1.35rem;
+    bottom: -2.15rem;
+    z-index: 1;
+    color: var(--cover-accent);
+    opacity: 0.16;
+    transform: rotate(-8deg);
+  }
+  .fallback-watermark svg {
+    display: block;
+    width: clamp(10.5rem, 58%, 14rem);
+    height: auto;
+    fill: currentColor;
+  }
+  .variant-1 .fallback-watermark {
+    left: -1.45rem;
+    right: auto;
+    bottom: -2.15rem;
+    transform: rotate(7deg);
+  }
+  .variant-2 .fallback-watermark {
+    left: -1.4rem;
+    right: auto;
+    top: -2.2rem;
+    bottom: auto;
+    transform: rotate(-10deg);
+  }
+  .variant-3 .fallback-watermark {
+    right: -1.45rem;
+    bottom: -2.2rem;
+    transform: rotate(9deg);
+  }
+  .fallback-keywords span:nth-child(2) {
+    margin-left: 1.4rem;
+  }
+  .fallback-keywords span:nth-child(3) {
+    margin-left: 0.55rem;
+  }
+  .variant-1 .fallback-keywords {
+    inset: 2.9rem 1rem auto auto;
+    justify-items: end;
+  }
+  .variant-2 .fallback-keywords {
+    inset: auto 1rem 1rem auto;
+    justify-items: end;
+  }
+  .variant-3 .fallback-keywords {
+    inset: 3rem auto auto 1rem;
+  }
+  .card:hover .card-cover,
+  .card:hover .card-cover-fallback {
     transform: scale(1.025);
     filter: saturate(1) contrast(1.08);
   }
@@ -207,9 +429,15 @@ const iconImage = data.icon && typeof data.icon !== "string" ? data.icon : undef
     background: currentColor;
     flex-shrink: 0;
   }
-  .badge-beginner { color: var(--color-success); }
-  .badge-intermediate { color: var(--color-warn); }
-  .badge-advanced { color: var(--color-danger); }
+  .badge-beginner {
+    color: var(--color-success);
+  }
+  .badge-intermediate {
+    color: var(--color-warn);
+  }
+  .badge-advanced {
+    color: var(--color-danger);
+  }
 
   h3 {
     font-size: 1.05rem;
@@ -260,7 +488,9 @@ const iconImage = data.icon && typeof data.icon !== "string" ? data.icon : undef
     text-transform: uppercase;
     letter-spacing: 0.08em;
   }
-  .card-progress:empty { display: none; }
+  .card-progress:empty {
+    display: none;
+  }
   /* The ring + label live inside `.card-progress` but are injected
    * via innerHTML at runtime, so Astro's scope hash doesn't apply to
    * them. Use :global() so the rules still match. */
@@ -289,7 +519,9 @@ const iconImage = data.icon && typeof data.icon !== "string" ? data.icon : undef
    * Hidden until the script populates content so the card height
    * stays stable on first paint and gracefully degrades on Tier 1
    * (no DB → no numbers → no row). */
-  .card-stats:empty { display: none; }
+  .card-stats:empty {
+    display: none;
+  }
   .card-stats {
     margin-top: 0.6rem;
     display: flex;

@@ -1,10 +1,10 @@
 import { eq } from "drizzle-orm";
 import type { VerifySpec } from "../../collections.ts";
 import {
+  getListedTutorials,
   getStep,
   getStepsForTutorial,
   getTutorialBySlug,
-  getTutorials,
   parseStepId,
 } from "../../lib/content.ts";
 import { isVerifySpec, resolveForTrack, type TrackScoped } from "../../lib/track-scoped.ts";
@@ -43,10 +43,10 @@ function resolveVerifyForTrack(
 export const catalogReadTools: McpTool[] = [
   {
     name: "list_tutorials",
-    description: "List every tutorial published on this Handzon site.",
+    description: "List every tutorial published in this Handzon site's public catalog.",
     inputSchema: { type: "object", properties: {}, additionalProperties: false },
     handler: async () => {
-      const tutorials = await getTutorials();
+      const tutorials = await getListedTutorials();
       const rows = tutorials.map((t) => ({
         slug: t.id,
         title: t.data.title,

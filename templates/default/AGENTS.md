@@ -39,6 +39,8 @@ Listed tutorials appear first, in array order. Anything not listed is appended a
 | ------------------- | -------- | ------------ |
 | `title`             | yes      | sidebar header, page title, OG meta |
 | `description`       | yes      | landing-page subtitle, OG meta |
+| `published`         | no       | when `false`, tutorial routes, steps, homepage cards, and MCP access are not published |
+| `hidden`            | no       | when `true`, hides the tutorial from the homepage and MCP listing while keeping direct URLs available |
 | `tags`              | no       | filter pills on the homepage |
 | `difficulty`        | no       | `beginner` \| `intermediate` \| `advanced` |
 | `estimatedDuration` | no       | shown on landing + cards; auto-summed from steps if omitted |
@@ -50,6 +52,10 @@ Listed tutorials appear first, in array order. Anything not listed is appended a
 | `starter`           | no       | shared starter spec or a per-track map of starter specs |
 | `gated`             | no       | when `true`, every step must register a Checkpoint to advance |
 | `ai`                | no       | per-tutorial assistant overrides (see "AI config" below) |
+
+Use `hidden: true` for unlisted previews you still want to share by URL. Use
+`published: false` for drafts that should not appear anywhere on the generated
+site or MCP endpoint.
 
 ### Tutorial tracks
 
