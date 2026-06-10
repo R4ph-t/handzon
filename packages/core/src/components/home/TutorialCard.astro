@@ -344,6 +344,12 @@ const defaultCover = getDefaultCoverMeta({
   .fallback-keywords span:nth-child(3) {
     margin-left: 0.55rem;
   }
+  .fallback-keywords span {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: clip;
+    white-space: nowrap;
+  }
   .variant-1 .fallback-keywords {
     inset: 2.9rem 1rem auto auto;
     justify-items: end;

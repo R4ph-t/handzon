@@ -1,5 +1,11 @@
 # handzon-core
 
+## 0.14.1
+
+### Patch Changes
+
+- Improve generated tutorial card covers and clarify the MCP setup action.
+
 ## 0.14.0
 
 ### Minor Changes

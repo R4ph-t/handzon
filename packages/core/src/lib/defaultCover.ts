@@ -83,13 +83,16 @@ function stableIndex(value: string, modulo: number): number {
   return hash % modulo;
 }
 
-function normalizeKeyword(value: string): string {
-  return value.replace(/[^a-z0-9]/gi, "").toUpperCase();
+function normalizeKeywords(value: string): string[] {
+  return value
+    .split(/[^a-z0-9]+/i)
+    .map((word) => word.toUpperCase())
+    .filter(Boolean);
 }
 
 function getKeywords(input: DefaultCoverInput): string[] {
   const words = [...input.tags, ...input.title.split(/\s+/)]
-    .map(normalizeKeyword)
+    .flatMap(normalizeKeywords)
     .filter((word) => word.length >= 2 && !KEYWORD_STOPWORDS.has(word));
 
   return Array.from(new Set(words)).slice(0, 3);

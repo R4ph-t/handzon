@@ -52,6 +52,18 @@ test("default cover derives short ghost keywords from tags and title", () => {
   assert.deepEqual(meta.keywords, ["REACT", "VITE", "FRONTEND"]);
 });
 
+test("default cover clips long ghost keywords at the source", () => {
+  const meta = getDefaultCoverMeta({
+    slug: "render-workflows-image-generation",
+    title: "Batched image generation with Render Workflows",
+    difficulty: "intermediate",
+    tags: ["workflows", "image-generation", "python", "typescript"],
+    icon: undefined,
+  });
+
+  assert.deepEqual(meta.keywords, ["WORKFLOWS", "IMAGE", "GENERATION"]);
+});
+
 test("default cover uses only grid or dots patterns", () => {
   const examples = [
     getDefaultCoverMeta({
