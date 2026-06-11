@@ -30,6 +30,16 @@ export function createHeroMediaSchema(
         caption: schema.string().min(1).optional(),
       })
       .strict(),
+    schema
+      .object({
+        kind: schema.literal("slides"),
+        src: schema.string().min(1),
+        title: schema.string().min(1),
+        aspect: schema.string().min(1).default("16/9"),
+        slide: schema.union([schema.string().min(1), schema.number()]).optional(),
+        caption: schema.string().min(1).optional(),
+      })
+      .strict(),
   ]);
 }
 

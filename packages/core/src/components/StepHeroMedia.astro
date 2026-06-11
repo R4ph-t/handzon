@@ -18,6 +18,14 @@ type StepHeroMedia =
       aspect?: string;
       type?: "iframe" | "video";
       caption?: string;
+    }
+  | {
+      kind: "slides";
+      src: string;
+      title: string;
+      aspect?: string;
+      slide?: string | number;
+      caption?: string;
     };
 
 interface Props {
@@ -34,6 +42,14 @@ const { media } = Astro.props;
       title={media.title}
       aspect={media.aspect}
       type={media.type}
+    />
+  ) : media.kind === "slides" ? (
+    <Embed
+      src={media.src}
+      title={media.title}
+      aspect={media.aspect}
+      type="slides"
+      slide={media.slide}
     />
   ) : typeof media.src !== "string" ? (
     <Image

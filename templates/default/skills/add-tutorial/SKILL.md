@@ -42,8 +42,8 @@ Guidance:
 - **Code changes** → `<Diff before={...} after={...}>` (not two consecutive fences)
 - **Optional solutions / spoilers** → `<Hint>` (collapsible) or `<Reveal>` (click-to-show)
 - **Architecture / sequence / flow** → `<Mermaid>` (interactive) or a ` ```mermaid ` fence (static)
-- **Opening screenshot or walkthrough video** → `heroMedia` in step frontmatter
-- **Inline embeddable video** → `<Embed src="..."/>`; **downloadable asset** → `<Download href="/downloads/..."/>`
+- **Opening screenshot, walkthrough video, or slide deck** → `heroMedia` in step frontmatter
+- **Inline embeddable video or slide deck** → `<Embed src="..."/>` (add `type="slides"` for a hosted deck like Google Slides or Speaker Deck); **downloadable asset** → `<Download href="/downloads/..."/>`
 - **Runnable JS/TS** → `<Playground>` (v1: JS/TS only)
 - **Knowledge check** → at least one `<Quiz>` per tutorial, typically mid-tutorial
 - **Inline "stuck?" button** → `<HelpMe topic="..."/>` at a specific hard spot in a step when the tutorial has AI enabled (see `add-helpme`)

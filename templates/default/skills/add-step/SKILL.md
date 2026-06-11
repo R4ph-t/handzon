@@ -41,8 +41,8 @@ Don't ship a prose-heavy step. Before writing the file, pick the components that
 - **Code changes** → `<Diff before={...} after={...}>` (not two consecutive fences)
 - **Optional solutions / spoilers** → `<Hint>` (collapsible) or `<Reveal>` (click-to-show)
 - **Architecture / sequence / flow** → `<Mermaid>` or a ` ```mermaid ` fence
-- **Opening screenshot or walkthrough video** → `heroMedia` in step frontmatter
-- **Inline embeddable video** → `<Embed src="..."/>`; **downloadable asset** → `<Download href="/downloads/..."/>`
+- **Opening screenshot, walkthrough video, or slide deck** → `heroMedia` in step frontmatter
+- **Inline embeddable video or slide deck** → `<Embed src="..."/>` (add `type="slides"` for a hosted deck like Google Slides or Speaker Deck); **downloadable asset** → `<Download href="/downloads/..."/>`
 - **Runnable JS/TS** → `<Playground>` (v1: JS/TS only)
 - **Knowledge check** → `<Quiz>` — useful mid-tutorial or when introducing a tricky concept
 - **Inline "stuck?" escape hatch** → `<HelpMe topic="..."/>` — drop next to a specific hard spot (gnarly diff, tricky regex, opaque terminal output) when the tutorial has AI enabled. Don't put one at the *end* of every step — that's `autoStepHelp` territory (see `add-helpme`).

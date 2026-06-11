@@ -92,7 +92,7 @@ heroMedia:                       # optional; first visual element in the step
   alt: Terminal showing the local dev server
 ```
 
-Use `heroMedia` when the step should open with a screenshot, diagram, or walkthrough video. Image hero media requires `alt`. Video hero media requires `title`.
+Use `heroMedia` when the step should open with a screenshot, diagram, walkthrough video, or slide deck. Image hero media requires `alt`. Video and slides hero media require `title`.
 
 ```yaml
 heroMedia:
@@ -103,7 +103,18 @@ heroMedia:
   type: iframe
 ```
 
-Use inline Markdown images for supporting screenshots inside the step body. Use `<Embed>` for inline videos that should appear later in the step.
+Slides embed a hosted deck (Google Slides, Speaker Deck, Canva, Pitch, Figma). Paste the provider's embed URL. The optional `slide` field starts the deck at a given position; for Google Slides you can pass a slide number or an `id.<objectId>` value.
+
+```yaml
+heroMedia:
+  kind: slides
+  src: https://docs.google.com/presentation/d/abc123/embed
+  title: Architecture deck
+  aspect: 16/9
+  slide: 4
+```
+
+Use inline Markdown images for supporting screenshots inside the step body. Use `<Embed>` for inline videos or slide decks that should appear later in the step.
 
 ## MDX components (globally available — no imports needed)
 
@@ -114,7 +125,7 @@ Use inline Markdown images for supporting screenshots inside the step body. Use 
 | `<Steps>`/`<Step>` | static     | numbered sub-steps inside a page |
 | `<File>`        | static        | filename label (Expressive Code's `title="..."` is also fine) |
 | `<Recap>`       | static        | `items={[...]}` end-of-step summary card |
-| `<Embed>`       | static        | inline YouTube/Loom/Vimeo iframe (auto-privacy) |
+| `<Embed>`       | static        | inline iframe for video (YouTube/Loom/Vimeo, auto-privacy) or slide decks via `type="slides"` (Google Slides, Speaker Deck) |
 | `<Download>`    | static        | styled link for `public/downloads/...` |
 | `<Tabs>`/`<Tab>` | interactive  | npm/pnpm/yarn or macOS/Linux/Windows variants; use `group="..."` so selection persists across pages |
 | `<Track>`       | static        | track-specific prose, snippets, terminals, or playgrounds; requires `id="..."` |

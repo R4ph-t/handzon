@@ -2,6 +2,11 @@
 title: MDX basics
 duration: 5 min
 summary: The static components — Callout, Hint, Steps, File, Recap, Embed, Download.
+heroMedia:
+  kind: slides
+  src: https://docs.google.com/presentation/d/1s11aQscp0cXVGX-jyIFv1gf52YFBXMq-wWSS5vIRUMQ/edit?slide=id.g3eeba9b965c_0_43#slide=id.g3eeba9b965c_0_43
+  title: Demo slide deck
+  slide: id.g3eeba9b965c_0_43
 ---
 
 Every component below is **globally available** in MDX — no imports needed.
@@ -65,6 +70,28 @@ export function mul(a: number, b: number) {
     return a + b;
   }
 ```
+
+## Embeds
+
+Use `Embed` for hosted video or slides that should sit inside the lesson. Set `type="slides"` for a deck, and pass `slide` when the deck should open at a specific slide.
+
+```mdx
+<Embed
+  type="slides"
+  src="https://docs.google.com/presentation/d/1s11aQscp0cXVGX-jyIFv1gf52YFBXMq-wWSS5vIRUMQ/edit"
+  title="Demo slide deck"
+  slide="id.g3eeba9b965c_0_43"
+/>
+```
+
+<Embed
+  type="slides"
+  src="https://docs.google.com/presentation/d/1s11aQscp0cXVGX-jyIFv1gf52YFBXMq-wWSS5vIRUMQ/edit?slide=id.g3eeba9b965c_0_43#slide=id.g3eeba9b965c_0_43"
+  title="Demo slide deck"
+  slide="id.g3eeba9b965c_0_43"
+/>
+
+<Checkpoint id="mdx-basics/demo-slide-deck" label="I see the demo slide deck on this page." />
 
 ## Recap (end-of-step summary)
 

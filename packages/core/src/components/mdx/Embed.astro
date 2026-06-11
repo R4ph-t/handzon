@@ -3,11 +3,18 @@ interface Props {
   src: string;
   title?: string;
   aspect?: string;
-  type?: "iframe" | "video";
+  type?: "iframe" | "video" | "slides";
+  slide?: string | number;
 }
-const { src, title = "Embedded content", aspect = "16/9", type = "iframe" } = Astro.props;
+const {
+  src,
+  title = "Embedded content",
+  aspect = "16/9",
+  type = "iframe",
+  slide,
+} = Astro.props;
 
-function normalize(url: string): string {
+function normalizeIframe(url: string): string {
   try {
     const u = new URL(url, "https://example.com");
     if (u.hostname.endsWith("youtube.com")) {
@@ -20,10 +27,53 @@ function normalize(url: string): string {
   }
 }
 
-const finalSrc = type === "iframe" ? normalize(src) : src;
+// Google Slides jumps to a slide via `slide=id.p<n>` for a numeric position, or
+// a raw object id (`id.g123abc`) passed through as-is.
+function googleSlideParam(value: string | number): string {
+  return typeof value === "number" ? `id.p${value}` : value;
+}
+
+function normalizeSlides(url: string, start?: string | number): string {
+  let u: URL;
+  try {
+    u = new URL(url);
+  } catch {
+    return url;
+  }
+  const isGoogleSlides =
+    u.hostname.endsWith("docs.google.com") && u.pathname.includes("/presentation/");
+  if (isGoogleSlides) {
+    u.pathname = u.pathname.replace(/\/(edit|pub|present|preview|view)$/, "/embed");
+    if (!u.pathname.endsWith("/embed")) {
+      u.pathname = `${u.pathname.replace(/\/$/, "")}/embed`;
+    }
+    // The editor URL carries the slide in a `#slide=...` fragment; the embed
+    // player reads it from the query string instead.
+    const fragmentSlide = u.hash.match(/slide=([^&]+)/);
+    if (fragmentSlide && !u.searchParams.has("slide")) {
+      u.searchParams.set("slide", fragmentSlide[1]);
+    }
+    u.hash = "";
+  }
+  if (start !== undefined) {
+    u.searchParams.set("slide", isGoogleSlides ? googleSlideParam(start) : String(start));
+  }
+  return u.toString();
+}
+
+const isVideo = type === "video";
+const finalSrc = isVideo
+  ? src
+  : type === "slides"
+    ? normalizeSlides(src, slide)
+    : normalizeIframe(src);
 ---
 <div class="embed" style={`aspect-ratio: ${aspect};`}>
-  {type === "iframe" ? (
+  {isVideo ? (
+    <video controls preload="metadata">
+      <source src={finalSrc} />
+    </video>
+  ) : (
     <iframe
       src={finalSrc}
       title={title}
@@ -32,10 +82,6 @@ const finalSrc = type === "iframe" ? normalize(src) : src;
       referrerpolicy="strict-origin-when-cross-origin"
       allowfullscreen
     />
-  ) : (
-    <video controls preload="metadata">
-      <source src={finalSrc} />
-    </video>
   )}
 </div>
 

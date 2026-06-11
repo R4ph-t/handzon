@@ -59,6 +59,33 @@ test("steps schema accepts video hero media with iframe defaults", () => {
   });
 });
 
+test("steps schema accepts slides hero media with iframe defaults", () => {
+  const parsed = heroMediaSchema.parse({
+    kind: "slides",
+    src: "https://docs.google.com/presentation/d/abc123/embed",
+    title: "Architecture deck",
+  });
+
+  assert.deepEqual(parsed, {
+    kind: "slides",
+    src: "https://docs.google.com/presentation/d/abc123/embed",
+    title: "Architecture deck",
+    aspect: "16/9",
+  });
+});
+
+test("steps schema accepts slides hero media with a start position", () => {
+  const parsed = heroMediaSchema.parse({
+    kind: "slides",
+    src: "https://docs.google.com/presentation/d/abc123/embed",
+    title: "Architecture deck",
+    slide: 4,
+  });
+
+  assert.equal(parsed.kind, "slides");
+  assert.equal(parsed.kind === "slides" && parsed.slide, 4);
+});
+
 test("steps schema requires accessible text for hero media", () => {
   assert.throws(
     () =>
@@ -74,6 +101,15 @@ test("steps schema requires accessible text for hero media", () => {
       heroMediaSchema.parse({
         kind: "video",
         src: "https://www.youtube.com/embed/dQw4w9WgXcQ",
+      }),
+    /title/,
+  );
+
+  assert.throws(
+    () =>
+      heroMediaSchema.parse({
+        kind: "slides",
+        src: "https://docs.google.com/presentation/d/abc123/embed",
       }),
     /title/,
   );
