@@ -1,5 +1,11 @@
 # handzon-core
 
+## 0.15.0
+
+### Minor Changes
+
+- Add hosted slide deck support for inline embeds and step hero media. Authors can now render slide decks with `type="slides"` or `heroMedia.kind: slides`, including an optional `slide` start position for decks such as Google Slides.
+
 ## 0.14.1
 
 ### Patch Changes
