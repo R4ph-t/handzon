@@ -4,6 +4,7 @@ import { z } from "zod";
 import { heroMediaSchema } from "../src/lib/heroMedia.ts";
 import { isTutorialListed, isTutorialPublished } from "../src/lib/publication.ts";
 import { createTutorialIconSchema } from "../src/lib/tutorialIcon.ts";
+import { createTutorialSummary } from "../src/lib/tutorialSummary.ts";
 
 const imageSchema = () =>
   z
@@ -90,4 +91,44 @@ test("tutorial publication helpers distinguish hidden from unpublished tutorials
 
   assert.equal(isTutorialPublished({ published: false, hidden: false }), false);
   assert.equal(isTutorialListed({ published: false, hidden: false }), false);
+});
+
+test("tutorial summaries expose the fields needed for follow-up cards", () => {
+  const summary = createTutorialSummary(
+    {
+      id: "deploy-python-api",
+      data: {
+        title: "Deploy a Python API",
+        description: "Ship a Flask API to Render.",
+        difficulty: "intermediate",
+        estimatedDuration: undefined,
+      },
+    },
+    "40 min",
+  );
+
+  assert.deepEqual(summary, {
+    slug: "deploy-python-api",
+    title: "Deploy a Python API",
+    description: "Ship a Flask API to Render.",
+    difficulty: "intermediate",
+    duration: "40 min",
+  });
+});
+
+test("tutorial summaries prefer explicit estimated duration", () => {
+  const summary = createTutorialSummary(
+    {
+      id: "intro-to-sql",
+      data: {
+        title: "Intro to SQL",
+        description: "Learn joins and aggregations.",
+        difficulty: "beginner",
+        estimatedDuration: "25 min",
+      },
+    },
+    "30 min",
+  );
+
+  assert.equal(summary.duration, "25 min");
 });

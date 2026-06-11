@@ -1,7 +1,9 @@
 ---
+import TutorialCompletion from "./TutorialCompletion.tsx";
 import { withBase } from "../lib/base";
 import type { StepEntry } from "../lib/content";
 import { parseStepId } from "../lib/content";
+import type { TutorialSummary } from "../lib/tutorialSummary";
 
 interface Props {
   tutorialSlug: string;
@@ -9,16 +11,17 @@ interface Props {
   currentStepSlug: string;
   gated: boolean;
   hasCheckpoint: boolean;
+  nextTutorial?: TutorialSummary;
 }
 
-const { tutorialSlug, steps, currentStepSlug, gated, hasCheckpoint } = Astro.props;
+const { tutorialSlug, steps, currentStepSlug, gated, hasCheckpoint, nextTutorial } = Astro.props;
 const idx = steps.findIndex((s) => parseStepId(s.id).stepSlug === currentStepSlug);
 const prev = idx > 0 ? steps[idx - 1] : null;
 const next = idx >= 0 && idx < steps.length - 1 ? steps[idx + 1] : null;
 const prevSlug = prev ? parseStepId(prev.id).stepSlug : null;
 const nextSlug = next ? parseStepId(next.id).stepSlug : null;
 ---
-<nav class="step-nav" data-gated={gated && hasCheckpoint ? "true" : "false"} data-step-key={`${tutorialSlug}/${currentStepSlug}`}>
+<nav class:list={["step-nav", !next && "step-nav-final"]} data-gated={gated && hasCheckpoint ? "true" : "false"} data-step-key={`${tutorialSlug}/${currentStepSlug}`}>
   <div>
     {prev && (
       <a class="sn-prev" href={withBase(`/${tutorialSlug}/${prevSlug}`)}>
@@ -26,15 +29,18 @@ const nextSlug = next ? parseStepId(next.id).stepSlug : null;
       </a>
     )}
   </div>
-  <div>
+  <div class="sn-slot">
     {next ? (
       <a class="sn-next" href={withBase(`/${tutorialSlug}/${nextSlug}`)} data-next-link="true">
         {hasCheckpoint ? "Continue" : "Next"}: {next.data.title} →
       </a>
     ) : (
-      <a class="sn-next sn-done" href={withBase(`/${tutorialSlug}`)}>
-        Finish tutorial →
-      </a>
+      <TutorialCompletion
+        client:load
+        tutorialSlug={tutorialSlug}
+        totalSteps={steps.length}
+        nextTutorial={nextTutorial}
+      />
     )}
   </div>
 </nav>
@@ -83,10 +89,19 @@ const nextSlug = next ? parseStepId(next.id).stepSlug : null;
   .step-nav {
     display: flex;
     justify-content: space-between;
+    align-items: flex-start;
     gap: 1rem;
     margin-top: 3rem;
     padding-top: 1.5rem;
     border-top: var(--border-default, 2px) solid var(--color-border);
+  }
+  .step-nav-final {
+    display: grid;
+    grid-template-columns: minmax(0, auto) minmax(18rem, 1fr);
+  }
+  .sn-slot {
+    display: flex;
+    justify-content: flex-end;
   }
   .sn-prev, .sn-next {
     display: inline-block;
@@ -105,4 +120,78 @@ const nextSlug = next ? parseStepId(next.id).stepSlug : null;
   .sn-next { background: var(--color-accent); color: var(--color-accent-fg); border-color: var(--color-accent); }
   .sn-next:hover:not(.is-disabled) { color: var(--color-accent-fg); }
   .sn-next.is-disabled { opacity: 0.4; cursor: not-allowed; }
+  :global(.tutorial-completion) {
+    width: min(100%, 42rem);
+    display: grid;
+    gap: 0.9rem;
+  }
+  :global(.completion-status),
+  :global(.completion-card) {
+    border: var(--border-default, 2px) solid var(--color-border);
+    background: var(--color-surface);
+    padding: 1rem;
+  }
+  :global(.tutorial-completion.is-complete .completion-status) {
+    border-color: var(--color-success, var(--color-accent));
+    box-shadow: var(--shadow-raised);
+  }
+  :global(.completion-kicker),
+  :global(.completion-card-label),
+  :global(.completion-meta) {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-muted);
+  }
+  :global(.completion-status h2) {
+    margin: 0.3rem 0 0.25rem;
+    font-size: 1.25rem;
+    line-height: var(--leading-heading, 1.2);
+  }
+  :global(.completion-status p),
+  :global(.completion-card span) {
+    margin: 0;
+    color: var(--color-muted);
+  }
+  :global(.completion-actions) {
+    display: grid;
+    gap: 0.75rem;
+  }
+  :global(.completion-card) {
+    display: grid;
+    gap: 0.4rem;
+    color: var(--color-fg);
+    text-decoration: none;
+  }
+  :global(a.completion-card:hover) {
+    border-color: var(--color-accent);
+    transform: translate(-2px, -2px);
+    box-shadow: var(--shadow-raised);
+  }
+  :global(.completion-card-primary) {
+    border-color: var(--color-accent);
+  }
+  :global(.completion-card strong) {
+    font-size: 1.05rem;
+  }
+  :global(.tutorial-completion.is-locked .completion-status) {
+    opacity: 0.48;
+    filter: grayscale(1);
+    cursor: not-allowed;
+  }
+  @media (max-width: 760px) {
+    .step-nav,
+    .step-nav-final {
+      display: grid;
+      grid-template-columns: 1fr;
+    }
+    .sn-slot {
+      justify-content: stretch;
+    }
+    :global(.tutorial-completion) {
+      width: 100%;
+    }
+  }
 </style>

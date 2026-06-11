@@ -5,6 +5,7 @@ import StepHeroMedia from "../components/StepHeroMedia.astro";
 import StepNav from "../components/StepNav.astro";
 import { parseStepId } from "../lib/content.ts";
 import type { TutorialEntry, StepEntry } from "../lib/content";
+import type { TutorialSummary } from "../lib/tutorialSummary";
 
 interface Props {
   tutorial: TutorialEntry;
@@ -21,6 +22,7 @@ interface Props {
   repoUrl?: string;
   siteUrl?: string;
   siteCreditLabel?: string;
+  nextTutorial?: TutorialSummary;
   /** Set false to drop the built-in footer and supply your own. */
   showFooter?: boolean;
 }
@@ -40,6 +42,7 @@ const {
   repoUrl,
   siteUrl,
   siteCreditLabel,
+  nextTutorial,
   showFooter = true,
 } = Astro.props;
 
@@ -117,6 +120,7 @@ const trackBootstrap =
         currentStepSlug={currentStepSlug}
         gated={tutorial.data.gated}
         hasCheckpoint={hasCheckpoint}
+        nextTutorial={nextTutorial}
       />
 
       {tutorial.data.feedbackUrl && (

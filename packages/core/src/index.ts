@@ -51,6 +51,12 @@ export {
 } from "./lib/progress/useProgress.ts";
 // Rehype plugin that lets Mermaid code fences round-trip as <pre class="mermaid">.
 export { default as rehypeMermaidPassthrough } from "./lib/rehype-mermaid-passthrough.ts";
+export {
+  createTutorialSummary,
+  type TutorialDifficulty,
+  type TutorialSummary,
+  type TutorialSummaryInput,
+} from "./lib/tutorialSummary.ts";
 
 // AI config type (consumers provide concrete values; framework consumes shape).
 export type { AiConfig } from "./types/ai.ts";

@@ -5,11 +5,12 @@ import ChatButton from "../components/ai/ChatButton.tsx";
 import OpenInAgent from "../components/ai/OpenInAgent.tsx";
 import SelectionAsk from "../components/ai/SelectionAsk.tsx";
 import StepHelp from "../components/ai/StepHelp.tsx";
-import { parseStepId } from "../lib/content.ts";
+import { getStepsForTutorial, getTutorialBySlug, parseStepId, sumDurations } from "../lib/content.ts";
 import type { StepEntry, TutorialEntry } from "../lib/content.ts";
 import { mdxComponents } from "../lib/mdx-components.ts";
 import { buildContext } from "../lib/ai/context.ts";
 import { emptyState } from "../lib/progress/types.ts";
+import { createTutorialSummary } from "../lib/tutorialSummary.ts";
 import type { AiConfig } from "../types/ai.ts";
 
 interface Props {
@@ -51,6 +52,13 @@ const { Content } = await render(currentStep);
 
 const components = mdxComponents();
 const hasCheckpoint = currentStep.body?.includes("<Checkpoint") ?? false;
+const nextTutorial = tutorial.data.nextTutorial
+  ? await getTutorialBySlug(tutorial.data.nextTutorial)
+  : undefined;
+const nextTutorialSteps = nextTutorial ? await getStepsForTutorial(nextTutorial.id) : [];
+const nextTutorialSummary = nextTutorial
+  ? createTutorialSummary(nextTutorial, sumDurations(nextTutorialSteps))
+  : undefined;
 
 const aiConfig: AiConfig = { ...aiDefaults, ...(tutorial.data.ai ?? {}) };
 const initialContext = buildContext({
@@ -77,6 +85,7 @@ const initialContext = buildContext({
   repoUrl={repoUrl}
   siteUrl={siteUrl}
   siteCreditLabel={siteCreditLabel}
+  nextTutorial={nextTutorialSummary}
   showFooter={showFooter}
 >
   <slot name="head" slot="head" />
