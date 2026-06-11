@@ -1,5 +1,11 @@
 # handzon-core
 
+## 0.15.2
+
+### Patch Changes
+
+- Reduce remaining page navigation shifts from auth hydration, sidebar title font swaps, and deferred Mermaid rendering.
+
 ## 0.15.1
 
 ### Patch Changes

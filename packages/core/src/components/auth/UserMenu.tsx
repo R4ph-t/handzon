@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import { withBase } from "../../lib/base";
 
 /**
@@ -132,7 +132,7 @@ export default function UserMenu() {
     };
   }, []);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     // Only retire the static fallback once the island has something to
     // show in its place (a known user or the wired sign-in form) or the
     // fetch has resolved with nothing to show (Tier-1). Until then, keep
