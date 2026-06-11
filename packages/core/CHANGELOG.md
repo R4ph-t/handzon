@@ -1,5 +1,11 @@
 # handzon-core
 
+## 0.15.3
+
+### Patch Changes
+
+- Avoid showing a signed-out GitHub button before client auth state resolves.
+
 ## 0.15.2
 
 ### Patch Changes
