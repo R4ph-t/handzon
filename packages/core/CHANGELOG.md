@@ -1,5 +1,11 @@
 # handzon-core
 
+## 0.15.1
+
+### Patch Changes
+
+- Avoid flashing stale auth controls and sidebar progress during page navigation.
+
 ## 0.15.0
 
 ### Minor Changes
