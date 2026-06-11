@@ -2,6 +2,7 @@
 import { withBase } from "../lib/base";
 import type { TutorialEntry, StepEntry } from "../lib/content";
 import { parseStepId } from "../lib/content";
+import { STORAGE_KEY } from "../lib/progress/types";
 import { fallbackTextForTrack, iconForTrack } from "../lib/track-icons";
 import Progress from "./Progress.tsx";
 import TrackSelector from "./TrackSelector.tsx";
@@ -86,6 +87,40 @@ const slug = tutorial.id;
     })}
   </ol>
 </aside>
+
+{/* Pre-paint: mirror the persisted progress state into the SSR sidebar
+    before hydrated modules run, avoiding a step-change flash from
+    0 / unchecked to the learner's real progress. */}
+<script is:inline define:vars={{ storageKey: STORAGE_KEY, tutorialSlug: slug, totalSteps: steps.length }}>
+  (function () {
+    try {
+      var raw = window.localStorage.getItem(storageKey);
+      var state = raw ? JSON.parse(raw) : null;
+      var steps = (state && state.steps) || {};
+      var completed = 0;
+
+      document.querySelectorAll("[data-step-key]").forEach(function (el) {
+        var key = el.getAttribute("data-step-key");
+        var done = key && steps[key] === "complete";
+        el.setAttribute("data-done", done ? "true" : "false");
+        if (done && key.indexOf(tutorialSlug + "/") === 0) completed += 1;
+      });
+
+      var progress = document.querySelector(".sidebar .progress");
+      if (!progress) return;
+      var bounded = Math.min(completed, totalSteps);
+      var pct = totalSteps > 0 ? Math.round((bounded / totalSteps) * 100) : 0;
+      progress.setAttribute("aria-label", bounded + " of " + totalSteps + " steps complete");
+      progress.setAttribute("aria-valuenow", String(bounded));
+      var fill = progress.querySelector(".progress-fill");
+      if (fill) fill.style.width = pct + "%";
+      var label = progress.querySelector(".progress-label");
+      if (label) label.textContent = bounded + " / " + totalSteps + " steps";
+    } catch (e) {
+      /* ignore — hydrated progress will correct the sidebar */
+    }
+  })();
+</script>
 
 <script>
   // Hydrate per-step check marks from localStorage without an island.
