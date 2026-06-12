@@ -18,6 +18,17 @@ A generated Handzon site includes:
 - Render Blueprints for one-command infrastructure, with a portable codebase you
   can deploy elsewhere if you prefer.
 
+## Documentation
+
+The canonical Handzon docs live in `sites/docs`. Run them locally with:
+
+```bash
+pnpm docs:dev
+```
+
+The docs cover the content model, multi-language tracks, covers and media,
+MDX components, verification, MCP, AI tutor configuration, theming, and deploys.
+
 ## Create a Tutorial Site
 
 Scaffold a new site with the CLI:

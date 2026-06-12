@@ -1,5 +1,6 @@
 import { useEffect, useLayoutEffect, useState } from "react";
 import { withBase } from "../../lib/base";
+import { GITHUB_ICON_PATH } from "../../lib/icons";
 
 /**
  * Client-only auth menu. Fetches `/api/auth/session` + `/api/auth/csrf`
@@ -76,9 +77,6 @@ function clearAuthSnapshot() {
     /* storage unavailable (private mode, quota) — degrade to no cache */
   }
 }
-
-const GITHUB_ICON_PATH =
-  "M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.55v-2.02c-3.2.7-3.88-1.36-3.88-1.36-.52-1.33-1.28-1.68-1.28-1.68-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.03 1.76 2.7 1.25 3.36.96.1-.74.4-1.25.72-1.54-2.55-.29-5.24-1.27-5.24-5.66 0-1.25.45-2.27 1.18-3.07-.12-.29-.51-1.45.11-3.03 0 0 .96-.31 3.15 1.17a10.94 10.94 0 0 1 5.76 0c2.19-1.48 3.15-1.17 3.15-1.17.62 1.58.23 2.74.11 3.03.74.8 1.18 1.82 1.18 3.07 0 4.4-2.69 5.37-5.25 5.65.41.35.78 1.04.78 2.11v3.13c0 .3.21.66.79.55C20.71 21.39 24 17.08 24 12 24 5.65 18.85.5 12 .5z";
 
 export default function UserMenu() {
   // `undefined` = not yet loaded; `null` = no auth or signed out;

@@ -1,0 +1,71 @@
+:root {
+  --sl-font: ui-sans-serif, system-ui, sans-serif;
+  --sl-font-mono: ui-monospace, "SFMono-Regular", "SF Mono", Consolas, monospace;
+  --sl-color-accent-low: #eeeeee;
+  --sl-color-accent: #111111;
+  --sl-color-accent-high: #000000;
+}
+
+:root[data-theme="light"] {
+  --sl-color-bg: #ffffff;
+  --sl-color-bg-nav: #ffffff;
+  --sl-color-bg-sidebar: #f7f7f8;
+  --sl-color-hairline: #e5e7eb;
+  --sl-color-text: #171717;
+  --sl-color-text-accent: #111111;
+}
+
+:root[data-theme="dark"] {
+  --sl-color-accent-low: #262626;
+  --sl-color-accent: #ffffff;
+  --sl-color-accent-high: #ffffff;
+}
+
+html:not([data-theme]) {
+  color-scheme: light;
+}
+
+.hero img {
+  width: min(15rem, 52vw);
+  filter: none;
+}
+
+.site-title {
+  color: #111111;
+  font-size: 1.65rem;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+}
+
+.site-title img {
+  height: 1.65rem;
+}
+
+[data-theme="dark"] .site-title {
+  color: #ffffff;
+}
+
+[data-page-title] {
+  letter-spacing: -0.045em;
+}
+
+header.header {
+  border-bottom: 1px solid var(--sl-color-hairline);
+}
+
+.sidebar-content a[aria-current="page"] {
+  background: #111111;
+  color: #ffffff;
+}
+
+.sidebar-content a:hover {
+  color: #111111;
+}
+
+.expressive-code {
+  --ec-brdWd: 1px;
+}
+
+.expressive-code .frame {
+  box-shadow: 0 1px 0 color-mix(in oklab, #000 10%, transparent);
+}

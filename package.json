@@ -8,6 +8,8 @@
     "build": "pnpm -r build",
     "changeset": "changeset",
     "dev": "pnpm --filter ./templates/default dev",
+    "docs:build": "pnpm --filter ./sites/docs build",
+    "docs:dev": "pnpm --filter ./sites/docs dev",
     "cli:build": "pnpm --filter ./packages/create-handzon build",
     "template:dev": "pnpm --filter ./templates/default dev",
     "template:build": "pnpm --filter ./templates/default build",
