@@ -30,6 +30,25 @@ html:not([data-theme]) {
   filter: none;
 }
 
+.hero-logo {
+  display: block;
+  width: min(15rem, 52vw);
+  aspect-ratio: 76 / 58;
+  margin-block-end: 1.25rem;
+  background: url("/logo-light.svg") left center / contain no-repeat;
+}
+
+:root[data-theme="dark"] .hero-logo {
+  background-image: url("/logo-dark.svg");
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) .hero-logo,
+  :root[data-theme="auto"] .hero-logo {
+    background-image: url("/logo-dark.svg");
+  }
+}
+
 .site-title {
   color: #111111;
   font-size: 1.65rem;

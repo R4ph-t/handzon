@@ -5,8 +5,6 @@ template: splash
 hero:
   tagline: Astro + MDX tutorial sites
   title: Build hands-on tutorials people can finish.
-  image:
-    file: ../../assets/handzon-logo-light.svg
   actions:
     - text: Get started
       link: /getting-started/installation/
@@ -15,6 +13,8 @@ hero:
       link: https://github.com/R4ph-t/handzon
       icon: external
 ---
+
+<span class="hero-logo" role="img" aria-label="Handzon"></span>
 
 Handzon turns folders of MDX into interactive tutorial sites. Authors write numbered steps. The site adds the parts static docs can't: progress tracking, checkpoints, quizzes, runnable playgrounds, and machine-verified exercises. Optional pieces add GitHub sign-in, an AI tutor, and an MCP endpoint so coding agents can work through tutorials alongside learners.
 
