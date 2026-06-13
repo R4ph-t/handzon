@@ -169,6 +169,64 @@ for (const t of tutorials) {
   </script>
 
   <script>
+    // Hydrate per-card favorites from the same local progress store used
+    // by steps and preferences. Cards expose `data-favorited` so the
+    // FilterBar can compose favorites with search, facets, and pagination.
+    import { getStore } from "../lib/progress/local.ts";
+    const store = getStore();
+    let lastFavoritesSignature: string | null = null;
+
+    function favoriteSignature(favorites: Record<string, number>): string {
+      return Object.keys(favorites).sort().join("\0");
+    }
+
+    function paintFavorites() {
+      const favorites = store.get().favorites ?? {};
+      const favoriteSlugs = new Set(Object.keys(favorites));
+      const signature = favoriteSignature(favorites);
+      document.querySelectorAll<HTMLButtonElement>("[data-fav-slug]").forEach((button) => {
+        const slug = button.dataset.favSlug!;
+        const card = button.closest<HTMLElement>("[data-card-slug]");
+        const title = card?.querySelector("h3")?.textContent?.trim() ?? slug;
+        const isFavorite = favoriteSlugs.has(slug);
+        button.setAttribute("aria-pressed", String(isFavorite));
+        button.setAttribute(
+          "aria-label",
+          isFavorite ? `Remove ${title} from favorites` : `Add ${title} to favorites`,
+        );
+        if (isFavorite) {
+          card?.setAttribute("data-favorited", "");
+        } else {
+          card?.removeAttribute("data-favorited");
+        }
+      });
+      if (signature !== lastFavoritesSignature) {
+        lastFavoritesSignature = signature;
+        window.dispatchEvent(new CustomEvent("hz:favorites-changed"));
+      }
+    }
+
+    document.querySelectorAll<HTMLButtonElement>("[data-fav-slug]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const slug = button.dataset.favSlug;
+        if (!slug) return;
+        store.set((state) => {
+          const favorites = { ...state.favorites };
+          if (favorites[slug]) {
+            delete favorites[slug];
+          } else {
+            favorites[slug] = Date.now();
+          }
+          return { ...state, favorites };
+        });
+      });
+    });
+
+    paintFavorites();
+    store.subscribe(paintFavorites);
+  </script>
+
+  <script>
     // Hydrate cross-learner popularity numbers and the `data-popularity`
     // attribute used by the FilterBar's "Popular" sort. Single fetch on
     // mount; Cache-Control: max-age=60 on the response handles SPA-like
@@ -217,22 +275,36 @@ for (const t of tutorials) {
   </script>
 
   <script>
-    // Popularity sort: re-orders cards in place by writing CSS `order`
-    // from `data-popularity`. Composes with the existing filter/page
-    // hide attributes because order is a flex/grid layout concern, not
-    // a visibility concern.
+    // Home-page ordering: tutorials this learner already started come
+    // first. Within that group, either keep the curated server order or
+    // apply the selected popularity sort.
+    import { getStore } from "../lib/progress/local.ts";
+    const store = getStore();
+
+    function hasStarted(card: HTMLElement): boolean {
+      const slug = card.dataset.cardSlug;
+      if (!slug) return false;
+      return !!store.get().tutorials[slug]?.started;
+    }
+
     function applySort(mode: string) {
-      const cards = document.querySelectorAll<HTMLElement>("[data-card-slug]");
+      const cards = Array.from(document.querySelectorAll<HTMLElement>("[data-card-slug]"));
+      const originalOrder = new Map(cards.map((card, idx) => [card, idx]));
       if (mode === "popular") {
-        const sorted = Array.from(cards).sort((a, b) => {
-          return Number(b.dataset.popularity ?? 0) - Number(a.dataset.popularity ?? 0);
+        const sorted = cards.sort((a, b) => {
+          const startedDelta = Number(hasStarted(b)) - Number(hasStarted(a));
+          if (startedDelta !== 0) return startedDelta;
+          const popularityDelta =
+            Number(b.dataset.popularity ?? 0) - Number(a.dataset.popularity ?? 0);
+          if (popularityDelta !== 0) return popularityDelta;
+          return (originalOrder.get(a) ?? 0) - (originalOrder.get(b) ?? 0);
         });
         sorted.forEach((card, idx) => {
           card.style.order = String(idx);
         });
       } else {
-        cards.forEach((card) => {
-          card.style.removeProperty("order");
+        cards.forEach((card, idx) => {
+          card.style.order = String(hasStarted(card) ? idx : idx + cards.length);
         });
       }
     }
@@ -245,6 +317,7 @@ for (const t of tutorials) {
       applySort((e as CustomEvent<{ sort: string }>).detail.sort);
     });
     window.addEventListener("hz:stats-loaded", syncFromUrl);
+    store.subscribe(syncFromUrl);
   </script>
 </BaseLayout>
 

@@ -1,5 +1,5 @@
-import { GraduationCap, Hash, Search } from "lucide-react";
-import { useEffect, useState } from "react";
+import { GraduationCap, Hash, Search, Star } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import MultiSelect, { type MultiSelectOption } from "../ui/MultiSelect.tsx";
 import ActiveFilterChips from "./ActiveFilterChips.tsx";
 import SortBar from "./SortBar.tsx";
@@ -17,6 +17,7 @@ interface FilterState {
   q: string;
   levels: Set<string>;
   tags: Set<string>;
+  favoritesOnly: boolean;
 }
 
 function parseCsv(value: string | null): Set<string> {
@@ -31,7 +32,7 @@ function parseCsv(value: string | null): Set<string> {
 
 function readUrlState(): FilterState {
   if (typeof window === "undefined") {
-    return { q: "", levels: new Set(), tags: new Set() };
+    return { q: "", levels: new Set(), tags: new Set(), favoritesOnly: false };
   }
   const url = new URL(window.location.href);
   const levels = url.searchParams.get("level")
@@ -43,6 +44,7 @@ function readUrlState(): FilterState {
     q: url.searchParams.get("q") ?? "",
     levels,
     tags: parseCsv(url.searchParams.get("tag")),
+    favoritesOnly: url.searchParams.get("favorites") === "1",
   };
 }
 
@@ -54,6 +56,8 @@ function writeUrlState(state: FilterState) {
   else url.searchParams.delete("level");
   if (state.tags.size > 0) url.searchParams.set("tag", [...state.tags].join(","));
   else url.searchParams.delete("tag");
+  if (state.favoritesOnly) url.searchParams.set("favorites", "1");
+  else url.searchParams.delete("favorites");
   // Always strip the legacy key so an upgraded URL doesn't carry both
   // shapes. First user interaction "migrates" the link.
   url.searchParams.delete("difficulty");
@@ -69,7 +73,8 @@ function applyFilters(state: FilterState) {
     const matchesLevel = state.levels.size === 0 || state.levels.has(card.dataset.difficulty ?? "");
     const cardTags = (card.dataset.tags ?? "").split(",");
     const matchesTag = state.tags.size === 0 || cardTags.some((t) => state.tags.has(t));
-    const show = matchesQ && matchesLevel && matchesTag;
+    const matchesFavorite = !state.favoritesOnly || card.hasAttribute("data-favorited");
+    const show = matchesQ && matchesLevel && matchesTag && matchesFavorite;
     if (show) {
       card.removeAttribute("data-filter-hidden");
       visible += 1;
@@ -100,11 +105,21 @@ function applyFilters(state: FilterState) {
 
 export default function FilterBar({ difficulties, tags, difficultyCounts, tagCounts }: Props) {
   const [state, setState] = useState<FilterState>(readUrlState);
+  const stateRef = useRef(state);
 
   useEffect(() => {
+    stateRef.current = state;
     applyFilters(state);
     writeUrlState(state);
   }, [state]);
+
+  useEffect(() => {
+    function onFavoritesChanged() {
+      applyFilters(stateRef.current);
+    }
+    window.addEventListener("hz:favorites-changed", onFavoritesChanged);
+    return () => window.removeEventListener("hz:favorites-changed", onFavoritesChanged);
+  }, []);
 
   function setQ(q: string) {
     setState((prev) => ({ ...prev, q }));
@@ -114,6 +129,9 @@ export default function FilterBar({ difficulties, tags, difficultyCounts, tagCou
   }
   function setTags(next: Set<string>) {
     setState((prev) => ({ ...prev, tags: next }));
+  }
+  function setFavoritesOnly(favoritesOnly: boolean) {
+    setState((prev) => ({ ...prev, favoritesOnly }));
   }
   function removeLevel(level: string) {
     setState((prev) => {
@@ -130,7 +148,7 @@ export default function FilterBar({ difficulties, tags, difficultyCounts, tagCou
     });
   }
   function clearAll() {
-    setState({ q: "", levels: new Set(), tags: new Set() });
+    setState({ q: "", levels: new Set(), tags: new Set(), favoritesOnly: false });
   }
 
   const levelOpts: MultiSelectOption[] = difficulties.map((d) => ({
@@ -144,7 +162,8 @@ export default function FilterBar({ difficulties, tags, difficultyCounts, tagCou
     count: tagCounts[t] ?? 0,
   }));
 
-  const hasActive = state.q.length > 0 || state.levels.size > 0 || state.tags.size > 0;
+  const hasActive =
+    state.q.length > 0 || state.levels.size > 0 || state.tags.size > 0 || state.favoritesOnly;
 
   return (
     <div className="filterbar">
@@ -179,6 +198,16 @@ export default function FilterBar({ difficulties, tags, difficultyCounts, tagCou
           triggerIcon={<Hash size={14} aria-hidden="true" />}
         />
 
+        <button
+          type="button"
+          className="favorites-filter"
+          aria-pressed={state.favoritesOnly}
+          onClick={() => setFavoritesOnly(!state.favoritesOnly)}
+        >
+          <Star size={14} aria-hidden="true" />
+          Favorites
+        </button>
+
         <span className="fb-divider" aria-hidden="true" />
         <div className="fb-sort-slot">
           <SortBar />
@@ -190,9 +219,11 @@ export default function FilterBar({ difficulties, tags, difficultyCounts, tagCou
           q={state.q}
           levels={state.levels}
           tags={state.tags}
+          favoritesOnly={state.favoritesOnly}
           onClearQ={() => setQ("")}
           onRemoveLevel={removeLevel}
           onRemoveTag={removeTag}
+          onClearFavorites={() => setFavoritesOnly(false)}
           onClearAll={clearAll}
         />
       )}

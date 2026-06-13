@@ -5,9 +5,11 @@ interface Props {
   q: string;
   levels: Set<string>;
   tags: Set<string>;
+  favoritesOnly: boolean;
   onClearQ: () => void;
   onRemoveLevel: (level: string) => void;
   onRemoveTag: (tag: string) => void;
+  onClearFavorites: () => void;
   onClearAll: () => void;
 }
 
@@ -27,9 +29,11 @@ export default function ActiveFilterChips({
   q,
   levels,
   tags,
+  favoritesOnly,
   onClearQ,
   onRemoveLevel,
   onRemoveTag,
+  onClearFavorites,
   onClearAll,
 }: Props) {
   function chipKey(e: KeyboardEvent<HTMLButtonElement>, remove: () => void) {
@@ -80,6 +84,18 @@ export default function ActiveFilterChips({
           <X size={12} aria-hidden="true" />
         </button>
       ))}
+      {favoritesOnly && (
+        <button
+          type="button"
+          className="active-filter-chip"
+          aria-label="Remove favorites filter"
+          onClick={onClearFavorites}
+          onKeyDown={(e) => chipKey(e, onClearFavorites)}
+        >
+          <span className="afc-label">favorites</span>
+          <X size={12} aria-hidden="true" />
+        </button>
+      )}
       <button type="button" className="active-filter-clear" onClick={onClearAll}>
         Clear all
       </button>

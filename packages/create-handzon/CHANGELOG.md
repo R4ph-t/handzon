@@ -1,5 +1,11 @@
 # create-handzon
 
+## 0.9.1
+
+### Patch Changes
+
+- 560e9e3: Add a Starlight documentation site and make generated project agent guidance point to the canonical docs.
+
 ## 0.9.0
 
 ### Minor Changes

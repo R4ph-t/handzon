@@ -16,7 +16,9 @@ interface ProgressApi {
   setLastVisited: (tutorial: string, step: string) => void;
   markTutorialStarted: (tutorial: string) => void;
   markTutorialCompleted: (tutorial: string) => void;
+  toggleFavorite: (tutorial: string) => void;
   isStepComplete: (tutorial: string, step: string) => boolean;
+  isFavorite: (tutorial: string) => boolean;
 }
 
 /**
@@ -100,6 +102,16 @@ export function useProgress(): ProgressApi {
             },
           };
         }),
+      toggleFavorite: (tutorial: string) =>
+        store.set((s) => {
+          const nextFavorites = { ...s.favorites };
+          if (nextFavorites[tutorial]) {
+            delete nextFavorites[tutorial];
+          } else {
+            nextFavorites[tutorial] = Date.now();
+          }
+          return { ...s, favorites: nextFavorites };
+        }),
     };
   }, [store]);
 
@@ -108,6 +120,7 @@ export function useProgress(): ProgressApi {
     ...actions,
     isStepComplete: (tutorial, step) =>
       state.steps[`${tutorial}/${step}` as StepKey] === "complete",
+    isFavorite: (tutorial) => !!state.favorites[tutorial],
   };
 }
 

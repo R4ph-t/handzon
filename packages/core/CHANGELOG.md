@@ -1,5 +1,11 @@
 # handzon-core
 
+## 0.15.4
+
+### Patch Changes
+
+- Add tutorial favorites and prioritize started tutorials on the homepage.
+
 ## 0.15.3
 
 ### Patch Changes

@@ -36,6 +36,11 @@ export type ProgressState = {
   quizzes: Record<string, { chosen: number[]; correct: boolean; ts: number }>;
   checkpoints: Record<string, { ts: number }>;
   /**
+   * Per-learner favorite tutorials. Keyed by tutorial slug; the value is
+   * the timestamp when the learner last favorited it.
+   */
+  favorites: Record<string, number>;
+  /**
    * Latest verification verdict per checkpoint id. `pass: true`
    * entries hang around as evidence; the Family D UI only renders
    * the inline hint block on `pass: false`. Cleared when the
@@ -73,6 +78,7 @@ export const emptyState = (): ProgressState => ({
   steps: {},
   quizzes: {},
   checkpoints: {},
+  favorites: {},
   verificationFeedback: {},
   prefs: {},
   lastVisited: {},

@@ -65,6 +65,35 @@
   flex-shrink: 0;
 }
 
+.favorites-filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 2.5rem;
+  padding: 0.4rem 0.65rem;
+  background: transparent;
+  border: 1px solid var(--color-border);
+  color: var(--color-fg);
+  font-family: var(--font-mono);
+  font-size: 0.78em;
+  cursor: pointer;
+  transition: border-color 0.12s ease, color 0.12s ease, background 0.12s ease;
+}
+.favorites-filter:hover,
+.favorites-filter:focus-visible {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+  outline: none;
+}
+.favorites-filter[aria-pressed="true"] {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+  background: color-mix(in oklab, var(--color-accent) 8%, transparent);
+}
+.favorites-filter[aria-pressed="true"] svg {
+  fill: currentColor;
+}
+
 /* On narrow viewports the toolbar wraps; sort drops to its own line.
  * Keep the divider visible only when the row hasn't wrapped — when it
  * has, the layout already reads as distinct rows. Cheap heuristic:
