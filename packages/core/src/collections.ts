@@ -20,6 +20,7 @@ import { join, relative, resolve } from "node:path";
 import type { Loader } from "astro/loaders";
 import { glob } from "astro/loaders";
 import { createHeroMediaSchema } from "./lib/heroMedia";
+import { collectProgressItemIds, validateProgressItemIds } from "./lib/progress/progressItems";
 import { createTutorialIconSchema } from "./lib/tutorialIcon";
 
 const TUTORIALS_REL = "src/content/tutorials";
@@ -219,7 +220,6 @@ export function stepsLoader(): Loader {
     name: "handzon-steps",
     load: async (args) => {
       await inner.load(args);
-      const checkpointRe = /<Checkpoint\b[^>]*\bid\s*=\s*(?:"([^"]+)"|'([^']+)'|\{`([^`]+)`\})/g;
       const trackIdCache = new Map<string, Promise<string[]>>();
       for (const value of args.store.values()) {
         const { tutorialSlug } = parseStepCollectionId(value.id);
@@ -229,17 +229,11 @@ export function stepsLoader(): Loader {
         const trackIds = await trackIdsPromise;
         const body = value.body ?? "";
         validateTrackIdsInBody({ body, entryId: value.id, trackIds });
+        validateProgressItemIds({ body, entryId: value.id });
 
         const verify = (value.data as { verify?: TrackScoped<VerifySpec> } | undefined)?.verify;
         if (!verify) continue;
-        const ids = new Set<string>();
-        checkpointRe.lastIndex = 0;
-        for (;;) {
-          const m = checkpointRe.exec(body);
-          if (m === null) break;
-          const id = m[1] ?? m[2] ?? m[3];
-          if (id) ids.add(id);
-        }
+        const ids = collectProgressItemIds(body).Checkpoint;
 
         if (isTrackMap(verify, isVerifySpec)) {
           validateTrackMapCoverage({

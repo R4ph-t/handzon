@@ -1,5 +1,11 @@
 # handzon-core
 
+## 0.16.1
+
+### Patch Changes
+
+- Fail tutorial content loading when progress-traceable components like `<Quiz>` and `<Checkpoint>` omit explicit `id` props. This keeps learner progress stable across content edits and catches missing IDs during dev, check, and build.
+
 ## 0.16.0
 
 ### Minor Changes
