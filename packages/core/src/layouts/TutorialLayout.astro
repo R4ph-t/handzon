@@ -140,6 +140,7 @@ const trackBootstrap =
     id="tt-route"
     data-tutorial-slug={tutorial.id}
     data-step-slug={currentStepSlug}
+    data-tutorial-gated={tutorial.data.gated ? "true" : "false"}
     data-tutorial-title={tutorial.data.title}
     data-tutorial-steps={JSON.stringify(stepSlugs)}
     hidden
@@ -168,6 +169,8 @@ const trackBootstrap =
     // import so Vite resolves the path alias correctly; define:vars +
     // dynamic import("~/...") bypasses Vite's resolver and the browser
     // can't load the module.
+    import { withBase } from "../lib/base";
+    import { firstIncompletePrerequisite } from "../lib/progress/gating";
     import { getStore } from "../lib/progress/local";
     import { deriveStepCompletion } from "../lib/progress/stepCompletion";
     import type { StepKey } from "../lib/progress/types";
@@ -180,86 +183,99 @@ const trackBootstrap =
         route.dataset.tutorialSteps ?? "[]",
       ) as string[];
       const store = getStore();
+      const redirectStep =
+        route.dataset.tutorialGated === "true"
+          ? firstIncompletePrerequisite({
+              tutorialSlug,
+              stepSlugs: tutorialSteps,
+              stepSlug,
+              steps: store.get().steps,
+            })
+          : undefined;
 
-      // Mark last-visited + tutorial "started" on every mount. The
-      // started branch is idempotent: it only writes the timestamp the
-      // first time per learner, so /api/progress sees one POST per
-      // tutorial — not one per page view.
-      store.set((s) => {
-        const nextLastVisited = {
-          ...s.lastVisited,
-          [tutorialSlug]: { step: stepSlug, ts: Date.now() },
-        };
-        if (s.tutorials[tutorialSlug]?.started) {
-          return { ...s, lastVisited: nextLastVisited };
-        }
-        return {
-          ...s,
-          lastVisited: nextLastVisited,
-          tutorials: {
-            ...s.tutorials,
-            [tutorialSlug]: {
-              ...s.tutorials[tutorialSlug],
-              started: Date.now(),
-            },
-          },
-        };
-      });
-
-      function readCompletionItemIds(selector: string, attr: string) {
-        const activeTrack = document.documentElement.dataset.track;
-        const ids = Array.from(document.querySelectorAll<HTMLElement>(selector))
-          .map((el) => {
-            const trackPanel = el.closest<HTMLElement>("[data-track-panel]");
-            if (activeTrack && trackPanel?.dataset.trackPanel !== activeTrack) return null;
-            return el.dataset[attr];
-          })
-          .filter((id): id is string => !!id);
-        return Array.from(new Set(ids));
-      }
-
-      function recomputeStepCompletion() {
-        const completion = deriveStepCompletion(store.get(), {
-          quizIds: readCompletionItemIds("[data-quiz-id]", "quizId"),
-          checkpointIds: readCompletionItemIds("[data-checkpoint-id]", "checkpointId"),
-        });
-        if (completion === null) return;
+      if (redirectStep && redirectStep !== stepSlug) {
+        window.location.replace(withBase(`/${tutorialSlug}/${redirectStep}`));
+      } else {
+        // Mark last-visited + tutorial "started" on every mount. The
+        // started branch is idempotent: it only writes the timestamp the
+        // first time per learner, so /api/progress sees one POST per
+        // tutorial — not one per page view.
         store.set((s) => {
-          if (s.steps[stepKey] === completion) return s;
-          return { ...s, steps: { ...s.steps, [stepKey]: completion } };
-        });
-      }
-
-      recomputeStepCompletion();
-      document.addEventListener("hz:step-item", recomputeStepCompletion);
-      store.subscribe(recomputeStepCompletion);
-
-      // Watch for tutorial completion: once every step in the embedded
-      // list flips to "complete", record the "completed" event exactly
-      // once. Re-runs on store changes so finishing the last step on a
-      // mid-tutorial page (rare) still triggers it.
-      function checkCompletion() {
-        const s = store.get();
-        if (s.tutorials[tutorialSlug]?.completed) return;
-        if (tutorialSteps.length === 0) return;
-        const allDone = tutorialSteps.every(
-          (slug) => s.steps[`${tutorialSlug}/${slug}` as `${string}/${string}`] === "complete",
-        );
-        if (allDone) {
-          store.set((cur) => ({
-            ...cur,
+          const nextLastVisited = {
+            ...s.lastVisited,
+            [tutorialSlug]: { step: stepSlug, ts: Date.now() },
+          };
+          if (s.tutorials[tutorialSlug]?.started) {
+            return { ...s, lastVisited: nextLastVisited };
+          }
+          return {
+            ...s,
+            lastVisited: nextLastVisited,
             tutorials: {
-              ...cur.tutorials,
+              ...s.tutorials,
               [tutorialSlug]: {
-                ...cur.tutorials[tutorialSlug],
-                completed: Date.now(),
+                ...s.tutorials[tutorialSlug],
+                started: Date.now(),
               },
             },
-          }));
+          };
+        });
+
+        function readCompletionItemIds(selector: string, attr: string) {
+          const activeTrack = document.documentElement.dataset.track;
+          const ids = Array.from(document.querySelectorAll<HTMLElement>(selector))
+            .map((el) => {
+              const trackPanel = el.closest<HTMLElement>("[data-track-panel]");
+              if (activeTrack && trackPanel?.dataset.trackPanel !== activeTrack) return null;
+              return el.dataset[attr];
+            })
+            .filter((id): id is string => !!id);
+          return Array.from(new Set(ids));
         }
+
+        function recomputeStepCompletion() {
+          const completion = deriveStepCompletion(store.get(), {
+            quizIds: readCompletionItemIds("[data-quiz-id]", "quizId"),
+            checkpointIds: readCompletionItemIds("[data-checkpoint-id]", "checkpointId"),
+          });
+          if (completion === null) return;
+          store.set((s) => {
+            if (s.steps[stepKey] === completion) return s;
+            return { ...s, steps: { ...s.steps, [stepKey]: completion } };
+          });
+        }
+
+        recomputeStepCompletion();
+        document.addEventListener("hz:step-item", recomputeStepCompletion);
+        store.subscribe(recomputeStepCompletion);
+
+        // Watch for tutorial completion: once every step in the embedded
+        // list flips to "complete", record the "completed" event exactly
+        // once. Re-runs on store changes so finishing the last step on a
+        // mid-tutorial page (rare) still triggers it.
+        function checkCompletion() {
+          const s = store.get();
+          if (s.tutorials[tutorialSlug]?.completed) return;
+          if (tutorialSteps.length === 0) return;
+          const allDone = tutorialSteps.every(
+            (slug) => s.steps[`${tutorialSlug}/${slug}` as `${string}/${string}`] === "complete",
+          );
+          if (allDone) {
+            store.set((cur) => ({
+              ...cur,
+              tutorials: {
+                ...cur.tutorials,
+                [tutorialSlug]: {
+                  ...cur.tutorials[tutorialSlug],
+                  completed: Date.now(),
+                },
+              },
+            }));
+          }
+        }
+        checkCompletion();
+        store.subscribe(checkCompletion);
       }
-      checkCompletion();
-      store.subscribe(checkCompletion);
     }
   </script>
 </BaseLayout>

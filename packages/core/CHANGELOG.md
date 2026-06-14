@@ -1,5 +1,11 @@
 # handzon-core
 
+## 0.17.0
+
+### Minor Changes
+
+- Make gated tutorials enforce progression across navigation surfaces. Sidebar links to locked future steps are disabled, and direct visits to locked steps redirect learners back to the earliest incomplete prerequisite step.
+
 ## 0.16.1
 
 ### Patch Changes

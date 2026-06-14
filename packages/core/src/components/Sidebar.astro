@@ -16,7 +16,7 @@ interface Props {
 const { tutorial, steps, currentStepSlug } = Astro.props;
 const slug = tutorial.id;
 ---
-<aside class="sidebar" aria-label="Tutorial steps">
+<aside class="sidebar" aria-label="Tutorial steps" data-gated={tutorial.data.gated ? "true" : "false"}>
   {/* Top block: back link, title, progress. Stays fixed while the
    * step list below scrolls when there are many steps. */}
   <div class="sb-top">
@@ -77,10 +77,11 @@ const slug = tutorial.id;
       const isCurrent = stepSlug === currentStepSlug;
       return (
         <li class={isCurrent ? "is-current" : ""} data-step-slug={stepSlug}>
-          <a href={withBase(`/${slug}/${stepSlug}`)}>
+          <a href={withBase(`/${slug}/${stepSlug}`)} data-step-link="true">
             <span class="sb-check" data-step-key={`${slug}/${stepSlug}`}></span>
             <span class="sb-name">{step.data.title}</span>
             {step.data.duration && <span class="sb-dur">{step.data.duration}</span>}
+            <span class="sb-lock" aria-hidden="true">Locked</span>
           </a>
         </li>
       );
@@ -91,13 +92,17 @@ const slug = tutorial.id;
 {/* Pre-paint: mirror the persisted progress state into the SSR sidebar
     before hydrated modules run, avoiding a step-change flash from
     0 / unchecked to the learner's real progress. */}
-<script is:inline define:vars={{ storageKey: STORAGE_KEY, tutorialSlug: slug, totalSteps: steps.length }}>
+<script is:inline define:vars={{ storageKey: STORAGE_KEY, tutorialSlug: slug, totalSteps: steps.length, tutorialSteps: steps.map((step) => parseStepId(step.id).stepSlug), gated: tutorial.data.gated }}>
   (function () {
     try {
       var raw = window.localStorage.getItem(storageKey);
       var state = raw ? JSON.parse(raw) : null;
       var steps = (state && state.steps) || {};
       var completed = 0;
+      var firstIncomplete = tutorialSteps.find(function (slug) {
+        return steps[tutorialSlug + "/" + slug] !== "complete";
+      });
+      var lockStart = gated && firstIncomplete ? tutorialSteps.indexOf(firstIncomplete) + 1 : -1;
 
       document.querySelectorAll("[data-step-key]").forEach(function (el) {
         var key = el.getAttribute("data-step-key");
@@ -105,6 +110,12 @@ const slug = tutorial.id;
         el.setAttribute("data-done", done ? "true" : "false");
         if (done && key.indexOf(tutorialSlug + "/") === 0) completed += 1;
       });
+      if (lockStart > 0) {
+        tutorialSteps.slice(lockStart).forEach(function (slug) {
+          var item = document.querySelector('[data-step-slug="' + slug + '"]');
+          if (item) item.setAttribute("data-locked", "true");
+        });
+      }
 
       var progress = document.querySelector(".sidebar .progress");
       if (!progress) return;
@@ -125,13 +136,49 @@ const slug = tutorial.id;
 <script>
   // Hydrate per-step check marks from localStorage without an island.
   import { getStore } from "../lib/progress/local";
+  import { lockedStepSlugs } from "../lib/progress/gating";
+
+  const sidebar = document.querySelector<HTMLElement>(".sidebar");
+  const tutorialSlug = sidebar?.querySelector<HTMLElement>("[data-step-key]")?.dataset.stepKey?.split("/")[0];
+  const gated = sidebar?.dataset.gated === "true";
+  const tutorialSteps = Array.from(document.querySelectorAll<HTMLElement>("[data-step-slug]")).map(
+    (el) => el.dataset.stepSlug!,
+  );
+
+  sidebar?.addEventListener("click", (e) => {
+    const link = (e.target as Element).closest<HTMLAnchorElement>(
+      "[data-step-link][aria-disabled='true']",
+    );
+    if (link) e.preventDefault();
+  });
+
   function refresh() {
     const store = getStore();
     const state = store.get();
+    const locked =
+      gated && tutorialSlug
+        ? new Set(lockedStepSlugs({ tutorialSlug, stepSlugs: tutorialSteps, steps: state.steps }))
+        : new Set<string>();
     document.querySelectorAll<HTMLElement>("[data-step-key]").forEach((el) => {
       const key = el.dataset.stepKey as `${string}/${string}`;
       const done = state.steps[key] === "complete";
       el.dataset.done = done ? "true" : "false";
+    });
+    document.querySelectorAll<HTMLElement>("[data-step-slug]").forEach((el) => {
+      const stepSlug = el.dataset.stepSlug!;
+      const link = el.querySelector<HTMLAnchorElement>("[data-step-link]");
+      const isLocked = locked.has(stepSlug);
+      el.dataset.locked = isLocked ? "true" : "false";
+      if (!link) return;
+      if (isLocked) {
+        link.setAttribute("aria-disabled", "true");
+        link.setAttribute("tabindex", "-1");
+        link.setAttribute("title", "Complete previous steps to unlock this step.");
+      } else {
+        link.removeAttribute("aria-disabled");
+        link.removeAttribute("tabindex");
+        link.removeAttribute("title");
+      }
     });
   }
   refresh();
@@ -227,6 +274,14 @@ const slug = tutorial.id;
     background: var(--color-surface);
     color: var(--color-fg);
   }
+  .sb-steps li[data-locked="true"] a {
+    cursor: not-allowed;
+    opacity: 0.48;
+  }
+  .sb-steps li[data-locked="true"] a:hover {
+    background: transparent;
+    box-shadow: none;
+  }
   .sb-steps li.is-current a {
     background: color-mix(in oklab, var(--color-accent) 40%, var(--color-bg));
     color: var(--color-fg);
@@ -252,5 +307,19 @@ const slug = tutorial.id;
     font-size: 0.72em;
     font-weight: 400;
     letter-spacing: 0.02em;
+  }
+  .sb-lock {
+    display: none;
+    position: absolute;
+    right: 1rem;
+    bottom: 0.45rem;
+    color: var(--color-muted);
+    font-family: var(--font-mono);
+    font-size: 0.68em;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .sb-steps li[data-locked="true"] .sb-lock {
+    display: inline;
   }
 </style>
