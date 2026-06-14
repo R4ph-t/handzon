@@ -1,5 +1,12 @@
 # **PROJECT_NAME**
 
+## 0.1.18
+
+### Patch Changes
+
+- Updated dependencies
+  - handzon-core@0.16.0
+
 ## 0.1.17
 
 ### Patch Changes

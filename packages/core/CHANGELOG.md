@@ -1,5 +1,11 @@
 # handzon-core
 
+## 0.16.0
+
+### Minor Changes
+
+- Treat quizzes as step completion items alongside checkpoints. Steps now complete only when every quiz on the step is answered correctly and every checkpoint on the step is complete, so quiz-only steps can gate progression without a redundant manual checkpoint.
+
 ## 0.15.4
 
 ### Patch Changes
