@@ -1,5 +1,11 @@
 # handzon-core
 
+## 0.17.1
+
+### Patch Changes
+
+- Fix step completion on tutorials with tracks. Quizzes and checkpoints in shared prose (outside any `<Track>` panel) were dropped from the completion check when a track was active, so quiz-only or shared-checkpoint steps never marked complete and their sidebar check never appeared. Shared completion items now always count; track-scoped items count only for the active track.
+
 ## 0.17.0
 
 ### Minor Changes

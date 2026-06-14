@@ -173,6 +173,7 @@ const trackBootstrap =
     import { firstIncompletePrerequisite } from "../lib/progress/gating";
     import { getStore } from "../lib/progress/local";
     import { deriveStepCompletion } from "../lib/progress/stepCompletion";
+    import { isItemInActiveTrack } from "../lib/progress/trackScope";
     import type { StepKey } from "../lib/progress/types";
     const route = document.getElementById("tt-route");
     if (route) {
@@ -226,7 +227,7 @@ const trackBootstrap =
           const ids = Array.from(document.querySelectorAll<HTMLElement>(selector))
             .map((el) => {
               const trackPanel = el.closest<HTMLElement>("[data-track-panel]");
-              if (activeTrack && trackPanel?.dataset.trackPanel !== activeTrack) return null;
+              if (!isItemInActiveTrack(trackPanel?.dataset.trackPanel, activeTrack)) return null;
               return el.dataset[attr];
             })
             .filter((id): id is string => !!id);
