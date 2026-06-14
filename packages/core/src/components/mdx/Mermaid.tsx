@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { buildMermaidConfig } from "../../lib/mermaid-theme.ts";
 
 interface Props {
   chart: string;
@@ -19,7 +20,7 @@ export default function Mermaid({ chart, id }: Props) {
     (async () => {
       try {
         const mermaid = (await import("mermaid")).default;
-        mermaid.initialize({ startOnLoad: false, theme: "dark", securityLevel: "strict" });
+        mermaid.initialize(buildMermaidConfig());
         const { svg } = await mermaid.render(
           id ?? `mermaid-${Math.random().toString(36).slice(2)}`,
           chart,

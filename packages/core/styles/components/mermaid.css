@@ -1,16 +1,31 @@
-/* Mermaid */
-.mermaid-wrap {
+/* Mermaid — diagram colors come from JS (lib/mermaid-theme) so the SVG
+ * inherits the active palette; this only frames the rendered diagram so it
+ * reads as part of the page rather than a floating image. */
+.mermaid-wrap,
+pre.mermaid {
   margin: 1.25rem 0;
   padding: 1rem;
   background: var(--color-surface);
+  border: var(--border-default, 1px) solid var(--color-border);
+  border-radius: var(--radius-md, 0);
   display: grid;
   place-items: center;
-  border-radius: 0;
   min-height: var(--mermaid-min-height, 14rem);
+  overflow-x: auto;
 }
-.mermaid-wrap :global(svg) { max-width: 100%; height: auto; }
-pre.mermaid {
-  min-height: var(--mermaid-min-height, 14rem);
+/* Before the client script runs, the raw fenced source sits inside
+ * pre.mermaid; keep it from flashing as monospace text. */
+pre.mermaid:not([data-processed]) {
+  color: transparent;
+}
+.mermaid-wrap :global(svg),
+pre.mermaid svg {
+  max-width: 100%;
+  height: auto;
+}
+.mermaid-wrap :global(svg) text,
+pre.mermaid svg text {
+  font-family: var(--font-sans);
 }
 .mermaid-error {
   padding: 0.75rem;

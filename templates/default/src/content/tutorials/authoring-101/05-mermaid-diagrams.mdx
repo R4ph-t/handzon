@@ -1,0 +1,122 @@
+---
+title: Mermaid diagrams
+duration: 5 min
+summary: Render flowcharts in your tutorial and pick the right Mermaid node shape.
+---
+
+Mermaid fences turn text into diagrams. Use them when the learner needs to see a flow, state change, dependency graph, or architecture map.
+
+## The syntax
+
+Use a fenced `mermaid` block. The site renders it with the active theme.
+
+````mdx
+```mermaid
+flowchart LR
+  write["Write MDX"] --> preview["Preview the step"]
+  preview --> publish["Publish"]
+```
+````
+
+## All flowchart shapes
+
+Mermaid v11.3 and newer supports a shape object on any flowchart node. The shape name goes in `shape`; the visible text goes in `label`.
+
+```mermaid
+flowchart TB
+  subgraph basic["Basic"]
+    rect@{ shape: rect, label: "Rectangle" }
+    rounded@{ shape: rounded, label: "Rounded" }
+    stadium@{ shape: stadium, label: "Stadium" }
+    circle@{ shape: circle, label: "Circle" }
+    smcirc@{ shape: sm-circ, label: "Small circle" }
+    dblcirc@{ shape: dbl-circ, label: "Double circle" }
+    frc@{ shape: fr-circ, label: "Framed circle" }
+    crossc@{ shape: cross-circ, label: "Crossed circle" }
+  end
+
+  subgraph decisions["Decisions and flow"]
+    diam@{ shape: diam, label: "Diamond" }
+    hex@{ shape: hex, label: "Hexagon" }
+    tri@{ shape: tri, label: "Triangle" }
+    fliptri@{ shape: flip-tri, label: "Flipped triangle" }
+    odd@{ shape: odd, label: "Odd" }
+    fork@{ shape: fork, label: "Fork" }
+    fcirc@{ shape: f-circ, label: "Filled circle" }
+    bang@{ shape: bang, label: "Bang" }
+  end
+
+  subgraph process["Process variants"]
+    frrect@{ shape: fr-rect, label: "Framed rectangle" }
+    linrect@{ shape: lin-rect, label: "Lined rectangle" }
+    divrect@{ shape: div-rect, label: "Divided rectangle" }
+    strect@{ shape: st-rect, label: "Stacked rectangle" }
+    notchrect@{ shape: notch-rect, label: "Notched rectangle" }
+    notchpent@{ shape: notch-pent, label: "Notched pentagon" }
+    delay@{ shape: delay, label: "Delay" }
+    winpane@{ shape: win-pane, label: "Window pane" }
+  end
+
+  subgraph data["Data and I/O"]
+    cyl@{ shape: cyl, label: "Cylinder" }
+    hcyl@{ shape: h-cyl, label: "Horizontal cylinder" }
+    lincyl@{ shape: lin-cyl, label: "Lined cylinder" }
+    datastore@{ shape: datastore, label: "Data store" }
+    bowrect@{ shape: bow-rect, label: "Bow tie rectangle" }
+    leanr@{ shape: lean-r, label: "Lean right" }
+    leanl@{ shape: lean-l, label: "Lean left" }
+    slrect@{ shape: sl-rect, label: "Sloped rectangle" }
+  end
+
+  subgraph docs["Documents and labels"]
+    doc@{ shape: doc, label: "Document" }
+    docsnode@{ shape: docs, label: "Stacked documents" }
+    lindoc@{ shape: lin-doc, label: "Lined document" }
+    tagdoc@{ shape: tag-doc, label: "Tagged document" }
+    tagrect@{ shape: tag-rect, label: "Tagged rectangle" }
+    text@{ shape: text, label: "Text block" }
+    flag@{ shape: flag, label: "Flag" }
+    cloud@{ shape: cloud, label: "Cloud" }
+  end
+
+  subgraph special["Special"]
+    hourglass@{ shape: hourglass, label: "Hourglass" }
+    bolt@{ shape: bolt, label: "Bolt" }
+    brace@{ shape: brace, label: "Brace left" }
+    bracer@{ shape: brace-r, label: "Brace right" }
+    braces@{ shape: braces, label: "Braces" }
+    curvtrap@{ shape: curv-trap, label: "Curved trapezoid" }
+    trapt@{ shape: trap-t, label: "Trapezoid top" }
+    trapb@{ shape: trap-b, label: "Trapezoid bottom" }
+  end
+```
+
+## Pick a shape
+
+- Use `rect`, `rounded`, or `stadium` for normal steps.
+- Use `diam` for a decision.
+- Use `cyl`, `datastore`, `doc`, or `docs` when the node is data or content.
+- Use `fork`, `f-circ`, `dbl-circ`, or `fr-circ` for start, stop, and branch markers.
+- Use `brace`, `brace-r`, `braces`, `text`, or `tag-doc` when the diagram needs annotations.
+
+<Callout type="tip">
+Keep node IDs short and boring. Put readable text in `label` so punctuation and spaces do not break the parser.
+</Callout>
+
+## Diagram families
+
+Flowcharts are the common case, but Mermaid can render other families too:
+
+- `sequenceDiagram` for request and response flows.
+- `stateDiagram-v2` for lifecycle states.
+- `classDiagram` and `erDiagram` for data models.
+- `gantt`, `timeline`, and `journey` for planning and user paths.
+- `mindmap`, `kanban`, `xychart-beta`, and `sankey-beta` for specialized views.
+
+<Checkpoint label="I can add a themed Mermaid diagram to a tutorial step." />
+
+<Recap items={[
+  "Use fenced mermaid blocks for static diagrams",
+  "Use shape object syntax when you need a specific flowchart node shape",
+  "Keep node IDs simple and put reader-facing text in labels"
+]} />

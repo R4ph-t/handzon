@@ -140,11 +140,33 @@ const socialImageUrl = ogImageUrl ? withBase(ogImageUrl) : undefined;
       />
     )}
     <script>
-      // Render any <pre class="mermaid"> blocks emitted by rehype-mermaid.
-      if (document.querySelector("pre.mermaid")) {
-        import("mermaid").then(({ default: mermaid }) => {
-          mermaid.initialize({ startOnLoad: false, theme: "dark", securityLevel: "strict" });
-          mermaid.run({ querySelector: "pre.mermaid" });
+      // Render any <pre class="mermaid"> blocks emitted by rehype-mermaid,
+      // themed to match the active site palette (see lib/mermaid-theme).
+      //
+      // We capture each block's source synchronously (this module runs before
+      // the window `load` event) and render explicitly rather than calling
+      // mermaid.run(). mermaid auto-runs on `load` with its default theme, and
+      // on a fast load that race can win and mark nodes data-processed before
+      // our dynamic import resolves — leaving unthemed diagrams. Rendering each
+      // block ourselves from the captured source sidesteps that entirely.
+      const mermaidBlocks = Array.from(document.querySelectorAll("pre.mermaid"));
+      if (mermaidBlocks.length > 0) {
+        const sources = mermaidBlocks.map((el) => el.textContent ?? "");
+        Promise.all([
+          import("mermaid"),
+          import("handzon-core/lib/mermaid-theme.ts"),
+        ]).then(async ([{ default: mermaid }, { buildMermaidConfig }]) => {
+          mermaid.startOnLoad = false;
+          mermaid.initialize(buildMermaidConfig());
+          for (let i = 0; i < mermaidBlocks.length; i++) {
+            try {
+              const { svg } = await mermaid.render(`hz-mermaid-${i}`, sources[i]);
+              mermaidBlocks[i].innerHTML = svg;
+              mermaidBlocks[i].setAttribute("data-processed", "true");
+            } catch (err) {
+              console.error("Mermaid render failed", err);
+            }
+          }
         });
       }
     </script>

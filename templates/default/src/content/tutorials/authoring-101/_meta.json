@@ -3,7 +3,7 @@
   "description": "Learn how to write tutorials with this tool — the content model, every MDX component, and how to publish.",
   "tags": ["meta", "authoring"],
   "difficulty": "beginner",
-  "estimatedDuration": "20 min",
+  "estimatedDuration": "25 min",
   "prerequisites": ["Basic Markdown", "Comfort editing files in a code editor"],
   "ai": {
     "tone": "encouraging"
