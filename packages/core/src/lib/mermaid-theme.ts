@@ -57,8 +57,7 @@ function luminance(hex: string): number {
 export function buildMermaidConfig(): MermaidConfig {
   const cs = getComputedStyle(document.documentElement);
   const token = (name: string) => cs.getPropertyValue(name).trim();
-  const color = (name: string, fallback: string) =>
-    resolveColor(token(name), fallback);
+  const color = (name: string, fallback: string) => resolveColor(token(name), fallback);
 
   const bg = color("--color-bg", "#0a0a0a");
   const surface = color("--color-surface", "#16181d");
@@ -70,8 +69,7 @@ export function buildMermaidConfig(): MermaidConfig {
   const accent = color("--color-accent", "#8b5cf6");
   const accentFg = color("--color-accent-fg", "#ffffff");
 
-  const fontFamily =
-    token("--font-sans") || "ui-sans-serif, system-ui, sans-serif";
+  const fontFamily = token("--font-sans") || "ui-sans-serif, system-ui, sans-serif";
   const darkMode = luminance(bg) < 0.5;
 
   return {
