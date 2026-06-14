@@ -13,7 +13,7 @@ A checkpoint is a self-attested "I did this" marker:
 <Checkpoint id="setup/dev-server" label="The dev server is running." />
 ```
 
-Use stable ids. If you omit `id`, Handzon can still render the checkpoint, but explicit ids are required when you attach a `verify` spec.
+Use stable ids for every progress-traceable component. If you omit `id`, Handzon can still render the checkpoint, but generated ids can drift when content moves. Explicit ids are also required when you attach a `verify` spec.
 
 Good checkpoint labels describe evidence the learner can observe:
 
@@ -33,7 +33,7 @@ Set `gated: true` in `_meta.json` when learners must complete each step before c
 }
 ```
 
-When a step contains a `Checkpoint` and the tutorial is gated, the Next link is disabled until that checkpoint is complete.
+When a step contains a `Checkpoint` or `Quiz` and the tutorial is gated, the Next link is disabled until every completion item on that step is complete. Learners must tick every checkpoint and answer every quiz correctly before continuing.
 
 Use gating for workshops, certification paths, or tutorials where skipping ahead creates confusion. Avoid gating for reference-style docs.
 
@@ -43,17 +43,20 @@ Use `<Quiz>` to check one concept:
 
 ```mdx
 <Quiz
+  id="gating/next-button"
   question="What gates the Next button in a step?"
   options={[
     "Reading the page",
     "A Checkpoint component",
     "Time on page",
-    "Nothing — it is always enabled"
+    "Nothing, it is always enabled"
   ]}
   answer={1}
-  explanation="A step checkpoint gates the Next button when the tutorial has gated: true."
+  explanation="A step checkpoint or quiz gates the Next button when the tutorial has gated: true."
 />
 ```
+
+Correct quiz answers count toward step completion. In gated tutorials, a quiz-only step does not need a separate checkpoint. If a step has multiple quizzes, every quiz on that step must be answered correctly.
 
 Tips:
 

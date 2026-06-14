@@ -40,6 +40,7 @@ Almost never in practice — you can always rewrite it as a `LEFT JOIN` with the
 </Reveal>
 
 <Quiz
+  id="joins/outer-join-nulls"
   question="A query returns rows where one side has NULLs in every column. What does that tell you?"
   options={[
     "There's a bug in the data",
@@ -51,7 +52,7 @@ Almost never in practice — you can always rewrite it as a `LEFT JOIN` with the
   explanation="Outer joins fill missing matches with NULLs. INNER joins simply drop unmatched rows."
 />
 
-<Checkpoint label="I can pick the right join shape for 'all X with their Ys'." />
+<Checkpoint id="joins/join-shape" label="I can pick the right join shape for 'all X with their Ys'." />
 
 <Recap items={[
   "INNER JOIN keeps only matches",

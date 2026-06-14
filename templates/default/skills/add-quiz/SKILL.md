@@ -6,6 +6,8 @@ triggers: ["add quiz", "create quiz", "write quiz", "knowledge check", "comprehe
 
 Use this when the author wants to add a comprehension check inside a step. A `<Quiz>` is *not* a test of trivia — it's a way to make the reader stop and articulate what they just learned, with feedback if they got it wrong.
 
+A passed `<Quiz>` counts as step completion. In a gated tutorial, the Next button stays locked until every quiz on the step is answered correctly, plus every checkpoint on the step is complete. Do not add a separate `<Checkpoint>` solely to mark a quiz step complete.
+
 ## 1. Decide if a quiz belongs here
 
 Ask first. A quiz is the right tool when **all** of these are true:
@@ -59,11 +61,11 @@ Rules:
 - **Keep it to 1–2 sentences.** Long explanations get skipped.
 - Link to deeper reading if the concept warrants it, but don't make the explanation a redirect.
 
-## 7. Use a stable `id` for important quizzes
+## 7. Always use a stable `id`
 
 Progress is keyed by `id ?? "quiz:<react-id>:<question-prefix>"`. The default `react-id` is positional — if the author later inserts a new quiz or `<Checkpoint>` *above* this one, the positional id shifts and the reader's previous answer is lost.
 
-For quizzes the author cares about persisting (graded series, anything in a gated tutorial), pass an explicit `id`:
+Every quiz is progress-traceable. Pass an explicit `id` by default. Gated quiz ids matter because quiz correctness unlocks step progress:
 
 ```mdx
 <Quiz
@@ -73,7 +75,7 @@ For quizzes the author cares about persisting (graded series, anything in a gate
 />
 ```
 
-Use a `<tutorial-area>/<concept>` slug. Stable, human-readable, won't collide.
+Use a `<step-area>/<concept>` slug. Stable, human-readable, won't collide.
 
 ## 8. Placement
 
@@ -108,7 +110,7 @@ Note: the distractors aren't filler — option 3 is the Vue-developer misconcept
 - Don't use "all of the above" or "none of the above" options. They're anti-patterns.
 - Don't write distractors that are jokes or obviously wrong. Wrong options must be plausible misconceptions or the quiz teaches nothing.
 - Don't leave `explanation` empty. It's the most valuable part of the component.
-- Don't omit `id` for quizzes whose progress matters. Default ids drift when content is reordered.
+- Don't omit `id`. Default ids drift when content is reordered.
 - Don't reach for `multi` unless "spot all of them" is genuinely the skill. Multi-select with one correct answer is almost always wrong.
 - Don't `import` Quiz — it's globally registered like every other MDX component.
 - Don't escape quotes inside `question` or `explanation` with `\"`. MDX attribute strings don't support C-style escapes and the build will fail. Use outer single quotes (`question='...'`) or a JSX expression. See `authoring-voice` section 2.

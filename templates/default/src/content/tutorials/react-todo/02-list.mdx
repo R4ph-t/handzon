@@ -55,6 +55,7 @@ function App() {
 />
 
 <Quiz
+  id="list/key-prop"
   question="What's the purpose of the `key` prop on list items?"
   options={[
     "It's required by HTML",
@@ -66,7 +67,7 @@ function App() {
   explanation="React uses keys to match items across renders. A stable id is the right choice; array index is fine only for never-reordering lists."
 />
 
-<Checkpoint label="My TODOs render as a `<ul>` in the browser." />
+<Checkpoint id="list/todos-rendered" label="My TODOs render as a `<ul>` in the browser." />
 
 <Recap items={[
   "Replaced the welcome screen with a real component",

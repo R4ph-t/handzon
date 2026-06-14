@@ -182,10 +182,11 @@ Use quizzes to check one concept:
 
 ```mdx
 <Quiz
+  id="gating/next-button"
   question="What gates the Next button?"
-  options={["A Checkpoint", "A title", "A code fence"]}
+  options={["A Checkpoint or Quiz", "A title", "A code fence"]}
   answer={0}
-  explanation="A step checkpoint gates the Next button when the tutorial is gated."
+  explanation="A checkpoint or quiz gates the Next button when the tutorial is gated."
 />
 ```
 

@@ -42,7 +42,7 @@ MDX is JSX inside Markdown. JSX is strict about syntax in a way Markdown isn't, 
 
 - **Component names must start with uppercase.** `<Quiz>` works; `<quiz>` is treated as an HTML element and any custom props are ignored.
 
-- **Self-close empty components.** `<Checkpoint label="..." />` not `<Checkpoint label="...">`. Missing `/>` makes everything after it the component's children, often producing wildly misleading errors many lines later.
+- **Self-close empty components.** `<Checkpoint id="setup/done" label="..." />` not `<Checkpoint id="setup/done" label="...">`. Missing `/>` makes everything after it the component's children, often producing wildly misleading errors many lines later.
 
 - **Use JSX comments, not HTML comments.** `{/* this is a comment */}` is hidden from output. `<!-- this is rendered as text -->` is not.
 

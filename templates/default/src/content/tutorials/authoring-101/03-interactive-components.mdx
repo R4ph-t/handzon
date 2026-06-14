@@ -30,15 +30,16 @@ The point of `<Reveal>` is to keep a solution one click away — useful for exer
 ## Quiz
 
 <Quiz
+  id="interactive-components/gating"
   question="What gates the Next button in a step?"
-  options={["Reading the page", "A Checkpoint component", "Time on page", "Nothing — it's always enabled"]}
+  options={["Reading the page", "A Checkpoint or Quiz component", "Time on page", "Nothing — it's always enabled"]}
   answer={1}
-  explanation="If a <Checkpoint /> exists on a step, Next is disabled until the learner toggles it complete."
+  explanation="If a step has a <Checkpoint /> or <Quiz /> and the tutorial has gated: true, Next stays disabled until every completion item on that step is complete."
 />
 
 ## Checkpoint
 
-<Checkpoint label="I understand how interactive components hydrate." />
+<Checkpoint id="interactive-components/hydration" label="I understand how interactive components hydrate." />
 
 ## Playground (Sandpack — JS/TS only in v1)
 

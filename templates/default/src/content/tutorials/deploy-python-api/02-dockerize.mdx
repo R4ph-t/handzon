@@ -83,6 +83,7 @@ It tells `pip` not to cache wheels under `~/.cache/pip`. In a Docker image, that
 </Reveal>
 
 <Quiz
+  id="dockerize/layer-cache"
   question="Why does the Dockerfile copy requirements.txt BEFORE app.py?"
   options={[
     "It's required syntax",
@@ -94,7 +95,7 @@ It tells `pip` not to cache wheels under `~/.cache/pip`. In a Docker image, that
   explanation="Docker invalidates layers from the changed COPY downwards. Copying requirements.txt first means pip install only re-runs when deps actually change."
 />
 
-<Checkpoint label="I can curl http://localhost:8000/healthz from inside Docker." />
+<Checkpoint id="dockerize/container-healthz" label="I can curl http://localhost:8000/healthz from inside Docker." />
 
 <Recap items={[
   "Wrote a multi-stage-ready Dockerfile",

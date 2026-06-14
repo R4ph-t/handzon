@@ -14,7 +14,7 @@ Before asking the author anything, gather context:
 
 1. **Pick the tutorial.** If the author didn't name one, list folders under `src/content/tutorials/` (excluding `_index.json`) and ask which.
 2. **Load `<slug>/_meta.json`**. Note three things that change how you scaffold:
-   - `gated: true` → every step must end with a `<Checkpoint>` before the `<Recap>`.
+   - `gated: true` → every step must end with a completion item (`<Quiz>` or `<Checkpoint>`) before the `<Recap>`.
    - `difficulty` → sets the tone of the new step.
    - `estimatedDuration` → if present, you'll need to update it in step 5.
 3. **List the existing steps** (`ls <slug>/*.mdx`) to see the arc and find the highest numeric prefix.
@@ -44,10 +44,10 @@ Don't ship a prose-heavy step. Before writing the file, pick the components that
 - **Opening screenshot, walkthrough video, or slide deck** → `heroMedia` in step frontmatter
 - **Inline embeddable video or slide deck** → `<Embed src="..."/>` (add `type="slides"` for a hosted deck like Google Slides or Speaker Deck); **downloadable asset** → `<Download href="/downloads/..."/>`
 - **Runnable JS/TS** → `<Playground>` (v1: JS/TS only)
-- **Knowledge check** → `<Quiz>` — useful mid-tutorial or when introducing a tricky concept
+- **Knowledge check** → `<Quiz id="<step-area>/<concept>">` — useful mid-tutorial or when introducing a tricky concept
 - **Inline "stuck?" escape hatch** → `<HelpMe topic="..."/>` — drop next to a specific hard spot (gnarly diff, tricky regex, opaque terminal output) when the tutorial has AI enabled. Don't put one at the *end* of every step — that's `autoStepHelp` territory (see `add-helpme`).
 - **End-of-step summary** → `<Recap items={[...]}/>` — **every step**
-- **Progress gate** → `<Checkpoint label="..."/>` — **every step, before the `<Recap>`, when the tutorial is `gated: true`**
+- **Progress gate** → `<Checkpoint id="<step-area>/<outcome>" label="..."/>` — before the `<Recap>` when the step needs a concrete confirmation
 
 The full prop signatures live in `AGENTS.md` under "MDX components".
 
@@ -90,9 +90,9 @@ In this step you'll <one sentence describing the step's outcome>.
 {/* <Tabs group=""><Tab label="">…</Tab></Tabs> */}
 {/* <Terminal entries={[{ command: "", output: "" }]} /> */}
 {/* <Diff before={``} after={``} /> */}
-{/* <Quiz question="" options={[]} answer={0} explanation="" /> */}
+{/* <Quiz id="<step-area>/<concept>" question="" options={[]} answer={0} explanation="" /> */}
 
-<Checkpoint label="I did <thing>." />
+<Checkpoint id="<step-area>/<outcome>" label="I did <thing>." />
 
 <Recap items={[
   "<bullet>",
@@ -100,7 +100,7 @@ In this step you'll <one sentence describing the step's outcome>.
 ]} />
 ```
 
-Omit the `<Checkpoint>` line if the tutorial is *not* gated. Keep `<Recap>` always.
+Omit the `<Checkpoint>` line if the step is already gated by a quiz or does not need a concrete confirmation. Keep `<Recap>` always.
 
 ## 5. Keep `_meta.json` honest
 
@@ -123,7 +123,7 @@ Tell the author exactly what to do next:
 ## Don't
 
 - Don't pick a numeric prefix that collides with an existing step. Verify with `ls` before writing.
-- Don't forget the `<Checkpoint>` when the tutorial is `gated: true`. Without it, the reader can't advance past this step.
+- Don't forget a completion item (`<Quiz>` or `<Checkpoint>`) when the tutorial is `gated: true`. Without one, the reader can advance without doing the work.
 - Don't ship prose-heavy steps. If a step has 3+ paragraphs of running text without a component, you're using the wrong tool — reach for `<FileTree>`, `<Diff>`, `<Terminal>`, `<Tabs>`, or `<Playground>`.
 - Don't reach for a fenced code block when a component fits better. A bash fence with `$` prompts should be `<Terminal>`; a list of file paths should be `<FileTree>`; before/after code should be `<Diff>`.
 - Don't `import` MDX components — they're globally registered.

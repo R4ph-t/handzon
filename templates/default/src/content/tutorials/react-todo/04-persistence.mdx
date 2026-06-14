@@ -39,6 +39,7 @@ Passing a function to `useState` means React calls it **once**, on first render 
 </Hint>
 
 <Quiz
+  id="persistence/localstorage-effect"
   question="What happens if you call `localStorage.setItem` on every render without `useEffect`?"
   options={[
     "Nothing — React batches it",
@@ -50,7 +51,7 @@ Passing a function to `useState` means React calls it **once**, on first render 
   explanation="Writing during render is a side effect — React rules forbid it. `useEffect` defers the write until after render commits."
 />
 
-<Checkpoint label="My TODOs survive a page refresh." />
+<Checkpoint id="persistence/todos-survive-refresh" label="My TODOs survive a page refresh." />
 
 <Recap items={[
   "Extracted a reusable `useLocalStorage` hook",

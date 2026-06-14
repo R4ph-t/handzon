@@ -51,6 +51,7 @@ It's the cheapest way to get a unique number per item without a backend. For rea
 </Reveal>
 
 <Quiz
+  id="add-item/controlled-input"
   question="The form uses a 'controlled input'. What does that mean?"
   options={[
     "The input value is stored in React state, not the DOM",
@@ -62,7 +63,7 @@ It's the cheapest way to get a unique number per item without a backend. For rea
   explanation="A controlled input's value is owned by React state. The opposite — an uncontrolled input — keeps its value in the DOM, accessed via refs."
 />
 
-<Checkpoint label="I can type a todo and see it appear in the list." />
+<Checkpoint id="add-item/todo-appears" label="I can type a todo and see it appear in the list." />
 
 <Recap items={[
   "Wired up a controlled form with `useState`",

@@ -11,17 +11,20 @@ interface Props {
   currentStepSlug: string;
   gated: boolean;
   hasCheckpoint: boolean;
+  hasQuiz: boolean;
   nextTutorial?: TutorialSummary;
 }
 
-const { tutorialSlug, steps, currentStepSlug, gated, hasCheckpoint, nextTutorial } = Astro.props;
+const { tutorialSlug, steps, currentStepSlug, gated, hasCheckpoint, hasQuiz, nextTutorial } =
+  Astro.props;
 const idx = steps.findIndex((s) => parseStepId(s.id).stepSlug === currentStepSlug);
 const prev = idx > 0 ? steps[idx - 1] : null;
 const next = idx >= 0 && idx < steps.length - 1 ? steps[idx + 1] : null;
 const prevSlug = prev ? parseStepId(prev.id).stepSlug : null;
 const nextSlug = next ? parseStepId(next.id).stepSlug : null;
+const hasCompletionItem = hasCheckpoint || hasQuiz;
 ---
-<nav class:list={["step-nav", !next && "step-nav-final"]} data-gated={gated && hasCheckpoint ? "true" : "false"} data-step-key={`${tutorialSlug}/${currentStepSlug}`}>
+<nav class:list={["step-nav", !next && "step-nav-final"]} data-gated={gated && hasCompletionItem ? "true" : "false"} data-step-key={`${tutorialSlug}/${currentStepSlug}`}>
   <div>
     {prev && (
       <a class="sn-prev" href={withBase(`/${tutorialSlug}/${prevSlug}`)}>
@@ -32,7 +35,7 @@ const nextSlug = next ? parseStepId(next.id).stepSlug : null;
   <div class="sn-slot">
     {next ? (
       <a class="sn-next" href={withBase(`/${tutorialSlug}/${nextSlug}`)} data-next-link="true">
-        {hasCheckpoint ? "Continue" : "Next"}: {next.data.title} →
+        {hasCompletionItem ? "Continue" : "Next"}: {next.data.title} →
       </a>
     ) : (
       <TutorialCompletion
@@ -46,7 +49,7 @@ const nextSlug = next ? parseStepId(next.id).stepSlug : null;
 </nav>
 
 <script>
-  // Gating: if the host step contains a Checkpoint AND tutorial is gated,
+  // Gating: if the host step contains a completion item AND tutorial is gated,
   // disable Next until the step is marked complete.
   import { getStore } from "../lib/progress/local";
   const nav = document.querySelector<HTMLElement>(".step-nav");

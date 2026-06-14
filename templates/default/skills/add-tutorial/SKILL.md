@@ -45,9 +45,9 @@ Guidance:
 - **Opening screenshot, walkthrough video, or slide deck** → `heroMedia` in step frontmatter
 - **Inline embeddable video or slide deck** → `<Embed src="..."/>` (add `type="slides"` for a hosted deck like Google Slides or Speaker Deck); **downloadable asset** → `<Download href="/downloads/..."/>`
 - **Runnable JS/TS** → `<Playground>` (v1: JS/TS only)
-- **Knowledge check** → at least one `<Quiz>` per tutorial, typically mid-tutorial
+- **Knowledge check** → at least one `<Quiz id="<step-area>/<concept>">` per tutorial, typically mid-tutorial
 - **Inline "stuck?" button** → `<HelpMe topic="..."/>` at a specific hard spot in a step when the tutorial has AI enabled (see `add-helpme`)
-- **Progress gate** → `<Checkpoint label="..."/>` at the end of every step when `gated: true`
+- **Progress gate** → `<Checkpoint id="<step-area>/<outcome>" label="..."/>` at the end of steps that need concrete confirmation
 - **End-of-step summary** → `<Recap items={[...]}/>` on every step
 
 The full prop signatures live in `AGENTS.md` under "MDX components" — refer to it, don't restate it.
@@ -111,7 +111,7 @@ In this step you'll <one sentence describing the step's outcome>.
 {/* <FileTree paths={[]} /> */}
 {/* <Tabs group=""><Tab label="">…</Tab></Tabs> */}
 {/* <Diff before={``} after={``} /> */}
-{/* <Quiz question="" options={[]} answer={0} explanation="" /> */}
+{/* <Quiz id="<step-area>/<concept>" question="" options={[]} answer={0} explanation="" /> */}
 
 <Recap items={[
   "<bullet>",
@@ -119,7 +119,7 @@ In this step you'll <one sentence describing the step's outcome>.
 ]} />
 ```
 
-Append `<Checkpoint label="I did <thing>." />` *before* the `<Recap>` only if the tutorial is gated. Replace the comment hints with the actual empty components from the outline — don't leave the comments behind.
+Append `<Checkpoint id="<step-area>/<outcome>" label="I did <thing>." />` *before* the `<Recap>` only if the step needs a concrete confirmation. Replace the comment hints with the actual empty components from the outline — don't leave the comments behind.
 
 **`src/content/tutorials/_index.json`** — append the new slug to the `order` array. Create the file with `{ "order": ["<slug>"] }` if it doesn't exist. Without this, the tutorial still renders but appears at the bottom of the homepage sorted alphabetically.
 

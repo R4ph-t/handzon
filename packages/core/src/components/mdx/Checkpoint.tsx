@@ -15,33 +15,18 @@ interface Props {
   id?: string;
 }
 
-/**
- * Reads the host tutorial/step from the page-level route marker
- * (<div id="tt-route" data-tutorial-slug=... data-step-slug=...>) that
- * TutorialLayout emits. Looking it up here keeps the Astro wrapper trivial.
- */
-function useRoute() {
-  const [route, setRoute] = useState<{ tutorial: string; step: string } | null>(null);
-  useEffect(() => {
-    const el = document.getElementById("tt-route");
-    if (!el) return;
-    const tutorial = el.dataset.tutorialSlug;
-    const step = el.dataset.stepSlug;
-    if (tutorial && step) setRoute({ tutorial, step });
-  }, []);
-  return route;
-}
-
 export default function Checkpoint({ label, id }: Props) {
   const reactId = useId();
   const checkpointId = id ?? `checkpoint:${reactId}:${label.slice(0, 40)}`;
-  const { state, recordCheckpoint, removeCheckpoint, markStepComplete, markStepIncomplete } =
-    useProgress();
-  const route = useRoute();
+  const { state, recordCheckpoint, removeCheckpoint } = useProgress();
   const done = !!state.checkpoints[checkpointId];
   const aiEnabled = useAiEnabled();
   const [stuck, setStuck] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    document.dispatchEvent(new CustomEvent("hz:step-item"));
+  }, []);
 
   // Show the "Stuck?" nudge after STUCK_DELAY_MS of an unchecked
   // checkpoint being on-screen. Resets the timer if the checkpoint
@@ -75,11 +60,9 @@ export default function Checkpoint({ label, id }: Props) {
   function onToggle() {
     if (done) {
       removeCheckpoint(checkpointId);
-      if (route) markStepIncomplete(route.tutorial, route.step);
       return;
     }
     recordCheckpoint(checkpointId);
-    if (route) markStepComplete(route.tutorial, route.step);
   }
 
   // Family D: inline failure feedback from a submit_verification call.
@@ -91,7 +74,11 @@ export default function Checkpoint({ label, id }: Props) {
   const showFeedback = !done && feedback && !feedback.pass;
 
   return (
-    <div ref={rootRef} className={done ? "checkpoint is-done" : "checkpoint"}>
+    <div
+      ref={rootRef}
+      className={done ? "checkpoint is-done" : "checkpoint"}
+      data-checkpoint-id={checkpointId}
+    >
       <button type="button" onClick={onToggle} aria-pressed={done}>
         <span className="checkpoint-box">{done && <Check size={16} />}</span>
         <span>{label}</span>

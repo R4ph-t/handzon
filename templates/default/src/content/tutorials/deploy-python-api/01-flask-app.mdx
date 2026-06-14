@@ -76,6 +76,7 @@ Binding to `0.0.0.0` (not `127.0.0.1`) and reading `PORT` from the environment a
 ]} />
 
 <Quiz
+  id="flask-app/bind-host"
   question="Why bind to 0.0.0.0 instead of 127.0.0.1?"
   options={[
     "Performance",
@@ -87,7 +88,7 @@ Binding to `0.0.0.0` (not `127.0.0.1`) and reading `PORT` from the environment a
   explanation="127.0.0.1 only listens on localhost. In a container or behind a load balancer, the platform needs to reach the server from outside — 0.0.0.0 binds to every interface."
 />
 
-<Checkpoint label="My Flask app responds to /healthz and /items locally." />
+<Checkpoint id="flask-app/local-endpoints" label="My Flask app responds to /healthz and /items locally." />
 
 <Recap items={[
   "Wrote a 25-line Flask API",

@@ -13,6 +13,7 @@ interface Props {
   currentStep: StepEntry;
   currentStepSlug: string;
   hasCheckpoint?: boolean;
+  hasQuiz?: boolean;
   siteName?: string;
   tagline?: string;
   logoUrl?: string;
@@ -33,6 +34,7 @@ const {
   currentStep,
   currentStepSlug,
   hasCheckpoint = false,
+  hasQuiz = false,
   siteName,
   tagline,
   logoUrl,
@@ -120,6 +122,7 @@ const trackBootstrap =
         currentStepSlug={currentStepSlug}
         gated={tutorial.data.gated}
         hasCheckpoint={hasCheckpoint}
+        hasQuiz={hasQuiz}
         nextTutorial={nextTutorial}
       />
 
@@ -166,10 +169,13 @@ const trackBootstrap =
     // dynamic import("~/...") bypasses Vite's resolver and the browser
     // can't load the module.
     import { getStore } from "../lib/progress/local";
+    import { deriveStepCompletion } from "../lib/progress/stepCompletion";
+    import type { StepKey } from "../lib/progress/types";
     const route = document.getElementById("tt-route");
     if (route) {
       const tutorialSlug = route.dataset.tutorialSlug!;
       const stepSlug = route.dataset.stepSlug!;
+      const stepKey = `${tutorialSlug}/${stepSlug}` as StepKey;
       const tutorialSteps = JSON.parse(
         route.dataset.tutorialSteps ?? "[]",
       ) as string[];
@@ -199,6 +205,34 @@ const trackBootstrap =
           },
         };
       });
+
+      function readCompletionItemIds(selector: string, attr: string) {
+        const activeTrack = document.documentElement.dataset.track;
+        const ids = Array.from(document.querySelectorAll<HTMLElement>(selector))
+          .map((el) => {
+            const trackPanel = el.closest<HTMLElement>("[data-track-panel]");
+            if (activeTrack && trackPanel?.dataset.trackPanel !== activeTrack) return null;
+            return el.dataset[attr];
+          })
+          .filter((id): id is string => !!id);
+        return Array.from(new Set(ids));
+      }
+
+      function recomputeStepCompletion() {
+        const completion = deriveStepCompletion(store.get(), {
+          quizIds: readCompletionItemIds("[data-quiz-id]", "quizId"),
+          checkpointIds: readCompletionItemIds("[data-checkpoint-id]", "checkpointId"),
+        });
+        if (completion === null) return;
+        store.set((s) => {
+          if (s.steps[stepKey] === completion) return s;
+          return { ...s, steps: { ...s.steps, [stepKey]: completion } };
+        });
+      }
+
+      recomputeStepCompletion();
+      document.addEventListener("hz:step-item", recomputeStepCompletion);
+      store.subscribe(recomputeStepCompletion);
 
       // Watch for tutorial completion: once every step in the embedded
       // list flips to "complete", record the "completed" event exactly

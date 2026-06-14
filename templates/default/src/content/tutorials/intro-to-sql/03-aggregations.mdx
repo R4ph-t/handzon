@@ -45,13 +45,14 @@ You cannot use an aggregate (like `COUNT(*)`) in a `WHERE` clause — that's wha
 </Reveal>
 
 <Quiz
+  id="aggregations/select-order"
   question="Which clause runs LAST in a SELECT statement?"
   options={["WHERE", "SELECT", "ORDER BY", "FROM"]}
   answer={2}
   explanation="The logical order is FROM → WHERE → GROUP BY → HAVING → SELECT → ORDER BY → LIMIT. That's why an ORDER BY can reference column aliases defined in SELECT."
 />
 
-<Checkpoint label="I can write a GROUP BY query with HAVING." />
+<Checkpoint id="aggregations/group-by-having" label="I can write a GROUP BY query with HAVING." />
 
 <Recap items={[
   "COUNT, SUM, AVG, MIN, MAX are the workhorses",

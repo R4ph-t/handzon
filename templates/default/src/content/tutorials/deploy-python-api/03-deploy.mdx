@@ -57,6 +57,7 @@ curl https://my-python-api.onrender.com/healthz
 ```
 
 <Quiz
+  id="deploy/health-check-path"
   question="What's the purpose of the healthCheckPath in render.yaml?"
   options={[
     "It blocks deploys without a passing test suite",
@@ -68,7 +69,7 @@ curl https://my-python-api.onrender.com/healthz
   explanation="Render polls healthCheckPath during and after deploy. If it doesn't return 200, Render keeps the previous deploy running and the new one fails."
 />
 
-<Checkpoint label="My Python API is live on a Render onrender.com URL." />
+<Checkpoint id="deploy/live-api" label="My Python API is live on a Render onrender.com URL." />
 
 <Recap items={[
   "Wrote a render.yaml Blueprint with healthCheckPath",

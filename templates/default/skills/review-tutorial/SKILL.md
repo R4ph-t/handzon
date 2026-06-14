@@ -66,25 +66,25 @@ For the tutorial as a whole:
 
 ### 3a. Gated-tutorial audit (only if `_meta.json.gated: true`)
 
-This is the highest-impact section. The gating mechanic requires **both** `gated: true` *and* a `<Checkpoint>` per step. A step with no checkpoint silently un-gates itself — no build error.
+This is the highest-impact section. The gating mechanic requires **both** `gated: true` *and* at least one completion item (`<Quiz>` or `<Checkpoint>`) per step. A step with no completion item silently un-gates itself — no build error.
 
 ```bash
-# Find every step file that lacks a <Checkpoint>.
+# Find every step file that lacks a Quiz or Checkpoint.
 for f in src/content/tutorials/<slug>/*.mdx; do
-  rg -q '<Checkpoint' "$f" || echo "MISSING CHECKPOINT: $f"
+  rg -q '<(Quiz|Checkpoint)' "$f" || echo "MISSING COMPLETION ITEM: $f"
 done
 ```
 
 Then within gated tutorials, audit:
 
-- **One `<Checkpoint>` per step.** `markStepComplete` fires on first toggle, so multiple checkpoints don't compose — the others are decorative. More than one is a must-fix or a redesign.
-- **Every `<Checkpoint>` in a gated tutorial has an explicit `id`.** Default ids include React's positional `useId`, so inserting any MDX component above a checkpoint invalidates the reader's previous completion. Find checkpoints missing `id`:
+- **Every completion item on a step composes.** A step with two quizzes and one checkpoint completes only when both quizzes are correct and the checkpoint is done. Flag accidental extra items.
+- **Every `<Checkpoint>` has an explicit `id`.** Default ids include React's positional `useId`, so inserting any MDX component above a checkpoint invalidates the reader's previous completion. Find checkpoints missing `id`:
 
 ```bash
 rg -nP '<Checkpoint(?![^>]*\bid=)' src/content/tutorials/<slug>/
 ```
 
-- **Every `<Quiz>` whose progress matters has an explicit `id`.** Same drift problem:
+- **Every `<Quiz>` has an explicit `id`.** Same drift problem:
 
 ```bash
 rg -nP '<Quiz(?![^>]*\bid=)' src/content/tutorials/<slug>/
@@ -196,7 +196,7 @@ Group everything into three buckets. Be honest about what's must-fix vs. taste.
 
 **Must fix before publish:**
 - Build errors (`pnpm check`)
-- Missing `<Checkpoint>` in any step of a gated tutorial
+- Missing `<Quiz>` or `<Checkpoint>` in any step of a gated tutorial
 - Missing `<Recap>` in any step
 - MDX `import` statements
 - Quiz with no `explanation`

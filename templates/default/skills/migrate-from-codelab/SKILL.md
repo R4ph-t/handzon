@@ -89,7 +89,7 @@ summary: <first sentence of the step, optional>
 Codelabs don't have checkpoints or recaps. Add them — they're high-value for retention:
 
 ```mdx
-<Checkpoint label="I finished this step." />
+<Checkpoint id="<step-area>/done" label="I finished this step." />
 
 <Recap items={[
   "Key thing from this step",
@@ -107,7 +107,7 @@ If the codelab has a hero image, set it as `cover` in `_meta.json`.
 
 ## 6. Pick at least one quiz
 
-Codelabs rarely have quizzes. Identify ONE concept from each step that you'd want a learner to be able to verify, and author a `<Quiz>` block (see the `add-quiz` skill). Don't force them on every step — distractor quality matters more than count.
+Codelabs rarely have quizzes. Identify ONE concept from each step that you'd want a learner to be able to verify, and author a `<Quiz id="...">` block (see the `add-quiz` skill). Don't force them on every step — distractor quality matters more than count.
 
 ## 7. Verify
 
@@ -134,6 +134,6 @@ If the codelab links to API docs, drop the doc URLs into `_meta.json.ai.referenc
 - [ ] Step `duration` in frontmatter (codelab `Duration: M:SS` → `M min`).
 - [ ] All `Positive`/`Negative` blocks converted to `<Callout>`.
 - [ ] Images copied to `./assets/` and links updated.
-- [ ] Each step ends with `<Checkpoint>` + `<Recap>`.
-- [ ] At least one `<Quiz>` per tutorial.
+- [ ] Each step ends with a completion item that has an explicit `id`, plus `<Recap>`.
+- [ ] At least one `<Quiz id="...">` per tutorial.
 - [ ] `pnpm dev` clicks through end-to-end with no console errors.

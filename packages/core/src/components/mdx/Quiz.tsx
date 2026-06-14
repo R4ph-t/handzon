@@ -1,5 +1,5 @@
 import { Check, X } from "lucide-react";
-import { useId, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { dispatchAssist, useAiEnabled } from "../../lib/ai/assist";
 import { useProgress } from "../../lib/progress/useProgress";
 
@@ -25,6 +25,10 @@ export default function Quiz({ question, options, answer, explanation, id, multi
   const correctSet = new Set(Array.isArray(answer) ? answer : [answer]);
   const expectMulti = multi ?? Array.isArray(answer);
 
+  useEffect(() => {
+    document.dispatchEvent(new CustomEvent("hz:step-item"));
+  }, []);
+
   function toggle(i: number) {
     if (submitted) return;
     if (expectMulti) {
@@ -47,7 +51,7 @@ export default function Quiz({ question, options, answer, explanation, id, multi
   }
 
   return (
-    <fieldset className="quiz" disabled={submitted}>
+    <fieldset className="quiz" data-quiz-id={questionId} disabled={submitted}>
       <legend className="quiz-q">{question}</legend>
       <div className="quiz-options">
         {options.map((opt, i) => {
