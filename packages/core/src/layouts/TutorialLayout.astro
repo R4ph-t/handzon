@@ -234,16 +234,21 @@ const trackBootstrap =
           return Array.from(new Set(ids));
         }
 
+        // Derive this step's completion from its quizzes/checkpoints. The
+        // early return when the status is unchanged is load-bearing:
+        // recompute is itself a store subscriber, so calling store.set
+        // unconditionally would re-trigger recompute on every notify and
+        // loop forever (store.set notifies even on no-op updates). Bailing
+        // before store.set keeps the reaction bounded and re-entrancy-safe.
         function recomputeStepCompletion() {
-          const completion = deriveStepCompletion(store.get(), {
+          const state = store.get();
+          const completion = deriveStepCompletion(state, {
             quizIds: readCompletionItemIds("[data-quiz-id]", "quizId"),
             checkpointIds: readCompletionItemIds("[data-checkpoint-id]", "checkpointId"),
           });
           if (completion === null) return;
-          store.set((s) => {
-            if (s.steps[stepKey] === completion) return s;
-            return { ...s, steps: { ...s.steps, [stepKey]: completion } };
-          });
+          if (state.steps[stepKey] === completion) return;
+          store.set((s) => ({ ...s, steps: { ...s.steps, [stepKey]: completion } }));
         }
 
         recomputeStepCompletion();

@@ -1,5 +1,11 @@
 # handzon-core
 
+## 0.17.2
+
+### Patch Changes
+
+- Fix interactive quiz feedback. The step-completion coordinator re-triggered its own `store.set` on every store change, which dropped the quiz's submit re-render (status only appeared after reload) and could freeze the page; it now bails before writing when the step status is unchanged. Also fixed the "Try again" button, which was inert because it sat inside a disabled `<fieldset>`; answers stay locked after submit via the existing guard instead.
+
 ## 0.17.1
 
 ### Patch Changes

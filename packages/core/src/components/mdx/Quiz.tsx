@@ -51,7 +51,7 @@ export default function Quiz({ question, options, answer, explanation, id, multi
   }
 
   return (
-    <fieldset className="quiz" data-quiz-id={questionId} disabled={submitted}>
+    <fieldset className="quiz" data-quiz-id={questionId}>
       <legend className="quiz-q">{question}</legend>
       <div className="quiz-options">
         {options.map((opt, i) => {
