@@ -1,5 +1,11 @@
 # handzon-core
 
+## 0.17.3
+
+### Patch Changes
+
+- Add `Collapsible` and `Figure` MDX components. `Collapsible` is a static, themeable collapsible section for optional detail. `Figure` renders a bordered image with an optional caption. Plain markdown images now get a matching border.
+
 ## 0.17.2
 
 ### Patch Changes
