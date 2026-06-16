@@ -61,16 +61,18 @@ Expressive Code's `title="..."` is also supported on code fences.
 
 ### Figure
 
-Use `Figure` for images that need a border and an optional caption. Pass a string path (resolved against the site base) or an imported asset. Set `width` to constrain the image:
+Use `Figure` for images that need a border and an optional caption. Set `width` to constrain the image:
 
 ```mdx
 <Figure
-  src="/screenshots/dashboard.png"
+  src="./assets/dashboard.png"
   alt="The deploy dashboard after a successful build"
   caption="The dashboard shows a green build once the deploy finishes."
   width={640}
 />
 ```
+
+A `src` that points at a co-located asset under the tutorial's `assets/` directory is resolved and optimized through `astro:assets` automatically — no import needed, the same way `heroMedia` frontmatter resolves. Files in `public/` and remote URLs render as a plain image. You can also pass an imported asset directly if you prefer.
 
 Plain markdown images (`![alt](src)`) also get the border, but only `Figure` renders a caption.
 

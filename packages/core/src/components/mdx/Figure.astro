@@ -11,21 +11,48 @@ interface Props {
 }
 
 const { src, alt, caption, width } = Astro.props;
+
+/**
+ * Co-located tutorial assets, globbed from the consuming project's root.
+ * The leading-slash pattern resolves against the consumer's Vite root at
+ * build time (not this file's location in node_modules), so authors can
+ * write `src="./assets/x.png"` and get an optimized <Image> without an
+ * import — the same resolution `heroMedia` frontmatter gets via `image()`.
+ */
+const assetModules = import.meta.glob<{ default: ImageMetadata }>(
+  "/src/content/**/assets/**/*.{png,jpg,jpeg,gif,webp,avif,svg}",
+);
+
+const isExternal = (path: string) => /^([a-z][a-z0-9+.-]*:|\/\/)/i.test(path);
+
+let resolved: ImageMetadata | undefined;
+if (typeof src !== "string") {
+  resolved = src;
+} else if (!isExternal(src)) {
+  // Normalize "./assets/x.png", "../assets/x.png", "/assets/x.png" to a tail
+  // and match the globbed key that ends with it.
+  const needle = src.replace(/^(?:\.\.?\/)+/, "").replace(/^\//, "");
+  const key = Object.keys(assetModules).find(
+    (k) => k === `/${needle}` || k.endsWith(`/${needle}`),
+  );
+  if (key) resolved = (await assetModules[key]()).default;
+}
+
 const figureStyle =
   width != null ? `max-width: ${typeof width === "number" ? `${width}px` : width};` : undefined;
 ---
 
 <figure class="figure" style={figureStyle}>
-  {typeof src !== "string" ? (
+  {resolved ? (
     <Image
-      src={src}
+      src={resolved}
       alt={alt}
       class="figure-image"
       widths={[480, 720, 960, 1200]}
       sizes="(min-width: 768px) 720px, 100vw"
     />
   ) : (
-    <img src={withBase(src)} alt={alt} class="figure-image" loading="lazy" />
+    <img src={withBase(src as string)} alt={alt} class="figure-image" loading="lazy" />
   )}
   {caption && <figcaption>{caption}</figcaption>}
 </figure>

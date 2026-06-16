@@ -1,5 +1,11 @@
 # handzon-core
 
+## 0.17.4
+
+### Patch Changes
+
+- `Figure` now resolves co-located `assets/` paths through `astro:assets`, so `src="./assets/x.png"` is optimized without an import (the same resolution `heroMedia` frontmatter gets). Nested `<Steps>` render as sub-steps with `1.1`-style numbering on a lighter box. Bumped the inline code background one notch for better contrast.
+
 ## 0.17.3
 
 ### Patch Changes

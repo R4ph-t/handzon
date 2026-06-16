@@ -98,7 +98,7 @@ Static:
 - `<Collapsible title="..." open>`
 - `<Steps>` and `<Step>`
 - `<File>`
-- `<Figure src="..." alt="..." caption="..." width={640}>` for bordered images with optional captions
+- `<Figure src="..." alt="..." caption="..." width={640}>` for bordered images with optional captions. A `src` pointing at a co-located `assets/` file is optimized via `astro:assets` automatically; `public/` paths and remote URLs render as a plain image.
 - `<Recap>`
 - `<Embed>` for videos or slide decks
 - `<Download>`

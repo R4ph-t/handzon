@@ -53,7 +53,7 @@ The runtime walks the tree and resolves each node in order.
 
 ## Images with captions
 
-Plain markdown images get a border automatically. Use `Figure` when you also want a caption, and pass `width` to keep an image from filling the column.
+Plain markdown images get a border automatically. Use `Figure` when you also want a caption, and pass `width` to keep an image from filling the column. A `src` that points at a co-located `assets/` file is optimized through Astro automatically; `public/` paths like the logo below render as-is.
 
 ```mdx
 <Figure
@@ -83,6 +83,20 @@ Plain markdown images get a border automatically. Use `Figure` when you also wan
 <Steps>
   <Step title="First do this">Some explanation.</Step>
   <Step title="Then this">More explanation.</Step>
+</Steps>
+
+Nest a `<Steps>` block inside a `<Step>` for sub-steps. Nested items number as `1.1`, `1.2`, and so on.
+
+<Steps>
+  <Step title="Set up the project">
+    Get the basics in place:
+
+    <Steps>
+      <Step title="Install dependencies">Run the installer.</Step>
+      <Step title="Start the dev server">Open the local URL.</Step>
+    </Steps>
+  </Step>
+  <Step title="Build the first feature">Now you're ready to write code.</Step>
 </Steps>
 
 ## Code blocks
