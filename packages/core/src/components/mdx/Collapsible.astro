@@ -1,0 +1,51 @@
+---
+interface Props {
+  title?: string;
+  open?: boolean;
+}
+const { title = "Details", open = false } = Astro.props;
+---
+
+<details class="collapsible" open={open}>
+  <summary>
+    <svg class="collapsible-chevron" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+    <span>{title}</span>
+  </summary>
+  <div class="collapsible-body"><slot /></div>
+</details>
+
+<style>
+  .collapsible {
+    margin: 1rem 0;
+    background: var(--color-surface);
+    border: var(--border-default) solid var(--color-border);
+    border-radius: 0;
+    overflow: hidden;
+  }
+  .collapsible > summary {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.65rem 0.9rem;
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--color-fg);
+    list-style: none;
+    user-select: none;
+  }
+  .collapsible > summary::-webkit-details-marker { display: none; }
+  .collapsible-chevron {
+    color: var(--color-muted);
+    transition: transform 0.15s ease;
+    flex-shrink: 0;
+  }
+  .collapsible[open] > summary .collapsible-chevron { transform: rotate(90deg); }
+  .collapsible-body {
+    padding: 0.6rem 0.9rem 0.7rem;
+    border-top: var(--border-default) solid var(--color-border);
+  }
+  .collapsible-body :global(p:first-child) { margin-top: 0; }
+  .collapsible-body :global(p:last-child) { margin-bottom: 0; }
+</style>

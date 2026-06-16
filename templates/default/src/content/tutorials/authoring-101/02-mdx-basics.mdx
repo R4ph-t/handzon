@@ -1,7 +1,7 @@
 ---
 title: MDX basics
 duration: 5 min
-summary: The static components — Callout, Hint, Steps, File, Recap, Embed, Download.
+summary: The static components — Callout, Hint, Collapsible, Steps, Figure, File, Recap, Embed, Download.
 heroMedia:
   kind: slides
   src: https://docs.google.com/presentation/d/1s11aQscp0cXVGX-jyIFv1gf52YFBXMq-wWSS5vIRUMQ/edit?slide=id.g3eeba9b965c_0_43#slide=id.g3eeba9b965c_0_43
@@ -36,6 +36,40 @@ The answer is 42.
 <Hint title="Stuck? Reveal the answer">
 The answer is 42.
 </Hint>
+
+## Collapsible sections
+
+Use `Collapsible` for optional or supporting detail the learner can skip. Unlike `Hint`, it carries no "answer" framing, so it suits asides, extra background, or long output. Add `open` to start expanded.
+
+```mdx
+<Collapsible title="Why does this work?">
+The runtime walks the tree and resolves each node in order.
+</Collapsible>
+```
+
+<Collapsible title="Why does this work?">
+The runtime walks the tree and resolves each node in order.
+</Collapsible>
+
+## Images with captions
+
+Plain markdown images get a border automatically. Use `Figure` when you also want a caption, and pass `width` to keep an image from filling the column.
+
+```mdx
+<Figure
+  src="/logo.svg"
+  alt="The Handzon logo"
+  caption="Figures add a border and an optional caption."
+  width={180}
+/>
+```
+
+<Figure
+  src="/logo.svg"
+  alt="The Handzon logo"
+  caption="Figures add a border and an optional caption."
+  width={180}
+/>
 
 ## Steps (sub-step lists inside a page)
 

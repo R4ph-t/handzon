@@ -1,9 +1,11 @@
 import Callout from "../components/mdx/Callout.astro";
 import Checkpoint from "../components/mdx/Checkpoint.astro";
+import Collapsible from "../components/mdx/Collapsible.astro";
 import CopyPrompt from "../components/mdx/CopyPrompt.astro";
 import Diff from "../components/mdx/Diff.astro";
 import Download from "../components/mdx/Download.astro";
 import Embed from "../components/mdx/Embed.astro";
+import Figure from "../components/mdx/Figure.astro";
 import File from "../components/mdx/File.astro";
 import FileTree from "../components/mdx/FileTree.astro";
 import HelpMe from "../components/mdx/HelpMe.astro";
@@ -30,9 +32,11 @@ export function mdxComponents() {
   return {
     Callout,
     Hint,
+    Collapsible,
     Steps: StepsCmp,
     Step: StepCmp,
     File,
+    Figure,
     Recap,
     Embed,
     Download,

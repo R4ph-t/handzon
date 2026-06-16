@@ -95,8 +95,10 @@ Static:
 
 - `<Callout type="info" | "tip" | "warn" | "danger">`
 - `<Hint>`
+- `<Collapsible title="..." open>`
 - `<Steps>` and `<Step>`
 - `<File>`
+- `<Figure src="..." alt="..." caption="..." width={640}>` for bordered images with optional captions
 - `<Recap>`
 - `<Embed>` for videos or slide decks
 - `<Download>`

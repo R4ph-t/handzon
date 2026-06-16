@@ -28,6 +28,16 @@ Try checking the server logs first.
 </Hint>
 ```
 
+### Collapsible
+
+Use a collapsible section for optional or supporting detail the learner can skip. Unlike `Hint`, it carries no "answer" framing, so it suits asides, extra background, or long output. Add `open` to start expanded:
+
+```mdx
+<Collapsible title="Why does this work?">
+The runtime walks the tree and resolves each node in order.
+</Collapsible>
+```
+
 ### Steps and Step
 
 Use nested steps for sub-procedures inside a page:
@@ -48,6 +58,21 @@ Open <File path="src/app.ts" /> and add the route.
 ```
 
 Expressive Code's `title="..."` is also supported on code fences.
+
+### Figure
+
+Use `Figure` for images that need a border and an optional caption. Pass a string path (resolved against the site base) or an imported asset. Set `width` to constrain the image:
+
+```mdx
+<Figure
+  src="/screenshots/dashboard.png"
+  alt="The deploy dashboard after a successful build"
+  caption="The dashboard shows a green build once the deploy finishes."
+  width={640}
+/>
+```
+
+Plain markdown images (`![alt](src)`) also get the border, but only `Figure` renders a caption.
 
 ### Recap
 
