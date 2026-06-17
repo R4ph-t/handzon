@@ -14,7 +14,6 @@ import File from "../components/mdx/File.astro";
 import FileTree from "../components/mdx/FileTree.astro";
 import HelpMe from "../components/mdx/HelpMe.astro";
 import Hint from "../components/mdx/Hint.astro";
-import Icon from "../components/ui/Icon.astro";
 import Kbd from "../components/mdx/Kbd.astro";
 import Mermaid from "../components/mdx/Mermaid.astro";
 import Playground from "../components/mdx/Playground.astro";
@@ -27,6 +26,7 @@ import Tab from "../components/mdx/Tab.astro";
 import Tabs from "../components/mdx/Tabs.astro";
 import Terminal from "../components/mdx/Terminal.astro";
 import Track from "../components/mdx/Track.astro";
+import Icon from "../components/ui/Icon.astro";
 
 /**
  * The components map passed to <Content components={...} />. Every React
