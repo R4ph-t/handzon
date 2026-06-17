@@ -95,13 +95,18 @@ Static:
 
 - `<Callout type="info" | "tip" | "warn" | "danger">`
 - `<Hint>`
-- `<Collapsible title="..." open>`
+- `<Collapsible title="..." open icon="brain">` (icon optional; `icon` is a lucide icon name)
+- `<Icon name="rocket" />` for an inline lucide icon
 - `<Steps>` and `<Step>`
 - `<File>`
 - `<Figure src="..." alt="..." caption="..." width={640}>` for bordered images with optional captions. A `src` pointing at a co-located `assets/` file is optimized via `astro:assets` automatically; `public/` paths and remote URLs render as a plain image.
-- `<Recap>`
+- `<Recap items={[...]} icon="target">` (icon optional; lucide icon name, or `"none"` to hide the default checkmark)
 - `<Embed>` for videos or slide decks
 - `<Download>`
+- `<Button href="..." variant="primary | secondary | ghost" color="accent | info | success | warn | danger" icon="download">` for a call-to-action link or button; `icon` is a lucide icon name
+- `<Badge color="..." variant="soft | solid | outline">` for an inline status or version label
+- `<Kbd keys={["Cmd", "K"]}>` for keyboard shortcuts
+- `<Card title="..." href="..." icon="rocket">` and `<CardGrid>` for linked "next steps" cards; `icon` is a lucide icon name
 - `<Track>`
 
 Interactive:

@@ -1,7 +1,7 @@
 ---
 title: MDX basics
 duration: 5 min
-summary: The static components — Callout, Hint, Collapsible, Steps, Figure, File, Recap, Embed, Download.
+summary: The static components — Callout, Hint, Collapsible, Steps, Figure, File, Recap, Embed, Download, Button, Badge, Kbd, Card.
 heroMedia:
   kind: slides
   src: https://docs.google.com/presentation/d/1s11aQscp0cXVGX-jyIFv1gf52YFBXMq-wWSS5vIRUMQ/edit?slide=id.g3eeba9b965c_0_43#slide=id.g3eeba9b965c_0_43
@@ -41,13 +41,15 @@ The answer is 42.
 
 Use `Collapsible` for optional or supporting detail the learner can skip. Unlike `Hint`, it carries no "answer" framing, so it suits asides, extra background, or long output. Add `open` to start expanded.
 
+Add an `icon` (any [lucide](https://lucide.dev/icons/) icon name) before the title when it helps set the tone.
+
 ```mdx
-<Collapsible title="Why does this work?">
+<Collapsible title="Why does this work?" icon="brain">
 The runtime walks the tree and resolves each node in order.
 </Collapsible>
 ```
 
-<Collapsible title="Why does this work?">
+<Collapsible title="Why does this work?" icon="brain">
 The runtime walks the tree and resolves each node in order.
 </Collapsible>
 
@@ -141,13 +143,77 @@ Use `Embed` for hosted video or slides that should sit inside the lesson. Set `t
 
 <Checkpoint id="mdx-basics/demo-slide-deck" label="I see the demo slide deck on this page." />
 
+## Buttons
+
+Use `Button` for a call to action, like a download or an outbound link. Set `variant` for the style, `color` for the tone, and `icon` with any [lucide](https://lucide.dev/icons/) icon name. Links to `http` URLs open in a new tab.
+
+```mdx
+<Button href="/logo.svg" icon="download">Download the logo</Button>
+<Button href="https://lucide.dev/icons/" variant="secondary" icon="external-link">Browse icons</Button>
+<Button href="../03-interactive-components/" variant="ghost" color="info" icon="arrow-right">Next step</Button>
+```
+
+<Button href="/logo.svg" icon="download">Download the logo</Button>
+<Button href="https://lucide.dev/icons/" variant="secondary" icon="external-link">Browse icons</Button>
+<Button href="../03-interactive-components/" variant="ghost" color="info" icon="arrow-right">Next step</Button>
+
+## Badges
+
+Use `Badge` for a short inline label, such as a status or version. Set `color` for the tone and `variant` for the fill.
+
+```mdx
+This feature is <Badge color="success">New</Badge> and still <Badge color="warn" variant="solid">Beta</Badge>.
+```
+
+This feature is <Badge color="success">New</Badge> and still <Badge color="warn" variant="solid">Beta</Badge>, shipping in <Badge color="neutral" variant="outline">v2.1</Badge>.
+
+## Keyboard shortcuts
+
+Use `Kbd` to render keys. Pass `keys` for a combination, or a single key as children.
+
+```mdx
+Press <Kbd keys={["Cmd", "K"]} /> to search, or <Kbd>Esc</Kbd> to close.
+```
+
+Press <Kbd keys={["Cmd", "K"]} /> to search, or <Kbd>Esc</Kbd> to close.
+
+## Cards
+
+Use `Card` for "next steps" or related links, and wrap them in `CardGrid` for a responsive layout. Set `icon` with a lucide icon name.
+
+```mdx
+<CardGrid>
+  <Card title="Interactive components" href="../03-interactive-components/" icon="mouse-pointer-click">
+    Tabs, quizzes, playgrounds, and more.
+  </Card>
+  <Card title="Browse lucide icons" href="https://lucide.dev/icons/" icon="book-open">
+    Find an icon name for any component.
+  </Card>
+</CardGrid>
+```
+
+<CardGrid>
+  <Card title="Interactive components" href="../03-interactive-components/" icon="mouse-pointer-click">
+    Tabs, quizzes, playgrounds, and more.
+  </Card>
+  <Card title="Browse lucide icons" href="https://lucide.dev/icons/" icon="book-open">
+    Find an icon name for any component.
+  </Card>
+</CardGrid>
+
 ## Recap (end-of-step summary)
 
 ```mdx
 <Recap items={["You learned X", "You also learned Y"]} />
 ```
 
-<Recap items={[
+Pass `icon` with a [lucide](https://lucide.dev/icons/) icon name to swap the default checkmark, or `icon="none"` to drop it.
+
+```mdx
+<Recap icon="target" items={["You learned X", "You also learned Y"]} />
+```
+
+<Recap icon="target" items={[
   "Static components ship with zero JS",
   "Fenced code blocks support multi-language syntax via Shiki",
   "Recap belongs at the end of a step"

@@ -1,0 +1,35 @@
+---
+import { dynamicIconImports } from "lucide-react/dynamic";
+
+interface Props {
+  /** A lucide icon name in kebab-case, e.g. "lightbulb", "target", "brain". */
+  name: string;
+  size?: number;
+  strokeWidth?: number;
+  class?: string;
+}
+
+const { name, size = 16, strokeWidth, class: className } = Astro.props;
+
+/**
+ * Lazily load only the requested icon and server-render it to inline SVG.
+ * No client JS is shipped — the lucide React component is rendered statically
+ * at build/SSR time. Unknown names render nothing.
+ */
+const imports = dynamicIconImports as Record<
+  string,
+  () => Promise<{ default: (props: Record<string, unknown>) => unknown }>
+>;
+const loader = imports[name];
+const IconComponent = loader ? (await loader()).default : null;
+---
+{
+  IconComponent && (
+    <IconComponent
+      size={size}
+      strokeWidth={strokeWidth}
+      className={className}
+      aria-hidden="true"
+    />
+  )
+}

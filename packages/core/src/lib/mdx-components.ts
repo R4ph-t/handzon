@@ -1,4 +1,8 @@
+import Badge from "../components/mdx/Badge.astro";
+import Button from "../components/mdx/Button.astro";
 import Callout from "../components/mdx/Callout.astro";
+import Card from "../components/mdx/Card.astro";
+import CardGrid from "../components/mdx/CardGrid.astro";
 import Checkpoint from "../components/mdx/Checkpoint.astro";
 import Collapsible from "../components/mdx/Collapsible.astro";
 import CopyPrompt from "../components/mdx/CopyPrompt.astro";
@@ -10,6 +14,8 @@ import File from "../components/mdx/File.astro";
 import FileTree from "../components/mdx/FileTree.astro";
 import HelpMe from "../components/mdx/HelpMe.astro";
 import Hint from "../components/mdx/Hint.astro";
+import Icon from "../components/ui/Icon.astro";
+import Kbd from "../components/mdx/Kbd.astro";
 import Mermaid from "../components/mdx/Mermaid.astro";
 import Playground from "../components/mdx/Playground.astro";
 import Quiz from "../components/mdx/Quiz.astro";
@@ -30,8 +36,14 @@ import Track from "../components/mdx/Track.astro";
  */
 export function mdxComponents() {
   return {
+    Badge,
+    Button,
     Callout,
+    Card,
+    CardGrid,
     Hint,
+    Icon,
+    Kbd,
     Collapsible,
     Steps: StepsCmp,
     Step: StepCmp,

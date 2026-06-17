@@ -30,13 +30,23 @@ Try checking the server logs first.
 
 ### Collapsible
 
-Use a collapsible section for optional or supporting detail the learner can skip. Unlike `Hint`, it carries no "answer" framing, so it suits asides, extra background, or long output. Add `open` to start expanded:
+Use a collapsible section for optional or supporting detail the learner can skip. Unlike `Hint`, it carries no "answer" framing, so it suits asides, extra background, or long output. Add `open` to start expanded, and `icon` with a [lucide](https://lucide.dev/icons/) icon name to show a glyph before the title:
 
 ```mdx
-<Collapsible title="Why does this work?">
+<Collapsible title="Why does this work?" icon="brain">
 The runtime walks the tree and resolves each node in order.
 </Collapsible>
 ```
+
+### Icon
+
+Render an inline [lucide](https://lucide.dev/icons/) icon by name. Icons are server-rendered to static SVG, so they ship no client JS:
+
+```mdx
+Click the <Icon name="rocket" /> button to deploy.
+```
+
+`Collapsible` and `Recap` accept the same icon names through their `icon` prop.
 
 ### Steps and Step
 
@@ -88,6 +98,13 @@ Use a recap at the end of a step:
 ]} />
 ```
 
+Pass `icon` with a [lucide](https://lucide.dev/icons/) icon name to swap the default checkmark, or `icon="none"` to drop it:
+
+```mdx
+<Recap icon="target" items={["You shipped the feature"]} />
+<Recap icon="none" items={["No icon on this one"]} />
+```
+
 ### Embed
 
 Use embeds for inline video or slide decks:
@@ -108,6 +125,57 @@ Use downloads for stable files in `public/downloads/`:
 ```mdx
 <Download href="/downloads/starter.zip">Download the starter archive</Download>
 ```
+
+### Button
+
+Use a button for a prominent call to action, such as a download link or an outbound resource. Set `variant` for the visual style, `color` for the tone, and `icon` for a leading or trailing icon.
+
+```mdx
+<Button href="/downloads/starter.zip" icon="download">Download the starter</Button>
+<Button href="https://render.com/docs" variant="secondary" icon="external-link">Read the docs</Button>
+<Button href="/guides/tracks/" variant="ghost" color="info" icon="arrow-right">Next guide</Button>
+```
+
+The `variant` prop accepts `primary` (filled), `secondary` (outline), and `ghost` (text only). The `color` prop accepts `accent`, `info`, `success`, `warn`, and `danger`, and maps to theme tokens. The `icon` prop takes any [lucide](https://lucide.dev/icons/) icon name in kebab-case. Trailing icons like `external-link` and `arrow-right` sit on the right by default. Set `iconPosition` to override, and `size="sm"` for a compact button.
+
+A button with an `http` or `https` `href` opens in a new tab automatically. Omit `href` to render a plain `<button>` element.
+
+### Badge
+
+Use a badge for a short inline label, such as a status or version tag. Set `color` for the tone and `variant` for the fill style.
+
+```mdx
+<Badge color="success">New</Badge>
+<Badge color="warn" variant="solid">Beta</Badge>
+<Badge color="neutral" variant="outline">v2.1</Badge>
+```
+
+The `color` prop accepts `accent`, `info`, `success`, `warn`, `danger`, and `neutral`. The `variant` prop accepts `soft` (default), `solid`, and `outline`.
+
+### Kbd
+
+Use `Kbd` to render keyboard shortcuts. Pass `keys` for a combination, or a single key as children.
+
+```mdx
+Press <Kbd keys={["Cmd", "K"]} /> to open the command menu, or <Kbd>Esc</Kbd> to close it.
+```
+
+### Card and CardGrid
+
+Use cards for "next steps" or related links. Set `href` to make a card a link, `title` for the heading, and `icon` for a [lucide](https://lucide.dev/icons/) icon name. Wrap cards in `CardGrid` for a responsive layout.
+
+```mdx
+<CardGrid>
+  <Card title="Quick start" href="/guides/quick-start/" icon="rocket">
+    Get a tutorial running in two minutes.
+  </Card>
+  <Card title="Read the docs" href="https://render.com/docs" icon="book-open">
+    Browse the full reference.
+  </Card>
+</CardGrid>
+```
+
+A card with an `http` or `https` `href` opens in a new tab automatically and shows an outbound indicator. Set `columns` on `CardGrid` for a fixed column count; omit it for an auto-fit layout.
 
 ### Track
 

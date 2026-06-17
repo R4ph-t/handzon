@@ -1,0 +1,24 @@
+---
+interface Props {
+  /** Fixed column count. Omit for a responsive auto-fit layout. */
+  columns?: number;
+}
+
+const { columns } = Astro.props;
+const template = columns
+  ? `repeat(${columns}, minmax(0, 1fr))`
+  : "repeat(auto-fit, minmax(15rem, 1fr))";
+---
+
+<div class="hz-card-grid" style={`--card-grid-cols: ${template};`}>
+  <slot />
+</div>
+
+<style>
+  .hz-card-grid {
+    display: grid;
+    grid-template-columns: var(--card-grid-cols);
+    gap: 0.75rem;
+    margin: 1.25rem 0;
+  }
+</style>

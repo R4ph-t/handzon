@@ -1,0 +1,52 @@
+---
+interface Props {
+  /** Ordered keys in a shortcut, e.g. ["Cmd", "K"]. */
+  keys?: string[];
+}
+
+const { keys } = Astro.props;
+---
+
+<span class="hz-kbd">
+  {
+    keys && keys.length > 0 ? (
+      keys.map((key, i) => (
+        <>
+          {i > 0 && <span class="hz-kbd-sep" aria-hidden="true">+</span>}
+          <kbd class="hz-kbd-key">{key}</kbd>
+        </>
+      ))
+    ) : (
+      <kbd class="hz-kbd-key"><slot /></kbd>
+    )
+  }
+</span>
+
+<style>
+  .hz-kbd {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    vertical-align: middle;
+  }
+  .hz-kbd-key {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.4em;
+    padding: 0.1rem 0.4rem;
+    font-family: var(--font-mono);
+    font-size: 0.82em;
+    line-height: 1.3;
+    color: var(--color-fg);
+    background: var(--color-surface);
+    border: var(--border-default) solid var(--color-border-strong, var(--color-border));
+    border-bottom-width: 2px;
+    border-radius: var(--radius-sm);
+    white-space: nowrap;
+  }
+  .hz-kbd-sep {
+    color: var(--color-muted);
+    font-size: 0.8em;
+  }
+</style>

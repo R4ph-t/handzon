@@ -1,0 +1,72 @@
+---
+type BadgeColor = "accent" | "info" | "success" | "warn" | "danger" | "neutral";
+type BadgeVariant = "soft" | "solid" | "outline";
+
+interface Props {
+  color?: BadgeColor;
+  variant?: BadgeVariant;
+  label?: string;
+}
+
+const { color = "neutral", variant = "soft", label } = Astro.props;
+
+const colorVar = {
+  accent: "var(--color-accent)",
+  info: "var(--color-info)",
+  success: "var(--color-success)",
+  warn: "var(--color-warn)",
+  danger: "var(--color-danger)",
+  neutral: "var(--color-muted)",
+}[color];
+
+const solidFg =
+  color === "accent"
+    ? "var(--color-accent-fg)"
+    : color === "neutral"
+      ? "var(--color-bg)"
+      : "oklch(16% 0 0)";
+---
+
+<span
+  class="hz-badge"
+  data-variant={variant}
+  style={`--badge-color: ${colorVar}; --badge-fg: ${solidFg};`}
+>
+  <slot>{label}</slot>
+</span>
+
+<style>
+  .hz-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.1rem 0.45rem;
+    font-family: var(--font-sans);
+    font-size: 0.75em;
+    font-weight: 600;
+    line-height: 1.4;
+    letter-spacing: 0.01em;
+    border: var(--border-default) solid transparent;
+    border-radius: var(--radius-sm);
+    vertical-align: middle;
+    white-space: nowrap;
+  }
+
+  .hz-badge[data-variant="soft"] {
+    background: color-mix(in oklab, var(--badge-color) 16%, var(--color-bg));
+    color: var(--badge-color);
+    border-color: color-mix(in oklab, var(--badge-color) 36%, var(--color-border));
+  }
+
+  .hz-badge[data-variant="solid"] {
+    background: var(--badge-color);
+    color: var(--badge-fg);
+    border-color: var(--badge-color);
+  }
+
+  .hz-badge[data-variant="outline"] {
+    background: none;
+    color: var(--badge-color);
+    border-color: var(--badge-color);
+  }
+</style>

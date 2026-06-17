@@ -1,5 +1,11 @@
 # handzon-core
 
+## 0.17.5
+
+### Patch Changes
+
+- Add optional lucide icons to `Recap` and `Collapsible` via an `icon` prop (kebab-case icon name; `Recap` also accepts `icon="none"` to drop its default checkmark), and a new inline `<Icon name="..." />` component. Icons are server-rendered to static SVG and ship no client JS.
+
 ## 0.17.4
 
 ### Patch Changes

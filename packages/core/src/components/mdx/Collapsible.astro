@@ -1,9 +1,14 @@
 ---
+import Icon from "../ui/Icon.astro";
+
 interface Props {
   title?: string;
   open?: boolean;
+  /** Optional lucide icon name (kebab-case) shown before the title. */
+  icon?: string;
 }
-const { title = "Details", open = false } = Astro.props;
+const { title = "Details", open = false, icon } = Astro.props;
+const customIcon = icon && icon !== "none" ? icon : undefined;
 ---
 
 <details class="collapsible" open={open}>
@@ -11,6 +16,7 @@ const { title = "Details", open = false } = Astro.props;
     <svg class="collapsible-chevron" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
       <polyline points="9 18 15 12 9 6"></polyline>
     </svg>
+    {customIcon && <Icon name={customIcon} size={16} class="collapsible-icon" />}
     <span>{title}</span>
   </summary>
   <div class="collapsible-body"><slot /></div>
@@ -42,6 +48,11 @@ const { title = "Details", open = false } = Astro.props;
     flex-shrink: 0;
   }
   .collapsible[open] > summary .collapsible-chevron { transform: rotate(90deg); }
+  .collapsible-icon {
+    flex-shrink: 0;
+    font-size: 1em;
+    line-height: 1;
+  }
   .collapsible-body {
     padding: 0.6rem 0.9rem 0.7rem;
     border-top: var(--border-default) solid var(--color-border);
