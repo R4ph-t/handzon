@@ -1,5 +1,6 @@
 ---
 import { dynamicIconImports } from "lucide-react/dynamic";
+import { siDiscord, siGithub, siGitlab, siX, siYoutube } from "simple-icons";
 
 interface Props {
   /** A lucide icon name in kebab-case, e.g. "lightbulb", "target", "brain". */
@@ -22,14 +23,39 @@ const imports = dynamicIconImports as Record<
 >;
 const loader = imports[name];
 const IconComponent = loader ? (await loader()).default : null;
+
+/**
+ * Brand glyphs lucide no longer ships (e.g. "github") come from simple-icons.
+ * These are single filled paths on a 24x24 grid, so they render as a plain
+ * <svg> rather than a lucide stroke icon.
+ */
+const brandIcons: Record<string, { path: string }> = {
+  github: siGithub,
+  gitlab: siGitlab,
+  discord: siDiscord,
+  youtube: siYoutube,
+  x: siX,
+  twitter: siX,
+};
+const brand = IconComponent ? null : (brandIcons[name] ?? null);
 ---
 {
-  IconComponent && (
+  IconComponent ? (
     <IconComponent
       size={size}
       strokeWidth={strokeWidth}
       className={className}
       aria-hidden="true"
     />
-  )
+  ) : brand ? (
+    <svg
+      class={className}
+      viewBox="0 0 24 24"
+      width={size}
+      height={size}
+      fill="currentColor"
+      aria-hidden="true"
+      set:html={`<path d="${brand.path}"/>`}
+    />
+  ) : null
 }

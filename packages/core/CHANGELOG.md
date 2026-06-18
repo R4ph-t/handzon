@@ -1,5 +1,11 @@
 # handzon-core
 
+## 0.17.6
+
+### Patch Changes
+
+- Add a rehype plugin for safe external Markdown links and wire it into the default template.
+
 ## 0.17.5
 
 ### Patch Changes

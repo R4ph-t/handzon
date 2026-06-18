@@ -4,6 +4,7 @@ import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "astro/config";
 import expressiveCode from "astro-expressive-code";
 import auth from "auth-astro";
+import rehypeExternalLinks from "handzon-core/lib/rehype-external-links.ts";
 import rehypeMermaidPassthrough from "handzon-core/lib/rehype-mermaid-passthrough.ts";
 
 // Astro auto-loads `.env` into `import.meta.env`, but SSR/Node code
@@ -18,13 +19,14 @@ try {
 }
 
 // Markdown-level config (shared by .md and .mdx); EC auto-extends it.
+const SITE = process.env.SITE_URL ?? "http://localhost:4321";
 
 // Always run as a Node web service. Tier 1 (no Postgres) still ships every
 // page; the API routes return empty stubs when DATABASE_URL is unset. This
 // keeps the build simple — Astro 6 can't mix prerendered pages with
 // SSR-only API routes in static output (directory/file path collisions).
 export default defineConfig({
-  site: process.env.SITE_URL ?? "http://localhost:4321",
+  site: SITE,
   output: "server",
   adapter: (await import("@astrojs/node")).default({ mode: "standalone" }),
   server: {
@@ -100,6 +102,6 @@ export default defineConfig({
   },
   markdown: {
     syntaxHighlight: false,
-    rehypePlugins: [rehypeMermaidPassthrough],
+    rehypePlugins: [rehypeMermaidPassthrough, [rehypeExternalLinks, { site: SITE }]],
   },
 });

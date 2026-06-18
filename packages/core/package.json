@@ -1,6 +1,6 @@
 {
   "name": "handzon-core",
-  "version": "0.17.5",
+  "version": "0.17.6",
   "description": "Core framework for Handzon — layouts, components, content + AI libs, and server runtime (handlers, DB, auth, migration runner) consumed by Handzon scaffolds.",
   "publishConfig": {
     "access": "public"
@@ -70,8 +70,12 @@
     "@types/react": "^19.2.15",
     "@types/react-dom": "^19.2.3",
     "astro": "^6.3.5",
+    "rehype-stringify": "^10.0.1",
+    "remark-parse": "^11.0.0",
+    "remark-rehype": "^11.1.2",
     "tsx": "^4.22.3",
-    "typescript": "^6.0.3"
+    "typescript": "^6.0.3",
+    "unified": "^11.0.5"
   },
   "engines": {
     "node": ">=22.0.0"

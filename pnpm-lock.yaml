@@ -142,12 +142,24 @@ importers:
       astro:
         specifier: ^6.3.5
         version: 6.3.5(@types/node@25.9.1)(@upstash/redis@1.38.0)(jiti@2.7.0)(lightningcss@1.32.0)(rollup@4.60.4)(tsx@4.22.3)(yaml@2.9.0)
+      rehype-stringify:
+        specifier: ^10.0.1
+        version: 10.0.1
+      remark-parse:
+        specifier: ^11.0.0
+        version: 11.0.0
+      remark-rehype:
+        specifier: ^11.1.2
+        version: 11.1.2
       tsx:
         specifier: ^4.22.3
         version: 4.22.3
       typescript:
         specifier: ^6.0.3
         version: 6.0.3
+      unified:
+        specifier: ^11.0.5
+        version: 11.0.5
 
   packages/create-handzon:
     dependencies:
